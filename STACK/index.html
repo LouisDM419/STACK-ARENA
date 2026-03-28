@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STAR | StackArena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar fixed-top">
+        <div class="container nav-container">
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+            <div class="nav-links">
+                <a href="about.html">About</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="support.html">Support</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="login.html" class="btn btn-outline" id="btn-login-nav">Login</a>
+                <a href="signup.html" class="btn btn-primary" id="btn-signup-nav">Create Account</a>
+            </div>
+            <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
+                <span class="wallet-bal">1,000 SC</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <button class="btn-logout" onclick="simulateLogout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section" id="home">
+            <div class="hero-bg-overlay"></div>
+            <div class="container hero-container text-center">
+                <h1 class="hero-title">Compete. Rank Up. <span class="highlight-orange">Win.</span></h1>
+                <p class="hero-subtitle">Play competitive skill-based CODM matches and tournaments for real rewards.</p>
+                <div class="hero-actions">
+                    <a href="login.html" id="btn-find-match" class="btn btn-primary btn-large">Find Match</a>
+                    <a href="login.html" class="btn btn-outline btn-large">Join Tournament</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-strip">
+            <div class="container">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <i class="fas fa-users icon-blue"></i>
+                        <div class="stat-info">
+                            <span class="counter" id="stat-online" data-target="2184">0</span>
+                            <span class="stat-label">Players Online</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-gamepad icon-orange"></i>
+                        <div class="stat-info">
+                            <span class="counter" id="stat-matches" data-target="347">0</span>
+                            <span class="stat-label">Matches Live</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-money-bill-wave icon-gold"></i>
+                        <div class="stat-info">
+                            <span class="counter currency" id="stat-won" data-target="848500">0</span>
+                            <span class="stat-label">Won Today (?)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-actions-section">
+            <div class="container">
+                <div class="quick-actions-grid">
+                    <div class="quick-action-card border-blue" style="cursor: default;">
+                        <div class="qa-icon icon-blue"><i class="fas fa-gift"></i></div>
+                        <h3>Play Free Match</h3>
+                        <p>Use bonus Stack Coins to practice with zero financial risk.</p>
+                    </div>
+                    <div class="quick-action-card border-orange highlight-card" style="cursor: default;">
+                        <div class="qa-icon icon-orange"><i class="fas fa-fire"></i></div>
+                        <h3>Play Ranked Match</h3>
+                        <p>Stake real Stack Coins and compete for real rewards.</p>
+                    </div>
+                    <div class="quick-action-card border-gold" style="cursor: default;">
+                        <div class="qa-icon icon-gold"><i class="fas fa-trophy"></i></div>
+                        <h3>Tournaments</h3>
+                        <p>Enter structured competitions with large prize pools.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works-section" id="how-it-works">
+            <div class="container text-center">
+                <h2>How <span class="highlight-blue">StackArena</span> Works</h2>
+                <div class="steps-horizontal mt-4">
+                    <a href="signup.html" class="step-h-card">
+                        <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                        <h4>Create Account</h4><p>Sign up & connect ID</p>
+                    </a>
+                    <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                    <a href="login.html" class="step-h-card">
+                        <div class="step-icon"><i class="fas fa-wallet"></i></div>
+                        <h4>Deposit SC</h4><p>Add funds to wallet</p>
+                    </a>
+                    <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                    <a href="login.html" class="step-h-card">
+                        <div class="step-icon"><i class="fas fa-search"></i></div>
+                        <h4>Find Match</h4><p>Challenge or accept</p>
+                    </a>
+                    <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                    <a href="login.html" class="step-h-card">
+                        <div class="step-icon"><i class="fas fa-gamepad"></i></div>
+                        <h4>Play Match</h4><p>Battle in-game</p>
+                    </a>
+                    <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+                    <a href="login.html" class="step-h-card">
+                        <div class="step-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                        <h4>Withdraw</h4><p>Claim real rewards</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Matches removed -->
+
+        <section class="ranking-system-section">
+            <div class="container text-center">
+                <h2>Climb the <span class="highlight-gold">Arena Ranks</span></h2>
+                <div class="ranks-horizontal mt-4">
+                    <div class="rank-badge-item"><i class="fas fa-star-half-alt text-muted"></i><span>Rookie</span></div>
+                    <div class="rank-badge-item"><i class="fas fa-star icon-blue"></i><span>Challenger</span></div>
+                    <div class="rank-badge-item"><i class="fas fa-khanda icon-blue"></i><span>Gladiator</span></div>
+                    <div class="rank-badge-item"><i class="fas fa-medal icon-orange"></i><span>Elite</span></div>
+                    <div class="rank-badge-item"><i class="fas fa-crown icon-gold"></i><span>Conqueror</span></div>
+                    <div class="rank-badge-item giant"><i class="fas fa-gem icon-gold glow-gold"></i><span class="highlight-gold">Arena King</span></div>
+                </div>
+                <div class="progress-showcase">
+                    <h3>Example Progression: <span class="highlight-blue">Elite I to Elite II</span></h3>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" style="width: 65%;"></div>
+                        <div class="progress-marker" style="left: 0%;">E I</div>
+                        <div class="progress-marker" style="left: 65%;">E II</div>
+                        <div class="progress-marker" style="left: 100%;">E III</div>
+                    </div>
+                    <div class="points-note">
+                        <span class="win-note"><i class="fas fa-arrow-up"></i> Match Win: +40 Ranking Points</span>
+                        <span class="divider-dot">•</span>
+                        <span class="loss-note"><i class="fas fa-arrow-down"></i> Match Loss: -25 Ranking Points</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="trust-security-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2>Fair Play & <span class="highlight-blue">Security</span></h2>
+                </div>
+                <div class="trust-grid">
+                    <div class="trust-block">
+                        <div class="tb-icon icon-blue"><i class="fas fa-image"></i></div>
+                        <h4>Screenshot Verification</h4>
+                        <p>Matches are verified via screenshots to prevent false reporting.</p>
+                    </div>
+                    <div class="trust-block">
+                        <div class="tb-icon icon-orange"><i class="fas fa-user-shield"></i></div>
+                        <h4>Active Moderators</h4>
+                        <p>Disputes are strictly handled by our real-human moderation team.</p>
+                    </div>
+                    <div class="trust-block">
+                        <div class="tb-icon icon-gold"><i class="fas fa-lock"></i></div>
+                        <h4>Secure Transactions</h4>
+                        <p>Wallet funds are locked via smart escrows during matches.</p>
+                    </div>
+                    <div class="trust-block">
+                        <div class="tb-icon text-red" style="color:#ff4444;"><i class="fas fa-ban"></i></div>
+                        <h4>Anti-Cheat Monitoring</h4>
+                        <p>We actively monitor match analytics to permanently ban cheaters.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="community-section">
+            <div class="container text-center">
+                <h2>Join The <span class="highlight-orange">Community</span></h2>
+                <div class="social-links-large mt-4">
+                    <a href="https://discord.gg/euTYSX4N" target="_blank" class="social-brand discord"><i class="fab fa-discord"></i><span>Discord</span></a>
+                    <a href="https://whatsapp.com/channel/0029VbDKTEm6mYPJkugum61w" target="_blank" class="social-brand whatsapp"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+                    <a href="https://www.instagram.com/stack_arena?igsh=bDBrcDRxczBmNGds&utm_source=qr" target="_blank" class="social-brand instagram"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+                    <a href="https://www.tiktok.com/@stack.arena.star?_r=1&_t=ZN-94gH1eFRBbS" target="_blank" class="social-brand tiktok"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="container text-center">
+                <h2 class="giant-cta-title">ENTER THE ARENA</h2>
+                <p>Compete with players across Africa and prove your skill.</p>
+                <div class="cta-actions mt-4" style="justify-content:center; display:flex; gap:20px;">
+                    <button class="btn btn-primary btn-large" onclick="window.location.href='signup.html'">Create Account</button>
+                    <button class="btn btn-outline btn-large" onclick="window.location.href='login.html'">Find Match</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <a href="about.html">About</a><a href="faq.html">FAQ</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="support.html">Support</a><a href="mailto:thestackarena@gmail.com">thestackarena@gmail.com</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="fair-play.html">Fair Play Policy</a><a href="responsible-gaming.html">Responsible Gaming</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content text-center">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <h2 id="modal-title">Sign In Required</h2>
+            <div class="mt-4">
+                <button class="btn btn-primary full-width" onclick="simulateLogin()">Simulate Login</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast">Welcome to the Lobby!</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
