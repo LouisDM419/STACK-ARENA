@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Play Policy | STAR StackArena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar fixed-top scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+            <div class="nav-links">
+                <a href="about.html">About</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="support.html">Support</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline" id="btn-login-nav" onclick="handleAuthRoute(event, 'login')">Login</a>
+                <a href="#" class="btn btn-primary" id="btn-signup-nav" onclick="handleAuthRoute(event, 'signup')">Create Account</a>
+            </div>
+            <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
+                <span class="wallet-bal">1,000 SC</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <button class="btn-logout" onclick="simulateLogout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Fair Play Policy</h1>
+                <p>Stack Arena | STAR</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <p>Stack Arena is built on the principles of fair competition, integrity, and respect. All players are expected to compete honestly and uphold the spirit of competitive gaming. By using Stack Arena, you agree to follow the rules outlined in this Fair Play Policy.</p>
+
+            <h3>1. Fair Competition</h3>
+            <p>All matches on Stack Arena must be played fairly and without manipulation. Players must rely solely on their own skill and gameplay ability. Any attempt to gain an unfair advantage will result in penalties.</p>
+
+            <h3>2. Prohibited Conduct</h3>
+            <p>The following actions are strictly prohibited:</p>
+            <ul>
+                <li><strong>Cheating:</strong> Using any third-party tools or software that provide an unfair advantage (Hacks, Aimbots, Modded game clients, Scripts).</li>
+                <li><strong>Match Fixing:</strong> Players must not collude with others to manipulate match outcomes.</li>
+                <li><strong>Account Sharing:</strong> Accounts must be used only by the registered owner.</li>
+                <li><strong>Exploiting Platform Bugs:</strong> Players must not exploit technical errors or system loopholes.</li>
+                <li><strong>Harassment & Abuse:</strong> Players must treat others with respect. Hate speech, toxic conduct, and threats are not tolerated.</li>
+            </ul>
+
+            <h3>3. Match Result Verification</h3>
+            <p>Stack Arena may verify match outcomes using player result confirmations, match screenshots, gameplay recordings, and player reports. If inconsistencies arise, moderators may review the match before awarding a result.</p>
+
+            <h3>4. Disputes</h3>
+            <p>If a dispute occurs between players, a report may be submitted through the platform. Evidence may be requested, and Stack Arena moderators will review the case. The platform's decision will be final and binding.</p>
+
+            <h3>5. Penalties for Violations</h3>
+            <p>Violating this policy may result in match forfeiture, loss of rewards, temporary suspension, or permanent account ban. Severe violations may also result in funds being withheld.</p>
+
+            <h3>6. Platform Integrity</h3>
+            <p>Stack Arena continuously monitors gameplay activity to maintain a fair environment using automated security checks and manual reviews by moderators.</p>
+
+            <h3>7. Reporting Violations</h3>
+            <p>If you suspect cheating or unfair behavior, please report it to our support team: <a href="mailto:support@playstackarena.com" class="highlight-orange">support@playstackarena.com</a>. Reports help us maintain a safe and fair competitive environment.</p>
+
+            <h3>8. Our Commitment</h3>
+            <p>Stack Arena is committed to building a competitive gaming ecosystem based on trust, fairness, and skill. Players who respect these principles help strengthen the community and elevate the level of competition.</p>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <p>&copy; 2026 StackArena. All rights reserved. | <a href="index.html">Back to Home</a></p>
+            </div>
+        </div>
+    </footer>
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content text-center">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <h2 id="modal-title">Sign In Required</h2>
+            <div class="mt-4">
+                <button class="btn btn-primary full-width" onclick="simulateLogin()">Simulate Login</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast">Welcome to the Lobby!</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
