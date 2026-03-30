@@ -1,0 +1,404 @@
+const appState = {
+    currentUser: null,
+    mode: "RANKED", // REAL -> RANKED, BONUS -> PRACTICE (backend maps)
+    currentView: "lobby",
+    lobbyFilter: "Pending",
+    currentMatchId: null,
+    myMatches: [],
+    openMatches: []
+};
+
+const app = {
+    async init() {
+        try {
+            const profile = await window.api.myProfile();
+            appState.currentUser = profile;
+            this.updateBalances();
+            await this.refreshMatches();
+            this.navigate('lobby');
+        } catch (e) {
+            console.error(e);
+            this.showToast("Failed to authenticate session.", "error");
+        }
+    },
+
+    showToast(msg, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `background: rgba(14, 18, 26, 0.95); backdrop-filter: blur(10px); border: 1px solid ${type === 'error' ? '#ff4444' : '#00C851'}; border-radius: 8px; padding: 15px 20px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 15px; animation: slideInRight 0.3s ease;`;
+        toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-times-circle text-red' : 'fa-check-circle text-green'}"></i> <span>${msg}</span>`;
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'fadeOutRight 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    },
+
+    updateBalances() {
+        if(!appState.currentUser) return;
+        document.getElementById('header-real-bal').innerText = appState.currentUser.realSc;
+        document.getElementById('lobby-real-bal').innerText = appState.currentUser.realSc;
+        document.getElementById('lobby-bonus-bal').innerText = appState.currentUser.bonusSc;
+    },
+
+    async refreshMatches() {
+        try {
+            appState.myMatches = await window.api.myMatches() || [];
+            appState.openMatches = await window.api.openMatches() || [];
+        } catch(e) {
+            console.error("Failed to load matches", e);
+        }
+    },
+
+    navigate(view) {
+        document.querySelectorAll('.pg-view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-' + view).classList.add('active');
+        appState.currentView = view;
+        
+        if (view === 'lobby') {
+            this.refreshMatches().then(() => this.renderLobby());
+        }
+        if (view === 'join') {
+            this.refreshMatches().then(() => this.renderJoinFeed());
+        }
+    },
+
+    toggleMode(mode) {
+        appState.mode = mode === 'REAL' ? 'RANKED' : 'PRACTICE';
+        if (mode === 'REAL') {
+            document.getElementById('tab-real-matches').classList.add('active');
+            document.getElementById('tab-bonus-matches').classList.remove('active');
+            document.getElementById('context-real').style.display = 'block';
+            document.getElementById('context-bonus').style.display = 'none';
+        } else {
+            document.getElementById('tab-real-matches').classList.remove('active');
+            document.getElementById('tab-bonus-matches').classList.add('active');
+            document.getElementById('context-real').style.display = 'none';
+            document.getElementById('context-bonus').style.display = 'block';
+        }
+        this.renderLobby();
+    },
+
+    setLobbyFilter(filter) {
+        appState.lobbyFilter = filter;
+        document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('filter-' + filter.toLowerCase()).classList.add('active');
+        this.renderLobby();
+    },
+
+    getBadgeClass(status) {
+        switch (status) {
+            case 'OPEN': return 'badge-pending';
+            case 'READY_CHECK': return 'badge-accepted';
+            case 'STARTING': return 'badge-pending';
+            case 'IN_PROGRESS': return 'badge-awaiting';
+            case 'COMPLETED': return 'badge-completed';
+            case 'DISPUTED': return 'badge-disputed';
+            case 'CANCELLED': return 'badge-disputed';
+            default: return 'badge-pending';
+        }
+    },
+
+    statusIndicator(status) {
+        if (status === 'OPEN') return 'PENDING';
+        if (status === 'READY_CHECK') return 'ACTION REQUIRED';
+        if (status === 'STARTING') return 'JOINED';
+        if (status === 'IN_PROGRESS') return 'IN PROGRESS';
+        if (status === 'COMPLETED') return 'COMPLETED';
+        if (status === 'DISPUTED') return 'DISPUTED';
+        if (status === 'CANCELLED') return 'CANCELLED';
+        return status;
+    },
+
+    renderMatchCard(match, isJoinView = false) {
+        const isHost = match.host && appState.currentUser && match.host.id === appState.currentUser.id;
+        let oppName = "Waiting...";
+        if(isHost && match.guest) oppName = match.guest.gamerTag;
+        if(!isHost && match.host) oppName = match.host.gamerTag;
+
+        const badgeCls = this.getBadgeClass(match.status);
+        const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+        const pot = match.entryFeeSc * 2;
+        const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
+
+        let btnHtml = '';
+        if (isJoinView) {
+            btnHtml = `<button class="btn btn-primary full-width mt-3" onclick="app.joinMatch('${match.id}')">Join Match</button>`;
+        } else {
+            btnHtml = `<button class="btn btn-outline full-width mt-3" onclick="app.viewMatchDetails('${match.id}')">View Match</button>`;
+        }
+
+        return `
+        <div class="match-card-h premium" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px; background: rgba(20, 20, 30, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                <div>
+                    <div style="font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 5px;">STAR-${match.id}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Opponent: <strong style="color:#fff;">${oppName}</strong></div>
+                </div>
+                <div style="text-align: right;">
+                    <span class="status-badge ${badgeCls}" style="font-size: 0.75rem;">${this.statusIndicator(match.status)}</span>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-users"></i> ${match.guest ? '2/2' : '1/2'} Players</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center;">
+                    <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Entry</span>
+                    <strong style="color: #fff; font-size: 1.1rem;">${match.entryFeeSc} ${currency}</strong>
+                </div>
+                <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,215,0,0.15);">
+                    <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Total Reward</span>
+                    <strong style="color: var(--accent-gold); font-size: 1.1rem;">${reward} ${currency}</strong>
+                </div>
+            </div>
+            ${btnHtml}
+        </div>`;
+    },
+
+    renderLobby() {
+        let matches = appState.myMatches.filter(m => m.matchType === appState.mode);
+
+        if (appState.lobbyFilter === 'Pending') {
+            matches = matches.filter(m => ['OPEN', 'STARTING'].includes(m.status));
+        } else if (appState.lobbyFilter === 'Awaiting') {
+            matches = matches.filter(m => ['READY_CHECK', 'IN_PROGRESS'].includes(m.status));
+        } else if (appState.lobbyFilter === 'Successful') {
+            matches = matches.filter(m => ['COMPLETED', 'DISPUTED', 'CANCELLED'].includes(m.status));
+        }
+
+        const feed = document.getElementById('my-matches-feed');
+        if (matches.length > 0) {
+            feed.innerHTML = matches.map(m => this.renderMatchCard(m)).join('');
+        } else {
+            feed.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 50px 20px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; color: var(--text-muted);">No matches found in this category.</div>`;
+        }
+    },
+
+    updateCreateCalculations() {
+        const stake = parseInt(document.getElementById('create-stake').value) || 0;
+        const isReal = appState.mode === 'RANKED';
+        document.getElementById('create-currency-lbl').innerText = isReal ? 'SC' : 'Bonus SC';
+
+        const pot = stake * 2;
+        const fee = isReal ? Math.floor(pot * 0.1) : 0;
+        const reward = pot - fee;
+
+        document.getElementById('create-calc-pool').innerText = pot + (isReal ? ' SC' : ' Bonus SC');
+        document.getElementById('create-fee-row').style.display = isReal ? 'flex' : 'none';
+        document.getElementById('create-calc-fee').innerText = `-${fee} SC`;
+        document.getElementById('create-calc-reward').innerText = reward + (isReal ? ' SC' : ' Bonus SC');
+    },
+
+    async submitCreateMatch() {
+        const stakeInt = parseInt(document.getElementById('create-stake').value);
+        const rulesVal = document.getElementById('create-rules').value.trim();
+        const roomIdVal = document.getElementById('create-room-id').value.trim();
+        const gameTitle = document.getElementById('create-game').value;
+
+        if (!rulesVal) return this.showToast("Please provide Match Rules/Description", "error");
+        if (isNaN(stakeInt) || stakeInt < 50) return this.showToast("Min stake is 50", "error");
+
+        try {
+            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, "");
+            this.showToast("Match created successfully!");
+            
+            document.getElementById('create-room-id').value = '';
+            document.getElementById('create-rules').value = '';
+            
+            this.setLobbyFilter('Pending');
+            this.navigate('lobby');
+        } catch (e) {
+             this.showToast("Error creating match: " + e.message, "error");
+        }
+    },
+
+    renderJoinFeed() {
+        const search = document.getElementById('join-search').value.toLowerCase();
+        let openMatches = appState.openMatches.filter(m => m.matchType === appState.mode);
+
+        if (search) {
+            openMatches = openMatches.filter(m => m.id.toLowerCase().includes(search) || (m.host && m.host.gamerTag.toLowerCase().includes(search)));
+        }
+
+        const feed = document.getElementById('join-matches-feed');
+        if (openMatches.length > 0) {
+            feed.innerHTML = openMatches.map(m => this.renderMatchCard(m, true)).join('');
+        } else {
+            feed.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 50px 20px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; color: var(--text-muted);">No open public matches available right now.</div>`;
+        }
+    },
+
+    async joinMatch(matchId) {
+        try {
+            await window.api.joinMatch(matchId);
+            this.showToast("Joined match successfully!");
+            appState.currentMatchId = matchId;
+            await this.refreshMatches();
+            this.viewMatchDetails(matchId);
+        } catch (e) {
+            this.showToast("Failed to join match: " + e.message, "error");
+        }
+    },
+
+    async viewMatchDetails(matchId) {
+        appState.currentMatchId = matchId;
+        const match = appState.myMatches.find(m => m.id === matchId) || appState.openMatches.find(m => m.id === matchId);
+        if (!match) return;
+
+        const isHost = match.host && appState.currentUser && match.host.id === appState.currentUser.id;
+
+        document.getElementById('details-match-id').innerText = match.id;
+        document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
+        document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
+
+        let subStatus = "";
+        if (match.status === 'OPEN') subStatus = "Waiting for an opponent...";
+        if (match.status === 'STARTING') subStatus = isHost ? "Opponent found. Enter Room ID." : "Waiting for Host to create room...";
+        if (match.status === 'READY_CHECK') subStatus = "Room created. Please ready up and join.";
+        if (match.status === 'IN_PROGRESS') subStatus = "Match in progress. Submit result when done.";
+        if (match.status === 'COMPLETED') subStatus = `Match Completed.`;
+        document.getElementById('details-sub-status').innerText = subStatus;
+
+        document.getElementById('p1-username').innerText = match.host ? match.host.gamerTag : "Host";
+        if (match.guest) {
+            document.getElementById('p2-username').innerText = match.guest.gamerTag;
+            document.getElementById('p2-avatar-container').classList.add('ready');
+            document.getElementById('p2-avatar-container').classList.remove('waiting');
+            document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
+        } else {
+            document.getElementById('p2-username').innerText = "Waiting...";
+            document.getElementById('p2-avatar-container').classList.remove('ready');
+            document.getElementById('p2-avatar-container').classList.add('waiting');
+            document.getElementById('p2-avatar-icon').className = "fas fa-question text-muted";
+        }
+
+        document.getElementById('details-game').innerText = match.gameTitle;
+        document.getElementById('details-stake').innerText = match.entryFeeSc + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+        const pot = match.entryFeeSc * 2;
+        const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
+        document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+        
+        const roomCard = document.getElementById('details-room-card');
+        if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+            roomCard.style.display = 'block';
+            document.getElementById('details-room-id').innerText = match.roomId || "N/A";
+            document.getElementById('details-room-pass').innerText = "Hidden";
+        } else {
+            roomCard.style.display = 'none';
+        }
+
+        this.renderActionArea(match, isHost);
+        this.navigate('match-details');
+    },
+
+    renderActionArea(match, isHost) {
+        const area = document.getElementById('details-action-area');
+        let html = "";
+
+        if (match.status === 'OPEN') {
+            html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
+                    <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
+        }
+        else if (match.status === 'STARTING') {
+             if(isHost) {
+                 html = `
+                    <div class="pg-form-group text-left" style="margin-bottom: 10px;">
+                        <label>Enter Room ID</label>
+                        <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
+                    </div>
+                    <button class="btn btn-primary" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
+                    `;
+             } else {
+                  html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
+             }
+        }
+        else if (match.status === 'READY_CHECK') {
+            html = `
+                <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
+                <button class="btn btn-primary" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+            `;
+        }
+        else if (match.status === 'IN_PROGRESS') {
+            html = `
+                <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
+                <div style="display:flex; gap:10px; justify-content:center;">
+                    <button class="btn btn-primary" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
+                    <button class="btn btn-outline" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
+                </div>
+            `;
+        }
+        else if (match.status === 'COMPLETED') {
+            html = `
+                <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
+                <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
+                <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+            `;
+        }
+        else if (match.status === 'DISPUTED') {
+            html = `
+                <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
+                <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+                <p style="color:var(--text-muted);">An admin is reviewing the provided screenshots.</p>
+            `;
+        }
+
+        area.innerHTML = html;
+    },
+
+    async updateRoomId(matchId) {
+        const val = document.getElementById('update-room-id-val').value;
+        if(!val) return this.showToast("Room ID required.", "error");
+        try {
+            await window.api.updateRoomId(matchId, val);
+            this.showToast("Room ID updated!");
+            await this.refreshMatches();
+            this.viewMatchDetails(matchId);
+        } catch(e) {
+            this.showToast("Failed to update ID: " + e.message, "error");
+        }
+    },
+
+    async readyUp(matchId) {
+        try {
+            await window.api.readyUp(matchId);
+            this.showToast("You are set as Ready.");
+            await this.refreshMatches();
+            this.viewMatchDetails(matchId);
+        } catch(e) {
+             this.showToast("Failed to ready up: " + e.message, "error");
+        }
+    },
+
+    async submitResult(matchId, claimedWin) {
+        try {
+             await window.api.reportMatchResult(matchId, claimedWin);
+             this.showToast("Result submitted.");
+             
+             // Update player balance immediately by refreshing user profile
+             const profile = await window.api.myProfile();
+             if (profile) {
+                 appState.currentUser = profile;
+                 this.updateBalances();
+             }
+             
+             await this.refreshMatches();
+             this.viewMatchDetails(matchId);
+        } catch(e) {
+             this.showToast("Failed to submit result: " + e.message, "error");
+        }
+    },
+
+    async cancelMatch(matchId) {
+        try {
+            await window.api.cancelMatch(matchId);
+            this.showToast("Match cancelled.");
+            await this.refreshMatches();
+            this.viewMatchDetails(matchId);
+        } catch(e) {
+             this.showToast("Failed to cancel: " + e.message, "error");
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    app.init();
+});
