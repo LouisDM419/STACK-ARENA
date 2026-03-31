@@ -210,9 +210,11 @@
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('password').value;
             const gamerTag = document.getElementById('username').value.trim();
+            const fullname = document.getElementById('fullname').value.trim();
+            const gender = document.getElementById('gender').value;
 
             try {
-                const result = await window.api.registerUser(email, pass, gamerTag);
+                const result = await window.api.registerUser(email, pass, gamerTag, fullname, gender);
                 console.log("Signup successful", result);
                 window.location.href = 'dashboard.html';
             } catch (err) {

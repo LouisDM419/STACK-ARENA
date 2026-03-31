@@ -12,15 +12,15 @@ async function initSessionCheck() {
                 const btnLoginNav = document.getElementById('btn-login-nav');
                 const btnSignupNav = document.getElementById('btn-signup-nav');
                 const profileNav = document.getElementById('user-profile-nav');
-                
+
                 if (btnLoginNav) btnLoginNav.style.display = 'none';
                 if (btnSignupNav) btnSignupNav.style.display = 'none';
                 if (profileNav) {
                     profileNav.style.display = 'flex';
                     const nameEl = profileNav.querySelector('.profile-name');
-                    if(nameEl) nameEl.innerText = profile.gamerTag;
+                    if (nameEl) nameEl.innerText = profile.gamerTag;
                     const balEl = profileNav.querySelector('.profile-bal');
-                    if(balEl) balEl.innerText = `${profile.realSc} SC`;
+                    if (balEl) balEl.innerText = `${profile.realSc} SC`;
                 }
                 return true;
             }
@@ -35,23 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
     initSessionCheck();
     // 1. Counter Animation for Stats Strip
     const counters = document.querySelectorAll('.counter');
-    const speed = 250; 
+    const speed = 250;
 
     const animateCounters = () => {
         counters.forEach(counter => {
             const updateCount = () => {
                 const targetStr = counter.getAttribute('data-target');
-                if(!targetStr) return;
-                
+                if (!targetStr) return;
+
                 const target = +targetStr;
                 const currentText = counter.innerText.replace(/,/g, '');
                 const count = +currentText;
-                
+
                 const inc = target / speed;
 
                 if (count < target) {
                     let nextCount = Math.ceil(count + inc);
-                    if(counter.classList.contains('currency')) {
+                    if (counter.classList.contains('currency')) {
                         counter.innerText = nextCount.toLocaleString();
                     } else {
                         counter.innerText = nextCount.toLocaleString();
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Modal logic
     const closeBtn = document.getElementById('close-modal');
-    if(closeBtn) {
+    if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             document.getElementById('auth-modal').classList.remove('active');
         });
@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Routing Logic & Authentication
 function handleAuthRoute(event, action) {
-    if(event) event.preventDefault();
-    
+    if (event) event.preventDefault();
+
     if (action === 'signup') {
         window.location.href = 'signup.html';
         return;
@@ -139,12 +139,12 @@ function executeLogout() {
 
 function showToast(message, success = true) {
     const toast = document.getElementById('toast');
-    if(!toast) return;
-    
+    if (!toast) return;
+
     toast.innerText = message;
     toast.style.background = success ? '#25D366' : '#ff4444';
     toast.classList.add('show');
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -154,10 +154,10 @@ function showToast(message, success = true) {
 function toggleNotifications() {
     const dropdown = document.getElementById('notification-dropdown');
     let overlay = document.querySelector('.notif-overlay');
-    
-    if(dropdown) {
+
+    if (dropdown) {
         dropdown.classList.toggle('active');
-        
+
         if (dropdown.classList.contains('active')) {
             if (!overlay) {
                 overlay = document.createElement('div');
@@ -185,7 +185,7 @@ document.addEventListener('click', (e) => {
     const notifWrapper = document.querySelector('.notification-wrapper');
     const dropdown = document.getElementById('notification-dropdown');
     let overlay = document.querySelector('.notif-overlay');
-    
+
     if (dropdown && dropdown.classList.contains('active') && notifWrapper && !notifWrapper.contains(e.target)) {
         dropdown.classList.remove('active');
         if (overlay) {
@@ -201,10 +201,10 @@ document.addEventListener('click', (e) => {
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     let overlay = document.querySelector('.sidebar-overlay');
-    
+
     if (sidebar) {
         sidebar.classList.toggle('sidebar-open');
-        
+
         if (sidebar.classList.contains('sidebar-open')) {
             if (!overlay) {
                 overlay = document.createElement('div');
@@ -241,15 +241,15 @@ let currentMatchType = 'ranked'; // 'practice', 'ranked', 'hybrid'
 
 function openCreateMatch() {
     const modal = document.getElementById('create-match-modal');
-    if(modal) modal.classList.add('active');
-    
+    if (modal) modal.classList.add('active');
+
     // Auto Selection Engine
     if (playerState.realBalance === 0 && playerState.bonusBalance > 0) {
         selectMatchType('practice');
     } else {
         selectMatchType('ranked');
     }
-    
+
     // Hybrid Mode visibility
     const hybridCard = document.getElementById('type-card-hybrid');
     if (hybridCard) {
@@ -269,7 +269,7 @@ function openCreateMatch() {
             banner.style.display = 'none';
         }
     }
-    
+
     // Limit Check UI
     const limitWarning = document.getElementById('cm-limit-warning');
     if (limitWarning) {
@@ -282,7 +282,7 @@ function openCreateMatch() {
 
     // Reset Waiting state just in case
     const waitState = document.getElementById('cm-waiting-state');
-    if(waitState) waitState.classList.remove('active');
+    if (waitState) waitState.classList.remove('active');
 
     calculateSummary();
 }
@@ -291,8 +291,8 @@ function selectMatchType(type) {
     currentMatchType = type;
     document.querySelectorAll('.cm-type-card').forEach(c => c.classList.remove('active'));
     const targetCard = document.getElementById('type-card-' + type);
-    if(targetCard) targetCard.classList.add('active');
-    
+    if (targetCard) targetCard.classList.add('active');
+
     // Locked Earnings Notice
     const notice = document.getElementById('locked-earnings-notice');
     if (notice) {
@@ -302,37 +302,37 @@ function selectMatchType(type) {
             notice.style.display = 'none';
         }
     }
-    
+
     // Dynamic Button Text
     const btn = document.getElementById('btn-submit-challenge');
-    if(btn) {
-        if(type === 'practice') btn.innerHTML = 'Create Practice Match';
-        if(type === 'ranked') btn.innerHTML = 'Create Ranked Match';
-        if(type === 'hybrid') btn.innerHTML = 'Create Hybrid Match';
+    if (btn) {
+        if (type === 'practice') btn.innerHTML = 'Create Practice Match';
+        if (type === 'ranked') btn.innerHTML = 'Create Ranked Match';
+        if (type === 'hybrid') btn.innerHTML = 'Create Hybrid Match';
     }
-    
+
     calculateSummary();
 }
 
 function closeCreateMatch() {
     const modal = document.getElementById('create-match-modal');
-    if(modal) modal.classList.remove('active');
-    
+    if (modal) modal.classList.remove('active');
+
     const btn = document.getElementById('btn-submit-challenge');
-    if(btn) btn.classList.remove('btn-loading');
-    
+    if (btn) btn.classList.remove('btn-loading');
+
     const stakeInput = document.getElementById('cm-stake-input');
     if (stakeInput) stakeInput.disabled = false;
-    
+
     const waitState = document.getElementById('cm-waiting-state');
-    if(waitState) waitState.classList.remove('active');
+    if (waitState) waitState.classList.remove('active');
 }
 
 function adjustStake(amount) {
     const stakeInput = document.getElementById('cm-stake-input');
     if (!stakeInput) return;
     let current = parseInt(stakeInput.value);
-    if(isNaN(current)) current = 0;
+    if (isNaN(current)) current = 0;
     stakeInput.value = Math.max(0, current + amount);
     calculateSummary();
 }
@@ -344,7 +344,7 @@ function setQuickStake(amount) {
     calculateSummary();
 }
 
-document.addEventListener('input', function(e) {
+document.addEventListener('input', function (e) {
     if (e.target && e.target.id === 'cm-stake-input') {
         calculateSummary();
     }
@@ -356,32 +356,32 @@ function calculateSummary() {
     let val = parseInt(stakeInput.value);
     const submitBtn = document.getElementById('btn-submit-challenge');
     const errorText = document.getElementById('cm-error-text');
-    
-    if(!submitBtn || !errorText) return;
+
+    if (!submitBtn || !errorText) return;
 
     // Balance Source Logic
     let activeBal = 0;
     const availBalEl = document.getElementById('cm-available-bal');
     const riskBadge = document.getElementById('sum-risk-badge');
-    
+
     if (currentMatchType === 'practice') {
         activeBal = playerState.bonusBalance;
-        if(availBalEl) availBalEl.innerHTML = `<i class="fas fa-gift text-blue"></i> ${activeBal} Bonus SC`;
-        if(riskBadge) {
+        if (availBalEl) availBalEl.innerHTML = `<i class="fas fa-gift text-blue"></i> ${activeBal} Bonus SC`;
+        if (riskBadge) {
             riskBadge.className = 'risk-indicator risk-low';
             riskBadge.innerText = 'Low Risk';
         }
     } else if (currentMatchType === 'ranked') {
         activeBal = playerState.realBalance;
-        if(availBalEl) availBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${activeBal} Real SC`;
-        if(riskBadge) {
+        if (availBalEl) availBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${activeBal} Real SC`;
+        if (riskBadge) {
             riskBadge.className = 'risk-indicator risk-standard';
             riskBadge.innerText = 'Standard Risk';
         }
     } else {
-        activeBal = playerState.realBalance + playerState.bonusBalance; 
-        if(availBalEl) availBalEl.innerHTML = `<i class="fas fa-coins text-purple"></i> ${activeBal} Mixed SC`;
-        if(riskBadge) {
+        activeBal = playerState.realBalance + playerState.bonusBalance;
+        if (availBalEl) availBalEl.innerHTML = `<i class="fas fa-coins text-purple"></i> ${activeBal} Mixed SC`;
+        if (riskBadge) {
             riskBadge.className = 'risk-indicator risk-adjusted';
             riskBadge.innerText = 'Adjusted Risk';
         }
@@ -391,19 +391,19 @@ function calculateSummary() {
     const hsBadge = document.getElementById('high-stakes-badge');
     const summaryPanel = document.getElementById('cm-summary-panel');
     const winnerEl = document.getElementById('sum-winner');
-    
+
     if (val >= 500) {
-        if(hsBadge) hsBadge.style.display = 'inline-block';
-        if(summaryPanel) summaryPanel.classList.add('high-stakes-panel');
-        if(winnerEl) winnerEl.classList.add('high-stakes-glow');
+        if (hsBadge) hsBadge.style.display = 'inline-block';
+        if (summaryPanel) summaryPanel.classList.add('high-stakes-panel');
+        if (winnerEl) winnerEl.classList.add('high-stakes-glow');
     } else {
-        if(hsBadge) hsBadge.style.display = 'none';
-        if(summaryPanel) summaryPanel.classList.remove('high-stakes-panel');
-        if(winnerEl) winnerEl.classList.remove('high-stakes-glow');
+        if (hsBadge) hsBadge.style.display = 'none';
+        if (summaryPanel) summaryPanel.classList.remove('high-stakes-panel');
+        if (winnerEl) winnerEl.classList.remove('high-stakes-glow');
     }
 
     let hasError = false;
-    
+
     // Limits Validation
     if (playerState.matchesCreatedToday >= playerState.dailyLimit) {
         hasError = true;
@@ -438,7 +438,7 @@ function calculateSummary() {
 
     document.getElementById('sum-your-stake').innerText = val + ' SC';
     document.getElementById('sum-opp-stake').innerText = oppStake + ' SC';
-    
+
     const hybridRow = document.getElementById('sum-hybrid-row');
     if (hybridRow) {
         if (currentMatchType === 'hybrid') {
@@ -453,7 +453,7 @@ function calculateSummary() {
 
     document.getElementById('sum-total-pool').innerText = totalPool + ' SC';
     document.getElementById('sum-fee').innerText = '-' + platformFee + ' SC';
-    if(winnerEl) {
+    if (winnerEl) {
         winnerEl.innerText = winnerGets + ' SC';
         winnerEl.style.transform = 'scale(1.05)';
         setTimeout(() => winnerEl.style.transform = 'scale(1)', 150);
@@ -467,51 +467,67 @@ function resetSummaryUI() {
     document.getElementById('sum-fee').innerText = '-';
     document.getElementById('sum-winner').innerText = '-';
     const hr = document.getElementById('sum-hybrid-row');
-    if(hr) hr.style.display = 'none';
+    if (hr) hr.style.display = 'none';
 }
 
-function submitChallenge() {
+async function submitChallenge() {
     const btn = document.getElementById('btn-submit-challenge');
-    if(btn) btn.classList.add('btn-loading');
-    
+    if (btn) btn.classList.add('btn-loading');
+
     const stakeInput = document.getElementById('cm-stake-input');
-    if(stakeInput) stakeInput.disabled = true;
-    
-    setTimeout(() => {
-        // Transition to waiting state
-        const waitState = document.getElementById('cm-waiting-state');
-        if(waitState) waitState.classList.add('active');
-        if(btn) btn.classList.remove('btn-loading');
-        
-        // Background grid injection (silently)
-        const grid = document.querySelector('.challenges-grid');
-        if (grid) {
-            if (document.getElementById('empty-state-container')) grid.innerHTML = '';
-            const stake = parseInt(stakeInput.value) || 0;
-            const badgeClass = currentMatchType === 'ranked' ? 'badge-ranked' : (currentMatchType === 'practice' ? 'badge-practice' : 'badge-hybrid');
-            const badgeText = currentMatchType.charAt(0).toUpperCase() + currentMatchType.slice(1);
-            
-            const newCardHTML = `
+    if (stakeInput) stakeInput.disabled = true;
+
+    const stake = parseInt(stakeInput.value) || 0;
+    const mappedType = currentMatchType.toUpperCase();
+
+    try {
+        const result = await window.api.createMatch("CODM", stake, mappedType, "Quick Match", "", "");
+        const matchData = result.createMatch || {};
+        const matchId = matchData.id || "N/A";
+
+        showToast("Challenge sent successfully!");
+
+        setTimeout(() => {
+            // Transition to waiting state
+            const waitState = document.getElementById('cm-waiting-state');
+            if (waitState) waitState.classList.add('active');
+            if (btn) btn.classList.remove('btn-loading');
+
+            // Background grid injection (silently)
+            const grid = document.querySelector('.challenges-grid');
+            if (grid) {
+                if (document.getElementById('empty-state-container')) grid.innerHTML = '';
+                const badgeClass = currentMatchType === 'ranked' ? 'badge-ranked' : (currentMatchType === 'practice' ? 'badge-practice' : 'badge-hybrid');
+                const badgeText = currentMatchType.charAt(0).toUpperCase() + currentMatchType.slice(1);
+
+                const newCardHTML = `
                 <div class="challenge-card" style="animation: fadeIn 0.4s ease forwards; border-color: rgba(249, 109, 0, 0.4); box-shadow: 0 10px 30px rgba(249, 109, 0, 0.15);">
                     <div class="cc-header">
                         <div class="cc-player"><div class="avatar-sm"><i class="fas fa-user"></i></div><span class="player-name">You</span></div>
                         <span class="badge-tag ${badgeClass}">${badgeText}</span>
                     </div>
                     <div class="cc-body">
-                        <div class="cc-detail"><span class="detail-label">Game Mode</span><span class="detail-value">CODM - 1v1</span></div>
+                        <div class="cc-detail"><span class="detail-label">Game Mode</span><span class="detail-value">CODM 1v1 (STAR-${matchId})</span></div>
                         <div class="cc-stake"><span class="stake-val"><i class="fas fa-coins text-gold"></i> ${stake} SC</span><span class="stake-label">Open Match</span></div>
                     </div>
-                    <div class="cc-footer"><button class="btn btn-outline full-width">Waiting for opponent <i class="fas fa-spinner fa-spin ms-2"></i></button></div>
+                    <div class="cc-footer"><button class="btn btn-outline full-width" onclick="window.location.href='playground.html'">Waiting for opponent <i class="fas fa-spinner fa-spin ms-2"></i></button></div>
                 </div>`;
-            grid.insertAdjacentHTML('afterbegin', newCardHTML);
-        }
-        
-    }, 1200);
+                grid.insertAdjacentHTML('afterbegin', newCardHTML);
+            }
+        })
+    }
+    catch (err) {
+        showToast(err.message || "Failed to submit challenge", false);
+        if (btn) btn.classList.remove('btn-loading');
+        if (stakeInput) stakeInput.disabled = false;
+        const waitState = document.getElementById('cm-waiting-state');
+        if (waitState) waitState.classList.remove('active');
+    }
 }
 
 // Search Profile Routing
 function openProfile(username) {
-    if(username) {
+    if (username) {
         window.location.href = `profile.html?user=${encodeURIComponent(username)}`;
     }
 }
