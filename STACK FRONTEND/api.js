@@ -77,6 +77,7 @@ const api = {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
+                    token
                     id
                     gamerTag
                     bonusSc
