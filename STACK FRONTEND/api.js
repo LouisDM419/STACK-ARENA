@@ -57,7 +57,8 @@ async function graphqlRequest(query, variables = {}) {
 
         if (json.errors) {
             console.error("GraphQL Errors:", json.errors);
-            if (json.errors[0].message.toLowerCase().includes('not logged in')) {
+            const errMsg = json.errors[0].message.toLowerCase();
+            if (errMsg.includes('not logged in') || errMsg.includes('authentication required')) {
                 window.location.href = 'login.html';
                 return;
             }
@@ -105,11 +106,6 @@ const api = {
         `;
 
         const data = await graphqlRequest(query, { input: { email, password } });
-
-        // yeah I adjusted your code to save tokens on login 
-        if (data && data.loginUser && data.loginUser.token) {
-            localStorage.setItem('stack_arena_token', data.loginUser.token);
-        }
         return data;
     },
 
