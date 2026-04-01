@@ -34,6 +34,12 @@ const BASE_URL = IS_PRODUCTION
     : 'http://localhost:8000';
 
 const API_ENDPOINT = `${BASE_URL}/graphql/`;
+const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
 
 async function graphqlRequest(query, variables = {}) {
     try {
@@ -223,17 +229,48 @@ const api = {
         `;
         return await graphqlRequest(query, { input: { matchId, claimedWin } });
     },
+    //OLD AVATAR UPLOAD I DID USING GRAPH
+    // async uploadAvatar(file) {
+    //     const query = `
+    //         mutation UploadAvatar($file: Upload!) {
+    //             uploadAvatar(file: $file) {
+    //                 id
+    //                 avatarUrl
+    //             }
+    //         }
+    //     `;
+    //     // We pass 'file' as the fileKey so the function knows where to map it
+    //     return await graphqlFileUpload(query, {}, 'file', file);
+    // },
+    //new AVATAR UPLOAD I DID USING BASE64
+
     async uploadAvatar(file) {
+        // Convert the physical file to a string
+        const base64String = await fileToBase64(file);
+
         const query = `
-            mutation UploadAvatar($file: Upload!) {
-                uploadAvatar(file: $file) {
+            mutation UploadAvatar($fileBase64: String!, $fileName: String!) {
+                uploadAvatar(fileBase64: $fileBase64, fileName: $fileName) {
                     id
                     avatarUrl
                 }
             }
         `;
-        // We pass 'file' as the fileKey so the function knows where to map it
-        return await graphqlFileUpload(query, {}, 'file', file);
+        // Send it via standard JSON!
+        return await graphqlRequest(query, { fileBase64: base64String, fileName: file.name });
+    },
+
+    async submitMatchProof(matchId, file) {
+        const base64String = await fileToBase64(file);
+        const query = `
+            mutation SubmitMatchProof($matchId: ID!, $fileBase64: String!, $fileName: String!) {
+                submitMatchProof(matchId: $matchId, fileBase64: $fileBase64, fileName: $fileName) {
+                    id
+                    status
+                }
+            }
+        `;
+        return await graphqlRequest(query, { matchId, fileBase64: base64String, fileName: file.name });
     },
 
     async submitMatchProof(matchId, file) {
