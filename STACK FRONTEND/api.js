@@ -35,6 +35,41 @@ const BASE_URL = IS_PRODUCTION
 
 const API_ENDPOINT = `${BASE_URL}/graphql`;
 
+async function graphqlRequest(query, variables = {}) {
+    const token = localStorage.getItem('stack_arena_token');
+
+    try {
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `JWT ${token}` })
+            },
+            body: JSON.stringify({ query, variables })
+        });
+
+
+        if (response.status === 401) {
+            localStorage.removeItem('stack_arena_token');
+            window.location.href = '/login.html';
+            return;
+        }
+
+        const json = await response.json();
+
+        if (json.errors) {
+            console.error("GraphQL Errors:", json.errors);
+            throw new Error(json.errors[0].message || "GraphQL Error");
+        }
+
+        return json.data;
+    } catch (error) {
+        console.error("API Request Failed:", error);
+        throw error;
+    }
+}
+
 
 const api = {
     // 1. Accounts API
