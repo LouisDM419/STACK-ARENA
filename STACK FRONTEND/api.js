@@ -1,34 +1,40 @@
 // api.js - Stack Arena GraphQL API Hooks
 
-const API_ENDPOINT = '/graphql';
 
-/**
- * Core GraphQL Fetcher
- */
-async function graphqlRequest(query, variables = {}) {
-    try {
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ query, variables })
-        });
+// const API_ENDPOINT = '/graphql';
+// async function graphqlRequest(query, variables = {}) {
+//     try {
+//         const response = await fetch(API_ENDPOINT, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json',
+//             },
+//             body: JSON.stringify({ query, variables })
+//         });
 
-        const json = await response.json();
+//         const json = await response.json();
 
-        if (json.errors) {
-            console.error("GraphQL Errors:", json.errors);
-            throw new Error(json.errors[0].message || "GraphQL Error");
-        }
+//         if (json.errors) {
+//             console.error("GraphQL Errors:", json.errors);
+//             throw new Error(json.errors[0].message || "GraphQL Error");
+//         }
 
-        return json.data;
-    } catch (error) {
-        console.error("API Request Failed:", error);
-        throw error;
-    }
-}
+//         return json.data;
+//     } catch (error) {
+//         console.error("API Request Failed:", error);
+//         throw error;
+//     }
+// }
+
+const IS_PRODUCTION = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+const BASE_URL = IS_PRODUCTION
+    ? 'https://playstackarena.com'
+    : 'http://localhost:8000';
+
+const API_ENDPOINT = `${BASE_URL}/graphql`;
+
 
 const api = {
     // 1. Accounts API
@@ -60,7 +66,14 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { email, password } });
+
+        const data = await graphqlRequest(query, { input: { email, password } });
+
+        // yeah I adjusted your code to save tokens on login 
+        if (data && data.loginUser && data.loginUser.token) {
+            localStorage.setItem('stack_arena_token', data.loginUser.token);
+        }
+        return data;
     },
 
     async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true) {

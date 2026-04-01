@@ -37,7 +37,8 @@
     <div class="auth-container">
         <div class="auth-card" style="max-width: 650px;">
             <div class="auth-header">
-                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                        class="logo-sub">| StackArena</span></a>
                 <h2 style="color:#fff; font-size:2rem; margin-top:15px; text-transform:uppercase;">Create Account</h2>
                 <p>Register below to secure your identity and play ranked matches.</p>
             </div>
@@ -200,9 +201,50 @@
             }
         }
 
+        // async function completeSignup() {
+        //     const btn = document.getElementById('btn-verify');
+        //     const originalBtnHtml = btn.innerHTML;
+        //     btn.innerHTML = 'Activating Account... <i class="fas fa-spinner fa-spin ms-2"></i>';
+        //     btn.style.opacity = '0.7';
+        //     btn.disabled = true;
+
+        //     const email = document.getElementById('email').value.trim();
+        //     const pass = document.getElementById('password').value;
+        //     const gamerTag = document.getElementById('username').value.trim();
+        //     const fullname = document.getElementById('fullname').value.trim();
+        //     const gender = document.getElementById('gender').value;
+
+        //     try {
+        //         const result = await window.api.registerUser(email, pass, gamerTag, fullname, gender);
+        //         console.log("Signup successful", result);
+        //         window.location.href = 'dashboard.html';
+        //     } catch (err) {
+        //         console.error("Signup failed", err);
+        //         alert("Verification failed: " + (err.message || "User already exists or invalid data."));
+        //         btn.innerHTML = originalBtnHtml;
+        //         btn.style.opacity = '1';
+        //         btn.disabled = false;
+        //     }
+        // }
+
         async function completeSignup() {
             const btn = document.getElementById('btn-verify');
             const originalBtnHtml = btn.innerHTML;
+
+            // 1. Actually grab the OTP values (even if the backend doesn't use them yet, 
+            // it's best practice to prepare the variables for when you build the OTP backend endpoint)
+            const otpCode = [
+                document.getElementById('otp1').value,
+                document.getElementById('otp2').value,
+                document.getElementById('otp3').value,
+                document.getElementById('otp4').value
+            ].join('');
+
+            if (otpCode.length < 4) {
+                alert("Please enter the full 4-digit code.");
+                return;
+            }
+
             btn.innerHTML = 'Activating Account... <i class="fas fa-spinner fa-spin ms-2"></i>';
             btn.style.opacity = '0.7';
             btn.disabled = true;
@@ -214,9 +256,22 @@
             const gender = document.getElementById('gender').value;
 
             try {
-                const result = await window.api.registerUser(email, pass, gamerTag, fullname, gender);
-                console.log("Signup successful", result);
-                window.location.href = 'dashboard.html';
+                // STEP 1: Create the account
+                console.log("Creating user record...");
+                await window.api.registerUser(email, pass, gamerTag, fullname, gender);
+
+                // STEP 2: Automatically log them in to get the JWT Token!
+                console.log("Auto-logging in to secure token...");
+                const loginData = await window.api.loginUser(email, pass);
+
+                // Make sure the token actually saved before redirecting
+                if (localStorage.getItem('stack_arena_token')) {
+                    console.log("Signup & Auto-Login successful!");
+                    window.location.href = 'dashboard.html';
+                } else {
+                    throw new Error("Account created, but failed to secure session token.");
+                }
+
             } catch (err) {
                 console.error("Signup failed", err);
                 alert("Verification failed: " + (err.message || "User already exists or invalid data."));
@@ -225,8 +280,8 @@
                 btn.disabled = false;
             }
         }
+
     </script>
 </body>
 
 </html>
-
