@@ -280,7 +280,6 @@
         //         btn.disabled = false;
         //     }
         // }
-
         async function completeSignup() {
             const btn = document.getElementById('btn-verify');
             const originalBtnHtml = btn.innerHTML;
@@ -308,13 +307,17 @@
             const gender = document.getElementById('gender').value;
 
             try {
-
+                // STEP 1: Create the account
                 console.log("Creating user record...");
                 await window.api.registerUser(email, pass, gamerTag, fullname, gender);
 
+                // STEP 2: Automatically log them in
+                // This will send the Set-Cookie header to your browser automatically
                 console.log("Auto-logging in to establish session...");
                 const loginData = await window.api.loginUser(email, pass);
 
+                // STEP 3: Verify the login data exists
+                // We check for loginData.loginUser because your backend uses cookies, not tokens
                 if (loginData && loginData.loginUser) {
                     console.log("Signup & Session established successful!");
                     window.location.href = 'dashboard.html';
@@ -330,8 +333,6 @@
                 btn.disabled = false;
             }
         }
-
-
     </script>
 </body>
 
