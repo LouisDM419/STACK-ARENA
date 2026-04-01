@@ -364,19 +364,55 @@
     <script src="script.js"></script>
     <script>
         // Settings Data Loading
+        // async function loadSettingsData() {
+        //     try {
+        //         const profile = await window.api.myProfile();
+        //         if (profile) {
+        //             const totalSc = profile.realSc + profile.bonusSc;
+        //             const balEl = document.querySelector('.wallet-bal');
+        //             if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+
+        //             if (profile.gamerTag) document.getElementById('username-input').value = profile.gamerTag;
+        //             if (profile.bankName) {
+        //                 const bni = document.getElementById('bank-name-input');
+        //                 if (bni) bni.value = profile.bankName;
+        //             }
+        //             if (profileData.avatarUrl) {
+        //                 const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+        //                 document.getElementById('profile-avatar-preview').innerHTML = imgTag;
+
+        //                 const headerAvatar = document.getElementById('global-header-avatar');
+        //                 if (headerAvatar) headerAvatar.innerHTML = imgTag;
+        //             }
+        //             if (profile.accountNumber) {
+        //                 const ani = document.getElementById('account-number-input');
+        //                 if (ani) ani.value = profile.accountNumber;
+        //             }
+        //             if (profile.accountName) {
+        //                 const accni = document.getElementById('account-name-input');
+        //                 if (accni) accni.value = profile.accountName;
+        //             }
+        //         }
+        //     } catch (e) { console.error("Settings load error", e); }
+        // }
+
         async function loadSettingsData() {
             try {
                 const profile = await window.api.myProfile();
-                if (profile) {
-                    const totalSc = profile.realSc + profile.bonusSc;
+
+                // Ensure the data actually exists before trying to read it
+                if (profile && profile.myProfile) {
+                    const profileData = profile.myProfile;
+
+                    // Safe Math for Wallet Balance
+                    const r = isNaN(profileData.realSc) || profileData.realSc === null ? 0 : profileData.realSc;
+                    const b = isNaN(profileData.bonusSc) || profileData.bonusSc === null ? 0 : profileData.bonusSc;
+                    const totalSc = r + b;
+
                     const balEl = document.querySelector('.wallet-bal');
                     if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
 
-                    if (profile.gamerTag) document.getElementById('username-input').value = profile.gamerTag;
-                    if (profile.bankName) {
-                        const bni = document.getElementById('bank-name-input');
-                        if (bni) bni.value = profile.bankName;
-                    }
+                    // Avatar Load
                     if (profileData.avatarUrl) {
                         const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                         document.getElementById('profile-avatar-preview').innerHTML = imgTag;
@@ -384,18 +420,26 @@
                         const headerAvatar = document.getElementById('global-header-avatar');
                         if (headerAvatar) headerAvatar.innerHTML = imgTag;
                     }
-                    if (profile.accountNumber) {
-                        const ani = document.getElementById('account-number-input');
-                        if (ani) ani.value = profile.accountNumber;
+
+                    // Input Fields Load
+                    if (profileData.gamerTag) document.getElementById('username-input').value = profileData.gamerTag;
+                    if (profileData.bankName) {
+                        const bni = document.getElementById('bank-name-input');
+                        if (bni) bni.value = profileData.bankName;
                     }
-                    if (profile.accountName) {
+                    if (profileData.accountNumber) {
+                        const ani = document.getElementById('account-number-input');
+                        if (ani) ani.value = profileData.accountNumber;
+                    }
+                    if (profileData.accountName) {
                         const accni = document.getElementById('account-name-input');
-                        if (accni) accni.value = profile.accountName;
+                        if (accni) accni.value = profileData.accountName;
                     }
                 }
-            } catch (e) { console.error("Settings load error", e); }
+            } catch (e) {
+                console.error("Settings load error:", e);
+            }
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             loadSettingsData();
         });
