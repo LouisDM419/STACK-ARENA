@@ -33,7 +33,7 @@ const BASE_URL = IS_PRODUCTION
     ? 'https://playstackarena.com'
     : 'http://localhost:8000';
 
-const API_ENDPOINT = `${BASE_URL}/graphql`;
+const API_ENDPOINT = `${BASE_URL}/graphql/`;
 
 async function graphqlRequest(query, variables = {}) {
     const token = localStorage.getItem('stack_arena_token');
