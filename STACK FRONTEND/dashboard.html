@@ -380,6 +380,12 @@
                         document.querySelector('.streak-icon').style.filter = 'drop-shadow(0 0 10px #ff9800)';
                     }
                 }
+                
+                const profileData = await window.api.myProfile();
+
+                if (profileData.myProfile.avatarUrl) {
+                    document.getElementById('profile-pic').src = profileData.myProfile.avatarUrl;
+                }
 
                 // 2. Load Stats
                 let myRankPoints = 0;

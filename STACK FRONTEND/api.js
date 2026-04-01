@@ -140,6 +140,7 @@ const api = {
                     id
                     gamerTag
                     realSc
+                    avatarUrl
                     bonusSc
                     rankPoints
                     lockedWinnings

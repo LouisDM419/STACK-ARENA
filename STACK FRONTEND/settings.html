@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings | STAR StackArena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,7 +18,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <a href="#" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <br><span class="logo-sub">| StackArena</span></a>
+                <a href="#" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <br><span
+                        class="logo-sub">| StackArena</span></a>
             </div>
             <nav class="sidebar-nav">
                 <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
@@ -41,7 +44,8 @@
                         <i class="fas fa-coins text-gold"></i> 0 SC
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
-                        <button class="icon-btn notification-btn" id="btn-notifications" onclick="toggleNotifications()">
+                        <button class="icon-btn notification-btn" id="btn-notifications"
+                            onclick="toggleNotifications()">
                             <i class="far fa-bell"></i>
                         </button>
 
@@ -55,245 +59,291 @@
                                 <div class="empty-notif text-center">
                                     <i class="far fa-bell-slash"></i>
                                     <p style="color: #fff; margin-bottom: 5px;">No new notifications</p>
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught up!</span>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught
+                                        up!</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="avatar" id="global-header-avatar" style="cursor:pointer;" onclick="location.href='profile.html'"><i class="fas fa-user"></i></div>
+                    <div class="avatar" id="global-header-avatar" style="cursor:pointer;"
+                        onclick="location.href='profile.html'"><i class="fas fa-user"></i></div>
                 </div>
             </header>
 
             <div class="dashboard-content settings-page">
-                <div class="page-title mb-4" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="page-title mb-4"
+                    style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <h2>Account Settings</h2>
                         <p class="text-muted">Manage your profile, preferences, and security.</p>
                     </div>
-                    <div class="save-indicator" id="auto-save-indicator" style="display: none; color: var(--accent-orange); font-size: 0.9rem; font-weight: 600;">
+                    <div class="save-indicator" id="auto-save-indicator"
+                        style="display: none; color: var(--accent-orange); font-size: 0.9rem; font-weight: 600;">
                         <i class="fas fa-check-circle"></i> Saved
                     </div>
                 </div>
 
                 <div class="settings-grid">
-                <div class="settings-grid single-column">
-                    <!-- Right Column (Content) -->
-                    <div class="settings-content-col" style="width: 100%;">
-                        
-                        <!-- 1. PROFILE SETTINGS -->
-                        <section id="profile" class="settings-section dash-panel mb-4">
-                            <h3 class="section-title">Profile Settings</h3>
-                            <div class="setting-group avatar-row">
-                                <div class="avatar-large" id="profile-avatar-preview">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <div class="avatar-actions">
-                                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('avatar-upload').click()">Change Avatar</button>
-                                    <input type="file" id="avatar-upload" style="display: none;" accept="image/*">
-                                    <p class="text-muted mt-2" style="font-size:0.8rem;">Supported formats: JPG, PNG. Max 2MB.</p>
-                                </div>
-                            </div>
-                            
-                            <hr class="settings-divider">
-                            
-                            <div class="setting-group">
-                                <label>Username</label>
-                                <div class="input-with-icon">
-                                    <i class="fas fa-at"></i>
-                                    <input type="text" class="settings-input" placeholder="Set a username" id="username-input" oninput="checkUsername()">
-                                </div>
-                                <div class="input-helper mt-2" id="username-status"></div>
-                            </div>
+                    <div class="settings-grid single-column">
+                        <!-- Right Column (Content) -->
+                        <div class="settings-content-col" style="width: 100%;">
 
-                            <div class="setting-row-2">
+                            <!-- 1. PROFILE SETTINGS -->
+                            <section id="profile" class="settings-section dash-panel mb-4">
+                                <h3 class="section-title">Profile Settings</h3>
+                                <div class="setting-group avatar-row">
+                                    <div class="avatar-large" id="profile-avatar-preview">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="avatar-actions">
+                                        <button class="btn btn-outline btn-sm"
+                                            onclick="document.getElementById('avatar-upload').click()">Change
+                                            Avatar</button>
+                                        <input type="file" id="avatar-upload" style="display: none;" accept="image/*">
+                                        <p class="text-muted mt-2" style="font-size:0.8rem;">Supported formats: JPG,
+                                            PNG. Max 2MB.</p>
+                                    </div>
+                                </div>
+
+                                <hr class="settings-divider">
+
                                 <div class="setting-group">
-                                    <label>CODM Username <span class="required-asterisk">*</span></label>
+                                    <label>Username</label>
                                     <div class="input-with-icon">
-                                        <i class="fas fa-crosshairs"></i>
-                                        <input type="text" class="settings-input" placeholder="e.g. GhostReaper">
+                                        <i class="fas fa-at"></i>
+                                        <input type="text" class="settings-input" placeholder="Set a username"
+                                            id="username-input" oninput="checkUsername()">
+                                    </div>
+                                    <div class="input-helper mt-2" id="username-status"></div>
+                                </div>
+
+                                <div class="setting-row-2">
+                                    <div class="setting-group">
+                                        <label>CODM Username <span class="required-asterisk">*</span></label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-crosshairs"></i>
+                                            <input type="text" class="settings-input" placeholder="e.g. GhostReaper">
+                                        </div>
+                                    </div>
+                                    <div class="setting-group">
+                                        <label>CODM UID <span class="required-asterisk">*</span></label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-id-card"></i>
+                                            <input type="text" class="settings-input" placeholder="e.g. 67423985723">
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="input-helper text-muted mt-2"><i class="fas fa-info-circle"></i> Make sure
+                                    this matches your in-game details exactly for match verification.</div>
+
+                                <div class="text-right mt-4">
+                                    <button class="btn btn-primary" onclick="saveProfile(event)">Save Profile</button>
+                                </div>
+                            </section>
+
+                            <!-- 2. ACCOUNT & SECURITY -->
+                            <section id="security" class="settings-section dash-panel mb-4">
+                                <h3 class="section-title">Account & Security</h3>
+
+                                <h4 class="mb-3" style="font-size: 1rem;">Change Password</h4>
                                 <div class="setting-group">
-                                    <label>CODM UID <span class="required-asterisk">*</span></label>
-                                    <div class="input-with-icon">
-                                        <i class="fas fa-id-card"></i>
-                                        <input type="text" class="settings-input" placeholder="e.g. 67423985723">
+                                    <label>Current Password</label>
+                                    <input type="password" id="current-pwd" class="settings-input"
+                                        placeholder="Enter current password">
+                                </div>
+                                <div class="setting-row-2">
+                                    <div class="setting-group">
+                                        <label>New Password</label>
+                                        <input type="password" class="settings-input" placeholder="New password"
+                                            id="new-pwd">
+                                    </div>
+                                    <div class="setting-group">
+                                        <label>Confirm Password</label>
+                                        <input type="password" class="settings-input" placeholder="Confirm new password"
+                                            id="confirm-pwd">
                                     </div>
                                 </div>
-                            </div>
-                            <div class="input-helper text-muted mt-2"><i class="fas fa-info-circle"></i> Make sure this matches your in-game details exactly for match verification.</div>
-                            
-                            <div class="text-right mt-4">
-                                <button class="btn btn-primary" onclick="saveProfile(event)">Save Profile</button>
-                            </div>
-                        </section>
 
-                        <!-- 2. ACCOUNT & SECURITY -->
-                        <section id="security" class="settings-section dash-panel mb-4">
-                            <h3 class="section-title">Account & Security</h3>
+                                <div class="text-right mt-3">
+                                    <button class="btn btn-outline" onclick="updatePassword(event)">Update
+                                        Password</button>
+                                </div>
+                            </section>
 
-                            <h4 class="mb-3" style="font-size: 1rem;">Change Password</h4>
-                            <div class="setting-group">
-                                <label>Current Password</label>
-                                <input type="password" id="current-pwd" class="settings-input" placeholder="Enter current password">
-                            </div>
-                            <div class="setting-row-2">
+                            <!-- Game section removed -->
+
+                            <!-- 4. WALLET & PAYOUT SETTINGS -->
+                            <section id="wallet" class="settings-section dash-panel mb-4">
+                                <h3 class="section-title">Wallet & Payout Details</h3>
+                                <div class="alert-box alert-info mb-4"
+                                    style="background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent-blue); padding: 15px;">
+                                    <i class="fas fa-shield-alt text-blue"></i> Payout details are encrypted and
+                                    securely stored.
+                                </div>
+
                                 <div class="setting-group">
-                                    <label>New Password</label>
-                                    <input type="password" class="settings-input" placeholder="New password" id="new-pwd">
+                                    <label>Bank Name</label>
+                                    <input type="text" id="bank-name-input" class="settings-input"
+                                        placeholder="e.g. Chase Bank">
                                 </div>
-                                <div class="setting-group">
-                                    <label>Confirm Password</label>
-                                    <input type="password" class="settings-input" placeholder="Confirm new password" id="confirm-pwd">
-                                </div>
-                            </div>
-                            
-                            <div class="text-right mt-3">
-                                <button class="btn btn-outline" onclick="updatePassword(event)">Update Password</button>
-                            </div>
-                        </section>
-
-                        <!-- Game section removed -->
-
-                        <!-- 4. WALLET & PAYOUT SETTINGS -->
-                        <section id="wallet" class="settings-section dash-panel mb-4">
-                            <h3 class="section-title">Wallet & Payout Details</h3>
-                            <div class="alert-box alert-info mb-4" style="background: rgba(0, 210, 255, 0.1); border-left: 4px solid var(--accent-blue); padding: 15px;">
-                                <i class="fas fa-shield-alt text-blue"></i> Payout details are encrypted and securely stored.
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Bank Name</label>
-                                <input type="text" id="bank-name-input" class="settings-input" placeholder="e.g. Chase Bank">
-                            </div>
-                            <div class="setting-row-2">
-                                <div class="setting-group">
-                                    <label>Account Number</label>
-                                    <input type="text" id="account-number-input" class="settings-input" placeholder="Enter account number">
-                                </div>
-                                <div class="setting-group">
-                                    <label>Account Name</label>
-                                    <input type="text" id="account-name-input" class="settings-input" placeholder="Name on account">
-                                </div>
-                            </div>
-                            <div class="text-right mt-4">
-                                <button class="btn btn-primary" onclick="saveBankDetails(event)">Save Bank Details</button>
-                            </div>
-
-                            <hr class="settings-divider">
-                            <div class="setting-row flex-between">
-                                <div>
-                                    <h4 style="margin-bottom: 5px;">Transaction Notifications</h4>
-                                    <div class="text-muted" style="font-size: 0.85rem;">Receive email alerts for deposits and withdrawals.</div>
-                                </div>
-                                <label class="switch">
-                                  <input type="checkbox" checked onchange="triggerAutoSave()">
-                                  <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </section>
-
-                        <!-- 5. NOTIFICATIONS -->
-                        <section id="notifications" class="settings-section dash-panel mb-4">
-                            <h3 class="section-title">Notifications</h3>
-                            
-                            <div class="toggle-list">
-                                <div class="setting-row flex-between mb-3 border-bottom pb-3">
-                                    <div>
-                                        <h4 style="margin-bottom: 5px;">Match Accepted</h4>
-                                        <div class="text-muted" style="font-size: 0.85rem;">When an opponent accepts your challenge.</div>
+                                <div class="setting-row-2">
+                                    <div class="setting-group">
+                                        <label>Account Number</label>
+                                        <input type="text" id="account-number-input" class="settings-input"
+                                            placeholder="Enter account number">
                                     </div>
-                                    <label class="switch"><input type="checkbox" checked onchange="triggerAutoSave()"><span class="slider round"></span></label>
-                                </div>
-                                <div class="setting-row flex-between mb-3 border-bottom pb-3">
-                                    <div>
-                                        <h4 style="margin-bottom: 5px;">Match Result Updates</h4>
-                                        <div class="text-muted" style="font-size: 0.85rem;">When a dispute is resolved or result verified.</div>
+                                    <div class="setting-group">
+                                        <label>Account Name</label>
+                                        <input type="text" id="account-name-input" class="settings-input"
+                                            placeholder="Name on account">
                                     </div>
-                                    <label class="switch"><input type="checkbox" checked onchange="triggerAutoSave()"><span class="slider round"></span></label>
                                 </div>
-                                <div class="setting-row flex-between mb-3 border-bottom pb-3">
-                                    <div>
-                                        <h4 style="margin-bottom: 5px;">Promotions & Rewards</h4>
-                                        <div class="text-muted" style="font-size: 0.85rem;">Bonus SC, leaderboards, and seasonal rewards.</div>
-                                    </div>
-                                    <label class="switch"><input type="checkbox" checked onchange="triggerAutoSave()"><span class="slider round"></span></label>
+                                <div class="text-right mt-4">
+                                    <button class="btn btn-primary" onclick="saveBankDetails(event)">Save Bank
+                                        Details</button>
                                 </div>
+
+                                <hr class="settings-divider">
                                 <div class="setting-row flex-between">
                                     <div>
-                                        <h4 style="margin-bottom: 5px;">Dispute Updates</h4>
-                                        <div class="text-muted" style="font-size: 0.85rem;">Action required regarding a disputed match.</div>
+                                        <h4 style="margin-bottom: 5px;">Transaction Notifications</h4>
+                                        <div class="text-muted" style="font-size: 0.85rem;">Receive email alerts for
+                                            deposits and withdrawals.</div>
                                     </div>
-                                    <label class="switch"><input type="checkbox" checked disabled><span class="slider round"></span></label>
+                                    <label class="switch">
+                                        <input type="checkbox" checked onchange="triggerAutoSave()">
+                                        <span class="slider round"></span>
+                                    </label>
                                 </div>
-                            </div>
-                        </section>
+                            </section>
 
-                        <!-- 6. PRIVACY & FAIR PLAY -->
-                        <section id="privacy" class="settings-section dash-panel mb-4">
-                            <h3 class="section-title">Privacy & Fair Play</h3>
-                            
-                            <div class="fair-play-box highlight-card border-blue text-center p-4 rounded mb-4">
-                                <i class="fas fa-balance-scale text-blue" style="font-size: 2rem; margin-bottom: 15px;"></i>
-                                <h4 style="margin-bottom: 10px;">Fair Play Agreement</h4>
-                                <p class="text-muted" style="font-size: 0.9rem;">"I agree to fair play rules and understand that cheating, account sharing, or exploiting bugs will result in immediate bans and seizure of funds."</p>
-                            </div>
-                            
-                            <p class="text-muted text-center" style="font-size: 0.85rem; margin-bottom: 20px;">
-                                <i class="fas fa-eye text-orange"></i> Your matches may be monitored by admins to prevent abuse and enforce Fair Play.
-                            </p>
+                            <!-- 5. NOTIFICATIONS -->
+                            <section id="notifications" class="settings-section dash-panel mb-4">
+                                <h3 class="section-title">Notifications</h3>
 
-                            <hr class="settings-divider">
-
-                            <div class="setting-row flex-between">
-                                <div>
-                                    <h4 style="margin-bottom: 5px;">Public Match History</h4>
-                                    <div class="text-muted" style="font-size: 0.85rem;">Allow other players to view your past match results.</div>
+                                <div class="toggle-list">
+                                    <div class="setting-row flex-between mb-3 border-bottom pb-3">
+                                        <div>
+                                            <h4 style="margin-bottom: 5px;">Match Accepted</h4>
+                                            <div class="text-muted" style="font-size: 0.85rem;">When an opponent accepts
+                                                your challenge.</div>
+                                        </div>
+                                        <label class="switch"><input type="checkbox" checked
+                                                onchange="triggerAutoSave()"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="setting-row flex-between mb-3 border-bottom pb-3">
+                                        <div>
+                                            <h4 style="margin-bottom: 5px;">Match Result Updates</h4>
+                                            <div class="text-muted" style="font-size: 0.85rem;">When a dispute is
+                                                resolved or result verified.</div>
+                                        </div>
+                                        <label class="switch"><input type="checkbox" checked
+                                                onchange="triggerAutoSave()"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="setting-row flex-between mb-3 border-bottom pb-3">
+                                        <div>
+                                            <h4 style="margin-bottom: 5px;">Promotions & Rewards</h4>
+                                            <div class="text-muted" style="font-size: 0.85rem;">Bonus SC, leaderboards,
+                                                and seasonal rewards.</div>
+                                        </div>
+                                        <label class="switch"><input type="checkbox" checked
+                                                onchange="triggerAutoSave()"><span class="slider round"></span></label>
+                                    </div>
+                                    <div class="setting-row flex-between">
+                                        <div>
+                                            <h4 style="margin-bottom: 5px;">Dispute Updates</h4>
+                                            <div class="text-muted" style="font-size: 0.85rem;">Action required
+                                                regarding a disputed match.</div>
+                                        </div>
+                                        <label class="switch"><input type="checkbox" checked disabled><span
+                                                class="slider round"></span></label>
+                                    </div>
                                 </div>
-                                <label class="switch">
-                                  <input type="checkbox" checked onchange="triggerAutoSave()">
-                                  <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </section>
+                            </section>
 
-                        <!-- 7. DANGER ZONE -->
-                        <section id="danger" class="settings-section dash-panel border-red" style="border-color: rgba(255, 68, 68, 0.4);">
-                            <h3 class="section-title text-red"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
-                            <p class="text-muted mb-4">These actions affect your account access and data. Proceed with caution.</p>
-                            
-                            <div class="danger-actions" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; margin-bottom: 20px;">
-                                <div>
-                                    <h4>Log Out</h4>
-                                    <div class="text-muted" style="font-size: 0.85rem;">End your current session across all devices.</div>
-                                </div>
-                                <button class="btn btn-outline" onclick="location.href='index.html'">Log Out</button>
-                            </div>
+                            <!-- 6. PRIVACY & FAIR PLAY -->
+                            <section id="privacy" class="settings-section dash-panel mb-4">
+                                <h3 class="section-title">Privacy & Fair Play</h3>
 
-                            <div class="danger-actions" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4>Delete Account</h4>
-                                    <div class="text-muted" style="font-size: 0.85rem;">Permanently wipe your data and forfeit balances.</div>
+                                <div class="fair-play-box highlight-card border-blue text-center p-4 rounded mb-4">
+                                    <i class="fas fa-balance-scale text-blue"
+                                        style="font-size: 2rem; margin-bottom: 15px;"></i>
+                                    <h4 style="margin-bottom: 10px;">Fair Play Agreement</h4>
+                                    <p class="text-muted" style="font-size: 0.9rem;">"I agree to fair play rules and
+                                        understand that cheating, account sharing, or exploiting bugs will result in
+                                        immediate bans and seizure of funds."</p>
                                 </div>
-                                <button class="btn btn-danger" style="background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid #ff4444;" onclick="openDeleteModal()">Delete Account</button>
-                            </div>
-                        </section>
+
+                                <p class="text-muted text-center" style="font-size: 0.85rem; margin-bottom: 20px;">
+                                    <i class="fas fa-eye text-orange"></i> Your matches may be monitored by admins to
+                                    prevent abuse and enforce Fair Play.
+                                </p>
+
+                                <hr class="settings-divider">
+
+                                <div class="setting-row flex-between">
+                                    <div>
+                                        <h4 style="margin-bottom: 5px;">Public Match History</h4>
+                                        <div class="text-muted" style="font-size: 0.85rem;">Allow other players to view
+                                            your past match results.</div>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" checked onchange="triggerAutoSave()">
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </section>
+
+                            <!-- 7. DANGER ZONE -->
+                            <section id="danger" class="settings-section dash-panel border-red"
+                                style="border-color: rgba(255, 68, 68, 0.4);">
+                                <h3 class="section-title text-red"><i class="fas fa-exclamation-triangle"></i> Danger
+                                    Zone</h3>
+                                <p class="text-muted mb-4">These actions affect your account access and data. Proceed
+                                    with caution.</p>
+
+                                <div class="danger-actions"
+                                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; margin-bottom: 20px;">
+                                    <div>
+                                        <h4>Log Out</h4>
+                                        <div class="text-muted" style="font-size: 0.85rem;">End your current session
+                                            across all devices.</div>
+                                    </div>
+                                    <button class="btn btn-outline" onclick="location.href='index.html'">Log
+                                        Out</button>
+                                </div>
+
+                                <div class="danger-actions"
+                                    style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4>Delete Account</h4>
+                                        <div class="text-muted" style="font-size: 0.85rem;">Permanently wipe your data
+                                            and forfeit balances.</div>
+                                    </div>
+                                    <button class="btn btn-danger"
+                                        style="background: rgba(255, 68, 68, 0.1); color: #ff4444; border: 1px solid #ff4444;"
+                                        onclick="openDeleteModal()">Delete Account</button>
+                                </div>
+                            </section>
+                        </div>
                     </div>
-                </div>
 
-                <div style="height: 50px;"></div> <!-- Bottom padding -->
-            </div>
+                    <div style="height: 50px;"></div> <!-- Bottom padding -->
+                </div>
         </main>
     </div>
 
     <!-- Modals -->
-    <div class="modal-overlay" id="delete-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+    <div class="modal-overlay" id="delete-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
         <div class="dash-panel" style="width: 400px; max-width: 90%; border: 1px solid #ff4444;">
             <div class="text-center">
-                <i class="fas fa-exclamation-circle text-red" style="font-size: 3rem; margin-bottom: 15px; color:#ff4444;"></i>
+                <i class="fas fa-exclamation-circle text-red"
+                    style="font-size: 3rem; margin-bottom: 15px; color:#ff4444;"></i>
                 <h3 style="color:#ff4444; margin-bottom: 10px;">Delete Account?</h3>
-                <p class="text-muted mb-4">This action is permanent and cannot be undone. All your match history, ranking, and unwithdrawn funds will be lost.</p>
-                
+                <p class="text-muted mb-4">This action is permanent and cannot be undone. All your match history,
+                    ranking, and unwithdrawn funds will be lost.</p>
+
                 <div class="setting-group text-left mb-4">
                     <label>Enter your password to confirm</label>
                     <input type="password" class="settings-input" placeholder="Password">
@@ -301,7 +351,9 @@
 
                 <div style="display: flex; gap: 10px;">
                     <button class="btn btn-outline full-width" onclick="closeDeleteModal()">Cancel</button>
-                    <button class="btn btn-primary full-width" style="background: #ff4444; color: #fff; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);" onclick="alert('Account Deleted.')">Yes, Delete</button>
+                    <button class="btn btn-primary full-width"
+                        style="background: #ff4444; color: #fff; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);"
+                        onclick="alert('Account Deleted.')">Yes, Delete</button>
                 </div>
             </div>
         </div>
@@ -315,26 +367,33 @@
         async function loadSettingsData() {
             try {
                 const profile = await window.api.myProfile();
-                if(profile) {
+                if (profile) {
                     const totalSc = profile.realSc + profile.bonusSc;
                     const balEl = document.querySelector('.wallet-bal');
-                    if(balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
-                    
-                    if(profile.gamerTag) document.getElementById('username-input').value = profile.gamerTag;
-                    if(profile.bankName) {
+                    if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+
+                    if (profile.gamerTag) document.getElementById('username-input').value = profile.gamerTag;
+                    if (profile.bankName) {
                         const bni = document.getElementById('bank-name-input');
-                        if(bni) bni.value = profile.bankName;
+                        if (bni) bni.value = profile.bankName;
                     }
-                    if(profile.accountNumber) {
+                    if (profileData.avatarUrl) {
+                        const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        document.getElementById('profile-avatar-preview').innerHTML = imgTag;
+
+                        const headerAvatar = document.getElementById('global-header-avatar');
+                        if (headerAvatar) headerAvatar.innerHTML = imgTag;
+                    }
+                    if (profile.accountNumber) {
                         const ani = document.getElementById('account-number-input');
-                        if(ani) ani.value = profile.accountNumber;
+                        if (ani) ani.value = profile.accountNumber;
                     }
-                    if(profile.accountName) {
+                    if (profile.accountName) {
                         const accni = document.getElementById('account-name-input');
-                        if(accni) accni.value = profile.accountName;
+                        if (accni) accni.value = profile.accountName;
                     }
                 }
-            } catch(e) { console.error("Settings load error", e); }
+            } catch (e) { console.error("Settings load error", e); }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -354,7 +413,7 @@
             const originalText = btn.innerText;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
-            
+
             try {
                 const username = document.getElementById('username-input').value;
                 const bni = document.getElementById('bank-name-input');
@@ -363,16 +422,16 @@
                 const accNum = ani ? ani.value : "";
                 const accni = document.getElementById('account-name-input');
                 const accName = accni ? accni.value : "";
-                
+
                 await window.api.updateProfile(username, "N/A", bankName, accNum, accName);
-                
+
                 btn.innerHTML = '<i class="fas fa-check"></i> Saved';
                 triggerAutoSave();
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 btn.innerHTML = '<i class="fas fa-times"></i> Error';
             }
-            
+
             setTimeout(() => {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -386,7 +445,7 @@
         async function updatePassword(event) {
             const btn = event.target || event.currentTarget;
             const originalText = btn.innerText;
-            
+
             const curPwd = document.getElementById('current-pwd').value;
             const newPwd = document.getElementById('new-pwd').value;
             const confPwd = document.getElementById('confirm-pwd').value;
@@ -396,7 +455,7 @@
 
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
-            
+
             try {
                 await window.api.changePassword(curPwd, newPwd);
                 btn.innerHTML = '<i class="fas fa-check"></i> Updated';
@@ -404,7 +463,7 @@
                 document.getElementById('current-pwd').value = '';
                 document.getElementById('new-pwd').value = '';
                 document.getElementById('confirm-pwd').value = '';
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 btn.innerHTML = '<i class="fas fa-times"></i> Error';
                 alert(e.message);
@@ -418,14 +477,14 @@
             clearTimeout(typeTimer);
             const status = document.getElementById('username-status');
             const input = document.getElementById('username-input');
-            
+
             status.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Checking availability...</span>';
             status.className = "input-helper mt-2";
-            
+
             typeTimer = setTimeout(() => {
-                if(input.value.length < 3) {
+                if (input.value.length < 3) {
                     status.innerHTML = '<span class="text-red" style="color:#ff4444;"><i class="fas fa-times-circle"></i> Too short</span>';
-                } else if(input.value.toLowerCase() === 'admin') {
+                } else if (input.value.toLowerCase() === 'admin') {
                     status.innerHTML = '<span class="text-red" style="color:#ff4444;"><i class="fas fa-times-circle"></i> Username taken</span>';
                     input.style.borderColor = '#ff4444';
                 } else {
@@ -438,34 +497,64 @@
         // Danger Zone Modals
         function openDeleteModal() { document.getElementById('delete-modal').style.display = 'flex'; }
         function closeDeleteModal() { document.getElementById('delete-modal').style.display = 'none'; }
-        
+
         // Avatar Preview (simulated)
-        document.getElementById('avatar-upload').addEventListener('change', function(e) {
-            if(e.target.files && e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgTag = `<img src="${e.target.result}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                    document.getElementById('profile-avatar-preview').innerHTML = imgTag;
+        // document.getElementById('avatar-upload').addEventListener('change', function(e) {
+        //     if(e.target.files && e.target.files[0]) {
+        //         const reader = new FileReader();
+        //         reader.onload = function(e) {
+        //             const imgTag = `<img src="${e.target.result}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+        //             document.getElementById('profile-avatar-preview').innerHTML = imgTag;
+        //             const headerAvatar = document.getElementById('global-header-avatar');
+        //             if(headerAvatar) {
+        //                 headerAvatar.innerHTML = imgTag;
+        //             }
+        //             triggerAutoSave();
+        //         }
+        //         reader.readAsDataURL(e.target.files[0]);
+        //     }
+        // });
+        document.getElementById('avatar-upload').addEventListener('change', async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const previewContainer = document.getElementById('profile-avatar-preview');
+
+
+            previewContainer.innerHTML = '<i class="fas fa-spinner fa-spin text-orange" style="font-size: 2rem;"></i>';
+
+            try {
+                const result = await window.api.uploadAvatar(file);
+
+                if (result && result.uploadAvatar && result.uploadAvatar.avatarUrl) {
+                    const permanentUrl = result.uploadAvatar.avatarUrl;
+                    const imgTag = `<img src="${permanentUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+
+                    previewContainer.innerHTML = imgTag;
+
                     const headerAvatar = document.getElementById('global-header-avatar');
-                    if(headerAvatar) {
+                    if (headerAvatar) {
                         headerAvatar.innerHTML = imgTag;
                     }
+
                     triggerAutoSave();
                 }
-                reader.readAsDataURL(e.target.files[0]);
+            } catch (err) {
+                console.error("Avatar upload failed:", err);
+                previewContainer.innerHTML = '<i class="fas fa-user"></i>'; // Reset to default
+                alert("Failed to upload avatar. Ensure the image is under 2MB.");
             }
         });
-
         // Smooth Scrolling for Settings Nav
         document.querySelectorAll('.settings-menu a').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 document.querySelectorAll('.settings-menu a').forEach(a => a.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 const targetId = this.getAttribute('href').substring(1);
                 const targetSection = document.getElementById(targetId);
-                
+
                 // Adjust for fixed header if needed
                 window.scrollTo({
                     top: targetSection.offsetTop - 100,
@@ -473,11 +562,11 @@
                 });
             });
         });
-        
+
         // Intersection Observer to highlight nav on scroll
         const sections = document.querySelectorAll('.settings-section');
         const navLinks = document.querySelectorAll('.settings-menu a');
-        
+
         window.addEventListener('scroll', () => {
             let current = '';
             sections.forEach(section => {
@@ -486,7 +575,7 @@
                     current = section.getAttribute('id');
                 }
             });
-            
+
             navLinks.forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href').substring(1) === current) {
@@ -498,5 +587,3 @@
 </body>
 
 </html>
-
-
