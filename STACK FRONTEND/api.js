@@ -35,24 +35,56 @@ const BASE_URL = IS_PRODUCTION
 
 const API_ENDPOINT = `${BASE_URL}/graphql/`;
 
-async function graphqlRequest(query, variables = {}) {
-    const token = localStorage.getItem('stack_arena_token');
+// async function graphqlRequest(query, variables = {}) {
+//     const token = localStorage.getItem('stack_arena_token');
 
+//     try {
+//         const response = await fetch(API_ENDPOINT, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json',
+//             },
+//             body: JSON.stringify({ query, variables }),
+//             credentials: 'include'
+//         });
+
+
+//         if (response.status === 401) {
+//             localStorage.removeItem('stack_arena_token');
+//             window.location.href = '/login.html';
+//             return;
+//         }
+
+//         const json = await response.json();
+
+//         if (json.errors) {
+//             console.error("GraphQL Errors:", json.errors);
+//             throw new Error(json.errors[0].message || "GraphQL Error");
+//         }
+
+//         return json.data;
+//     } catch (error) {
+//         console.error("API Request Failed:", error);
+//         throw error;
+//     }
+// }
+
+async function graphqlRequest(query, variables = {}) {
     try {
         const response = await fetch(API_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                ...(token && { 'Authorization': `JWT ${token}` })
             },
-            body: JSON.stringify({ query, variables })
+            body: JSON.stringify({ query, variables }),
+            credentials: 'include'
         });
 
-
-        if (response.status === 401) {
-            localStorage.removeItem('stack_arena_token');
-            window.location.href = '/login.html';
+        if (response.status === 401 || response.status === 403) {
+            console.warn("Session expired or unauthorized. Redirecting to login...");
+            window.location.href = 'login.html';
             return;
         }
 
@@ -60,6 +92,10 @@ async function graphqlRequest(query, variables = {}) {
 
         if (json.errors) {
             console.error("GraphQL Errors:", json.errors);
+            if (json.errors[0].message.toLowerCase().includes('not logged in')) {
+                window.location.href = 'login.html';
+                return;
+            }
             throw new Error(json.errors[0].message || "GraphQL Error");
         }
 
@@ -77,7 +113,6 @@ const api = {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
-                    token
                     id
                     gamerTag
                     bonusSc
