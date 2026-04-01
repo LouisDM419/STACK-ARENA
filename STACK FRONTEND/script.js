@@ -6,8 +6,9 @@ let currentUserProfile = null;
 async function initSessionCheck() {
     try {
         if (window.api && window.api.myProfile) {
-            const profile = await window.api.myProfile();
-            if (profile) {
+            const profileData = await window.api.myProfile();
+            if (profileData && profileData.myProfile) {
+                const profile = profileData.myProfile;
                 currentUserProfile = profile;
                 const btnLoginNav = document.getElementById('btn-login-nav');
                 const btnSignupNav = document.getElementById('btn-signup-nav');
@@ -18,9 +19,13 @@ async function initSessionCheck() {
                 if (profileNav) {
                     profileNav.style.display = 'flex';
                     const nameEl = profileNav.querySelector('.profile-name');
-                    if (nameEl) nameEl.innerText = profile.gamerTag;
+                    if (nameEl) nameEl.innerText = profile.gamerTag || 'Player';
                     const balEl = profileNav.querySelector('.profile-bal');
-                    if (balEl) balEl.innerText = `${profile.realSc} SC`;
+                    if (balEl) {
+                        const r = profile.realSc || 0;
+                        const b = profile.bonusSc || 0;
+                        balEl.innerText = `${r + b} SC`;
+                    }
                 }
                 return true;
             }

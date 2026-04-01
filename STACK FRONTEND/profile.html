@@ -287,9 +287,11 @@
 
             // Populate Header SC for Logged in user unconditionally
             try {
-                const myProf = await window.api.myProfile();
-                if (myProf && document.getElementById('header-sc')) {
-                    document.getElementById('header-sc').innerText = myProf.realSc + myProf.bonusSc;
+                const myProfReq = await window.api.myProfile();
+                if (myProfReq && myProfReq.myProfile && document.getElementById('header-sc')) {
+                    const r = myProfReq.myProfile.realSc || 0;
+                    const b = myProfReq.myProfile.bonusSc || 0;
+                    document.getElementById('header-sc').innerText = r + b;
                 }
             } catch (e) { }
 
@@ -299,17 +301,19 @@
                     const profReq = await window.api.myProfile();
                     const statsReq = await window.api.myStats();
 
-                    if (profReq && statsReq) {
-                        const profile = profReq;
+                    if (profReq && profReq.myProfile && statsReq && statsReq.myStats) {
+                        const profile = profReq.myProfile;
                         const stats = statsReq.myStats;
 
                         document.getElementById('prof-gamerTag').innerText = profile.gamerTag || 'PlayerOne';
                         if (profile.user) {
-                            document.getElementById('prof-email').innerText = 'Email: ' + profile.user.email;
+                            document.getElementById('prof-email').innerText = 'Email: ' + (profile.user.email || 'Unknown');
+                            document.getElementById('prof-email').style.display = 'block';
                             const dJoined = new Date(profile.user.dateJoined).toLocaleDateString();
                             document.getElementById('prof-date').innerText = 'Joined: ' + dJoined;
                         } else {
-                            document.getElementById('prof-email').innerText = 'Email: hidden';
+                            document.getElementById('prof-email').innerText = 'Email: Unknown';
+                            document.getElementById('prof-email').style.display = 'block';
                             document.getElementById('prof-date').innerText = 'Joined: unknown';
                         }
 
@@ -322,11 +326,14 @@
                         if (profile.winStreak > 0) {
                             document.getElementById('prof-streak-badge').style.display = 'flex';
                             document.getElementById('prof-streak').innerText = profile.winStreak + ' Wins';
+                        } else {
+                            document.getElementById('prof-streak-badge').style.display = 'flex';
+                            document.getElementById('prof-streak').innerText = '0 Wins';
                         }
 
-                        document.getElementById('prof-matches').innerText = stats.totalMatches;
-                        document.getElementById('prof-wins').innerText = stats.wins;
-                        document.getElementById('prof-winrate').innerText = stats.winRate + '%';
+                        document.getElementById('prof-matches').innerText = stats.totalMatches || 0;
+                        document.getElementById('prof-wins').innerText = stats.wins || 0;
+                        document.getElementById('prof-winrate').innerText = (stats.winRate || 0) + '%';
 
                         document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-outline" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Edit Settings</button>`;
 
@@ -348,8 +355,9 @@
 
                     if (targetUser) {
                         document.getElementById('prof-gamerTag').innerText = targetUser.gamerTag;
-                        document.getElementById('prof-email').style.display = 'none';
-                        document.getElementById('prof-date').innerText = 'Joined: hidden';
+                        document.getElementById('prof-email').innerText = 'Email: ' + (targetUser.email || 'Private');
+                        document.getElementById('prof-email').style.display = 'block';
+                        document.getElementById('prof-date').innerText = 'Joined: Not Available';
 
                         let rankTitle = 'Rookie';
                         if (targetUser.rankPoints > 500) rankTitle = 'Bronze';
@@ -357,9 +365,9 @@
                         if (targetUser.rankPoints > 2000) rankTitle = 'Gold';
                         document.getElementById('prof-tier').innerText = rankTitle;
 
-                        document.getElementById('prof-matches').innerText = targetUser.totalMatches;
-                        document.getElementById('prof-wins').innerText = targetUser.wins;
-                        document.getElementById('prof-winrate').innerText = targetUser.winRate + '%';
+                        document.getElementById('prof-matches').innerText = targetUser.totalMatches || 0;
+                        document.getElementById('prof-wins').innerText = targetUser.wins || 0;
+                        document.getElementById('prof-winrate').innerText = (targetUser.winRate || 0) + '%';
 
                         document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
 
@@ -367,17 +375,18 @@
                     } else {
                         // Mock dynamic user generation if not on leaderboard so search always works for demo
                         document.getElementById('prof-gamerTag').innerText = userQuery;
-                        document.getElementById('prof-email').style.display = 'none';
-                        document.getElementById('prof-date').innerText = 'Joined: hidden';
+                        document.getElementById('prof-email').innerText = 'Email: Private';
+                        document.getElementById('prof-email').style.display = 'block';
+                        document.getElementById('prof-date').innerText = 'Joined: Not Available';
                         document.getElementById('prof-tier').innerText = 'Rookie';
 
                         const randMatches = Math.floor(Math.random() * 50) + 5;
                         const randWins = Math.floor(randMatches * (Math.random() * 0.4 + 0.3));
                         const randWr = Math.round((randWins / randMatches) * 100);
 
-                        document.getElementById('prof-matches').innerText = randMatches;
-                        document.getElementById('prof-wins').innerText = randWins;
-                        document.getElementById('prof-winrate').innerText = randWr + '%';
+                        document.getElementById('prof-matches').innerText = randMatches || 0;
+                        document.getElementById('prof-wins').innerText = randWins || 0;
+                        document.getElementById('prof-winrate').innerText = (randWr || 0) + '%';
 
                         document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
 

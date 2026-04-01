@@ -222,6 +222,31 @@ const api = {
         `;
         return await graphqlRequest(query, { input: { matchId, claimedWin } });
     },
+    async uploadAvatar(file) {
+        const query = `
+            mutation UploadAvatar($file: Upload!) {
+                uploadAvatar(file: $file) {
+                    id
+                    avatarUrl
+                }
+            }
+        `;
+        // We pass 'file' as the fileKey so the function knows where to map it
+        return await graphqlFileUpload(query, {}, 'file', file);
+    },
+
+    async submitMatchProof(matchId, file) {
+        const query = `
+            mutation SubmitMatchProof($matchId: ID!, $proof: Upload!) {
+                submitMatchProof(matchId: $matchId, proof: $proof) {
+                    id
+                    status
+                }
+            }
+        `;
+        // We pass 'proof' as the fileKey
+        return await graphqlFileUpload(query, { matchId }, 'proof', file);
+    },
 
     async cancelMatch(matchId) {
         const query = `
@@ -379,6 +404,54 @@ const api = {
         return await graphqlRequest(query);
     }
 };
+// Add this right below your existing graphqlRequest function
+async function graphqlFileUpload(query, variables = {}, fileKey, fileObj) {
+    try {
+        const formData = new FormData();
 
+        // 1. Create the standard GraphQL operations object
+        // We set the actual file variable to 'null' as a placeholder
+        const operations = {
+            query,
+            variables: { ...variables, [fileKey]: null }
+        };
+        formData.append('operations', JSON.stringify(operations));
+
+        // 2. Create the map that tells the server where to put the file
+        const map = {
+            "0": [`variables.${fileKey}`]
+        };
+        formData.append('map', JSON.stringify(map));
+
+        // 3. Append the actual physical file
+        formData.append('0', fileObj);
+
+        // 4. Send the request
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+            // CRITICAL: Do NOT set 'Content-Type' manually here!
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            console.warn("Session expired. Redirecting to login...");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const json = await response.json();
+
+        if (json.errors) {
+            console.error("GraphQL Upload Errors:", json.errors);
+            throw new Error(json.errors[0].message || "Upload Failed");
+        }
+
+        return json.data;
+    } catch (error) {
+        console.error("API Upload Failed:", error);
+        throw error;
+    }
+}
 // Export to global scope for static HTML pages
 window.api = api;
