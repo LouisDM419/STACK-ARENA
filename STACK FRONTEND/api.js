@@ -130,6 +130,15 @@ const api = {
         return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled } });
     },
 
+    async verifyEmail(email, otp) {
+        const query = `
+            mutation VerifyEmail($email: String!, $otp: String!) {
+                verifyEmail(email: $email, otp: $otp)
+            }
+        `;
+        return await graphqlRequest(query, { email, otp });
+    },
+
     async changePassword(currentPassword, newPassword) {
         const query = `
             mutation ChangePassword($input: ChangePasswordInput!) {
