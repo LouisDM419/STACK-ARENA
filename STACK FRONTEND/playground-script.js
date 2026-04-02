@@ -40,12 +40,26 @@ const app = {
         document.getElementById('lobby-bonus-bal').innerText = appState.currentUser.bonusSc;
     },
 
+    // async refreshMatches() {
+    //     try {
+    //         appState.myMatches = await window.api.myMatches() || [];
+    //         appState.openMatches = await window.api.openMatches() || [];
+    //     } catch (e) {
+    //         console.error("Failed to load matches", e);
+    //     }
+    // },
     async refreshMatches() {
         try {
-            appState.myMatches = await window.api.myMatches() || [];
-            appState.openMatches = await window.api.openMatches() || [];
+            const myRes = await window.api.myMatches();
+            const openRes = await window.api.openMatches();
+
+            appState.myMatches = (myRes && myRes.myMatches) ? myRes.myMatches : [];
+            appState.openMatches = (openRes && openRes.openMatches) ? openRes.openMatches : [];
+
         } catch (e) {
             console.error("Failed to load matches", e);
+            appState.myMatches = [];
+            appState.openMatches = [];
         }
     },
 
