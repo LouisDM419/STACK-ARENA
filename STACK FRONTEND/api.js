@@ -73,6 +73,53 @@ const api = {
         `;
         return await graphqlRequest(query, { input: { email, password } });
     },
+    matchSocket: null,
+
+    subscribeToMatch(matchId, onUpdateCallback) {
+        this.unsubscribeFromMatch();
+
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/graphql/`;
+
+        this.matchSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+        this.matchSocket.onopen = () => {
+            this.matchSocket.send(JSON.stringify({ type: 'connection_init' }));
+        };
+
+        this.matchSocket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+
+            if (msg.type === 'connection_ack') {
+                const query = `
+                    subscription WatchMatch($matchId: ID!) {
+                        watchMatch(matchId: $matchId) {
+                            id status roomId hostReady guestReady
+                            guest { id gamerTag }
+                            winner { id gamerTag }
+                        }
+                    }
+                `;
+                this.matchSocket.send(JSON.stringify({
+                    id: `match_${matchId}`,
+                    type: 'subscribe',
+                    payload: { query, variables: { matchId } }
+                }));
+            }
+            else if (msg.type === 'next' && msg.payload && msg.payload.data) {
+                onUpdateCallback(msg.payload.data.watchMatch);
+            }
+        };
+
+        this.matchSocket.onerror = (err) => console.error("WebSocket Error:", err);
+    },
+
+    unsubscribeFromMatch() {
+        if (this.matchSocket) {
+            this.matchSocket.close();
+            this.matchSocket = null;
+        }
+    },
 
     async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true) {
         const query = `

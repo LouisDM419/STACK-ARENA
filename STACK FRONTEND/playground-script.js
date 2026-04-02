@@ -335,6 +335,34 @@ const app = {
 
         this.renderActionArea(match, isHost);
         this.navigate('match-details');
+
+        //added sockets here for our match task
+
+        window.api.subscribeToMatch(matchId, (updatedData) => {
+            console.log("Real-Time Update Received:", updatedData);
+
+
+            Object.assign(match, updatedData);
+
+            document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
+            document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
+
+
+            if (match.roomId && document.getElementById('details-room-card')) {
+                document.getElementById('details-room-card').style.display = 'block';
+                document.getElementById('details-room-id').innerText = match.roomId;
+            }
+
+            if (match.guest) {
+                document.getElementById('p2-username').innerText = match.guest.gamerTag;
+                document.getElementById('p2-avatar-container').classList.add('ready');
+                document.getElementById('p2-avatar-container').classList.remove('waiting');
+                document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
+            }
+
+
+            this.renderActionArea(match, isHost);
+        });
     },
     async refreshCurrentMatch() {
         if (!appState.currentMatchId) return;
@@ -367,9 +395,7 @@ const app = {
         const area = document.getElementById('details-action-area');
         let html = `
             <div style="text-align: right; margin-bottom: 15px;">
-                <button id="btn-refresh-match" class="btn btn-sm btn-outline" style="border-color: rgba(255,255,255,0.2); color: var(--text-muted);" onclick="app.refreshCurrentMatch()">
-                    <i class="fas fa-sync-alt"></i> Refresh Status
-                </button>
+            
             </div>
         `;
 
