@@ -150,6 +150,32 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="verify-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div class="dash-panel"
+            style="width: 400px; max-width: 90%; background: #1a1a24; border: 1px solid rgba(255,255,255,0.1); position: relative;">
+            <button class="close-modal" onclick="closeVerifyModal()"
+                style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i
+                    class="fas fa-times"></i></button>
+
+            <div class="text-center">
+                <i class="fas fa-envelope-open-text text-gold" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <h3 style="color:#fff; margin-bottom: 10px;">Verify Account</h3>
+                <p class="text-muted mb-4" style="font-size: 0.9rem;">We sent a 4-digit code to your email. Enter it
+                    below to activate your account.</p>
+            </div>
+
+            <div class="input-group mb-4">
+                <label>4-Digit OTP Code</label>
+                <input type="text" id="verify-otp" class="settings-input text-center" placeholder="e.g. 1234"
+                    maxlength="4" style="letter-spacing: 5px; font-size: 1.2rem; font-weight: bold;">
+            </div>
+
+            <button class="btn btn-primary full-width" id="btn-verify-account" onclick="processVerification()">Verify &
+                Log In</button>
+        </div>
+    </div>
+
     <script src="api.js"></script>
     <script>
         // UI Helpers
@@ -200,7 +226,53 @@
                 await window.api.loginUser(email, pass);
                 window.location.href = 'dashboard.html';
             } catch (err) {
-                showError(err.message || "Invalid credentials. Please try again.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+
+                // --- THE INTERCEPTOR: Checks for the backend string ---
+                if (err.message && err.message.includes("UNVERIFIED_ACCOUNT")) {
+                    window.pendingVerificationEmail = email;
+                    window.pendingVerificationPass = pass; // Store password to auto-login after verifying
+
+                    document.getElementById('verify-modal').style.display = 'flex';
+                    showSuccess("A verification code was sent to your email.");
+                } else {
+                    showError(err.message || "Invalid credentials. Please try again.");
+                }
+            }
+        }
+
+        // --- Verify Account Logic (NEW) ---
+        function closeVerifyModal() {
+            document.getElementById('verify-modal').style.display = 'none';
+        }
+
+        async function processVerification() {
+            const otpCode = document.getElementById('verify-otp').value.trim();
+            const email = window.pendingVerificationEmail;
+
+            if (!otpCode || otpCode.length !== 4) return alert("Please enter the 4-digit OTP.");
+            if (!email) return alert("Session lost. Please try logging in again.");
+
+            const btn = document.getElementById('btn-verify-account');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.disabled = true;
+
+            try {
+                // Verify the account
+                await window.api.verifyAccount(email, otpCode);
+
+                closeVerifyModal();
+                showSuccess("Account Verified! Logging you in...");
+
+                // Auto-login since they already provided the correct password earlier
+                const pass = window.pendingVerificationPass || document.getElementById('login-password').value;
+                await window.api.loginUser(email, pass);
+                window.location.href = 'dashboard.html';
+
+            } catch (err) {
+                alert(err.message || "Invalid or expired OTP code.");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -264,7 +336,7 @@
                 closeForgotModal();
                 document.getElementById('login-password').value = '';
 
-                const successText = response.confirmPasswordReset || "Password updated! You can now log in.";
+                const successText = responseMsg.confirmPasswordReset || "Password updated! You can now log in.";
                 showSuccess(successText);
 
             } catch (err) {
