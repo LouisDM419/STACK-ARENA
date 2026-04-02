@@ -261,7 +261,7 @@
 
             try {
                 // Verify the account
-                await window.api.verifyAccount(email, otpCode);
+                await window.api.verifyEmail(email, otpCode);
 
                 closeVerifyModal();
                 showSuccess("Account Verified! Logging you in...");
