@@ -1,32 +1,3 @@
-// api.js - Stack Arena GraphQL API Hooks
-
-
-// const API_ENDPOINT = '/graphql';
-// async function graphqlRequest(query, variables = {}) {
-//     try {
-//         const response = await fetch(API_ENDPOINT, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Accept': 'application/json',
-//             },
-//             body: JSON.stringify({ query, variables })
-//         });
-
-//         const json = await response.json();
-
-//         if (json.errors) {
-//             console.error("GraphQL Errors:", json.errors);
-//             throw new Error(json.errors[0].message || "GraphQL Error");
-//         }
-
-//         return json.data;
-//     } catch (error) {
-//         console.error("API Request Failed:", error);
-//         throw error;
-//     }
-// }
-
 const IS_PRODUCTION = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
 const BASE_URL = IS_PRODUCTION
@@ -34,6 +5,7 @@ const BASE_URL = IS_PRODUCTION
     : 'http://localhost:8000';
 
 const API_ENDPOINT = `${BASE_URL}/graphql/`;
+
 const fileToBase64 = (file) => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -78,21 +50,13 @@ async function graphqlRequest(query, variables = {}) {
     }
 }
 
-
-
 const api = {
     // 1. Accounts API
     async registerUser(email, password, gamerTag, fullname = "New User", gender = "Prefer Not to Say") {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
-                    id
-                    gamerTag
-                    bonusSc
-                    user {
-                        id
-                        email
-                    }
+                    id gamerTag bonusSc user { id email }
                 }
             }
         `;
@@ -103,27 +67,18 @@ const api = {
         const query = `
             mutation LoginUser($input: LoginInput!) {
                 loginUser(input: $input) {
-                    id
-                    gamerTag
-                    realSc
-                    bonusSc
+                    id gamerTag realSc bonusSc
                 }
             }
         `;
-
-        const data = await graphqlRequest(query, { input: { email, password } });
-        return data;
+        return await graphqlRequest(query, { input: { email, password } });
     },
 
     async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true) {
         const query = `
             mutation UpdateProfile($input: UpdateProfileInput!) {
                 updateProfile(input: $input) {
-                    id
-                    gamerTag
-                    bankName
-                    accountNumber
-                    accountName
+                    id gamerTag bankName accountNumber accountName
                 }
             }
         `;
@@ -152,24 +107,36 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id
-                    gamerTag
-                    realSc
-                    avatarUrl
-                    bonusSc
-                    rankPoints
-                    lockedWinnings
-                    winStreak
-                    bankName
-                    accountNumber
-                    user {
-                        email
-                        dateJoined
-                    }
+                    id gamerTag realSc avatarUrl bonusSc rankPoints lockedWinnings winStreak bankName accountNumber user { email dateJoined }
                 }
             }
         `;
         return await graphqlRequest(query);
+    },
+
+    // BASE 64 IMAGE UPLOADS ONLY
+    async uploadAvatar(file) {
+        const base64String = await fileToBase64(file);
+        const query = `
+            mutation UploadAvatar($fileBase64: String!, $fileName: String!) {
+                uploadAvatar(fileBase64: $fileBase64, fileName: $fileName) {
+                    id avatarUrl
+                }
+            }
+        `;
+        return await graphqlRequest(query, { fileBase64: base64String, fileName: file.name });
+    },
+
+    async submitMatchProof(matchId, file) {
+        const base64String = await fileToBase64(file);
+        const query = `
+            mutation SubmitMatchProof($matchId: ID!, $fileBase64: String!, $fileName: String!) {
+                submitMatchProof(matchId: $matchId, fileBase64: $fileBase64, fileName: $fileName) {
+                    id status
+                }
+            }
+        `;
+        return await graphqlRequest(query, { matchId, fileBase64: base64String, fileName: file.name });
     },
 
     // 2. Matchmaking API
@@ -177,11 +144,7 @@ const api = {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
-                    id
-                    status
-                    entryFeeSc
-                    gameTitle
-                    host { id email }
+                    id status entryFeeSc gameTitle host { id email }
                 }
             }
         `;
@@ -192,9 +155,7 @@ const api = {
         const query = `
             mutation JoinMatch($input: JoinMatchInput!) {
                 joinMatch(input: $input) {
-                    id
-                    status
-                    guest { id }
+                    id status guest { id }
                 }
             }
         `;
@@ -205,9 +166,7 @@ const api = {
         const query = `
             mutation UpdateRoomId($input: UpdateRoomIdInput!) {
                 updateRoomId(input: $input) {
-                    id
-                    status
-                    roomId
+                    id status roomId
                 }
             }
         `;
@@ -217,10 +176,7 @@ const api = {
     async readyUp(matchId) {
         const query = `
             mutation ReadyUp($input: ReadyUpInput!) {
-                readyUp(input: $input) {
-                    id
-                    status
-                }
+                readyUp(input: $input) { id status }
             }
         `;
         return await graphqlRequest(query, { input: { matchId } });
@@ -230,78 +186,17 @@ const api = {
         const query = `
             mutation ReportMatchResult($input: ReportMatchResultInput!) {
                 reportMatchResult(input: $input) {
-                    id
-                    status
-                    winner { id gamerTag }
+                    id status winner { id gamerTag }
                 }
             }
         `;
         return await graphqlRequest(query, { input: { matchId, claimedWin } });
     },
-    //OLD AVATAR UPLOAD I DID USING GRAPH
-    // async uploadAvatar(file) {
-    //     const query = `
-    //         mutation UploadAvatar($file: Upload!) {
-    //             uploadAvatar(file: $file) {
-    //                 id
-    //                 avatarUrl
-    //             }
-    //         }
-    //     `;
-    //     // We pass 'file' as the fileKey so the function knows where to map it
-    //     return await graphqlFileUpload(query, {}, 'file', file);
-    // },
-    //new AVATAR UPLOAD I DID USING BASE64
-
-    async uploadAvatar(file) {
-        // Convert the physical file to a string
-        const base64String = await fileToBase64(file);
-
-        const query = `
-            mutation UploadAvatar($fileBase64: String!, $fileName: String!) {
-                uploadAvatar(fileBase64: $fileBase64, fileName: $fileName) {
-                    id
-                    avatarUrl
-                }
-            }
-        `;
-        // Send it via standard JSON!
-        return await graphqlRequest(query, { fileBase64: base64String, fileName: file.name });
-    },
-
-    async submitMatchProof(matchId, file) {
-        const base64String = await fileToBase64(file);
-        const query = `
-            mutation SubmitMatchProof($matchId: ID!, $fileBase64: String!, $fileName: String!) {
-                submitMatchProof(matchId: $matchId, fileBase64: $fileBase64, fileName: $fileName) {
-                    id
-                    status
-                }
-            }
-        `;
-        return await graphqlRequest(query, { matchId, fileBase64: base64String, fileName: file.name });
-    },
-
-    async submitMatchProof(matchId, file) {
-        const query = `
-            mutation SubmitMatchProof($matchId: ID!, $proof: Upload!) {
-                submitMatchProof(matchId: $matchId, proof: $proof) {
-                    id
-                    status
-                }
-            }
-        `;
-        // We pass 'proof' as the fileKey
-        return await graphqlFileUpload(query, { matchId }, 'proof', file);
-    },
 
     async cancelMatch(matchId) {
         const query = `
             mutation CancelMatch($input: CancelMatchInput!) {
-                cancelMatch(input: $input) {
-                    id
-                    status
-                }
+                cancelMatch(input: $input) { id status }
             }
         `;
         return await graphqlRequest(query, { input: { matchId } });
@@ -311,9 +206,7 @@ const api = {
         const query = `
             mutation ResolveDispute($input: ResolveDisputeInput!) {
                 resolveDispute(input: $input) {
-                    id
-                    status
-                    winner { id }
+                    id status winner { id }
                 }
             }
         `;
@@ -324,11 +217,7 @@ const api = {
         const query = `
             query {
                 openMatches {
-                    id
-                    gameTitle
-                    entryFeeSc
-                    status
-                    host { id email gamerTag }
+                    id gameTitle entryFeeSc status host { id email gamerTag }
                 }
             }
         `;
@@ -339,14 +228,7 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id
-                    status
-                    gameTitle
-                    entryFeeSc
-                    roomId
-                    host { id gamerTag }
-                    guest { id gamerTag }
-                    winner { id gamerTag }
+                    id status gameTitle entryFeeSc roomId host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
             }
         `;
@@ -357,15 +239,7 @@ const api = {
         const query = `
             query {
                 myStats {
-                    gamerTag
-                    totalMatches
-                    wins
-                    losses
-                    winRate
-                    rankPoints
-                    realSc
-                    bonusSc
-                    lockedWinnings
+                    gamerTag totalMatches wins losses winRate rankPoints realSc bonusSc lockedWinnings
                 }
             }
         `;
@@ -376,11 +250,7 @@ const api = {
         const query = `
             query GlobalLeaderboard($limit: Int) {
                 globalLeaderboard(limit: $limit) {
-                    gamerTag
-                    totalMatches
-                    wins
-                    winRate
-                    rankPoints
+                    gamerTag totalMatches wins winRate rankPoints
                 }
             }
         `;
@@ -392,12 +262,7 @@ const api = {
         const query = `
             query {
                 myDailyMissions {
-                    id
-                    title
-                    currentValue
-                    targetValue
-                    isCompleted
-                    rewardBonusSc
+                    id title currentValue targetValue isCompleted rewardBonusSc
                 }
             }
         `;
@@ -418,8 +283,7 @@ const api = {
         const query = `
             mutation InitializeDeposit($amountNgn: Int!) {
                 initializeDeposit(amountNgn: $amountNgn) {
-                    authorizationUrl
-                    reference
+                    authorizationUrl reference
                 }
             }
         `;
@@ -439,66 +303,12 @@ const api = {
         const query = `
             query {
                 myWalletHistory {
-                    id
-                    amountSc
-                    transactionType
-                    status
-                    reference
-                    createdAt
+                    id amountSc transactionType status reference createdAt
                 }
             }
         `;
         return await graphqlRequest(query);
     }
 };
-// Add this right below your existing graphqlRequest function
-async function graphqlFileUpload(query, variables = {}, fileKey, fileObj) {
-    try {
-        const formData = new FormData();
 
-        // 1. Create the standard GraphQL operations object
-        // We set the actual file variable to 'null' as a placeholder
-        const operations = {
-            query,
-            variables: { ...variables, [fileKey]: null }
-        };
-        formData.append('operations', JSON.stringify(operations));
-
-        // 2. Create the map that tells the server where to put the file
-        const map = {
-            "0": [`variables.${fileKey}`]
-        };
-        formData.append('map', JSON.stringify(map));
-
-        // 3. Append the actual physical file
-        formData.append('0', fileObj);
-
-        // 4. Send the request
-        const response = await fetch(API_ENDPOINT, {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-            // CRITICAL: Do NOT set 'Content-Type' manually here!
-        });
-
-        if (response.status === 401 || response.status === 403) {
-            console.warn("Session expired. Redirecting to login...");
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const json = await response.json();
-
-        if (json.errors) {
-            console.error("GraphQL Upload Errors:", json.errors);
-            throw new Error(json.errors[0].message || "Upload Failed");
-        }
-
-        return json.data;
-    } catch (error) {
-        console.error("API Upload Failed:", error);
-        throw error;
-    }
-}
-// Export to global scope for static HTML pages
 window.api = api;
