@@ -261,11 +261,11 @@
 
             try {
                 const responseMsg = await window.api.confirmPasswordReset(resetEmailStore, otp, newPassword);
-
-                // Success! Close modal and show banner
                 closeForgotModal();
-                document.getElementById('login-password').value = ''; // Clear old pass
-                showSuccess(responseMsg || "Password updated! You can now log in.");
+                document.getElementById('login-password').value = '';
+
+                const successText = response.confirmPasswordReset || "Password updated! You can now log in.";
+                showSuccess(successText);
 
             } catch (err) {
                 alert(err.message || "Failed to reset password. OTP may be invalid.");

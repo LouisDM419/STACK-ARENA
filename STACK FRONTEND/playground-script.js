@@ -34,7 +34,7 @@ const app = {
     },
 
     updateBalances() {
-        if(!appState.currentUser) return;
+        if (!appState.currentUser) return;
         document.getElementById('header-real-bal').innerText = appState.currentUser.realSc;
         document.getElementById('lobby-real-bal').innerText = appState.currentUser.realSc;
         document.getElementById('lobby-bonus-bal').innerText = appState.currentUser.bonusSc;
@@ -44,7 +44,7 @@ const app = {
         try {
             appState.myMatches = await window.api.myMatches() || [];
             appState.openMatches = await window.api.openMatches() || [];
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to load matches", e);
         }
     },
@@ -53,7 +53,7 @@ const app = {
         document.querySelectorAll('.pg-view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-' + view).classList.add('active');
         appState.currentView = view;
-        
+
         if (view === 'lobby') {
             this.refreshMatches().then(() => this.renderLobby());
         }
@@ -112,8 +112,8 @@ const app = {
     renderMatchCard(match, isJoinView = false) {
         const isHost = match.host && appState.currentUser && match.host.id === appState.currentUser.id;
         let oppName = "Waiting...";
-        if(isHost && match.guest) oppName = match.guest.gamerTag;
-        if(!isHost && match.host) oppName = match.host.gamerTag;
+        if (isHost && match.guest) oppName = match.guest.gamerTag;
+        if (!isHost && match.host) oppName = match.host.gamerTag;
 
         const badgeCls = this.getBadgeClass(match.status);
         const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
@@ -188,29 +188,62 @@ const app = {
         document.getElementById('create-calc-reward').innerText = reward + (isReal ? ' SC' : ' Bonus SC');
     },
 
+    // async submitCreateMatch() {
+    //     const stakeInt = parseInt(document.getElementById('create-stake').value);
+    //     const rulesVal = document.getElementById('create-rules').value.trim();
+    //     const roomIdVal = document.getElementById('create-room-id').value.trim();
+    //     const gameTitle = document.getElementById('create-game').value;
+
+    //     if (!rulesVal) return this.showToast("Please provide Match Rules/Description", "error");
+    //     if (isNaN(stakeInt) || stakeInt < 50) return this.showToast("Min stake is 50", "error");
+
+    //     try {
+    //         await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, "");
+    //         this.showToast("Match created successfully!");
+
+    //         document.getElementById('create-room-id').value = '';
+    //         document.getElementById('create-rules').value = '';
+
+    //         this.setLobbyFilter('Pending');
+    //         this.navigate('lobby');
+    //     } catch (e) {
+    //         this.showToast("Error creating match: " + e.message, "error");
+    //     }
+    // },
     async submitCreateMatch() {
         const stakeInt = parseInt(document.getElementById('create-stake').value);
         const rulesVal = document.getElementById('create-rules').value.trim();
         const roomIdVal = document.getElementById('create-room-id').value.trim();
+        const roomPassVal = document.getElementById('create-room-pass').value.trim();
         const gameTitle = document.getElementById('create-game').value;
 
+        // Force them to provide the Room ID upfront
+        if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
         if (!rulesVal) return this.showToast("Please provide Match Rules/Description", "error");
         if (isNaN(stakeInt) || stakeInt < 50) return this.showToast("Min stake is 50", "error");
 
+        const btn = document.querySelector('#view-create .btn-primary');
+        const ogText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        btn.disabled = true;
+
         try {
-            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, "");
+            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal);
             this.showToast("Match created successfully!");
-            
+
             document.getElementById('create-room-id').value = '';
+            document.getElementById('create-room-pass').value = '';
             document.getElementById('create-rules').value = '';
-            
+
             this.setLobbyFilter('Pending');
             this.navigate('lobby');
         } catch (e) {
-             this.showToast("Error creating match: " + e.message, "error");
+            this.showToast("Error creating match: " + e.message, "error");
+        } finally {
+            btn.innerHTML = ogText;
+            btn.disabled = false;
         }
     },
-
     renderJoinFeed() {
         const search = document.getElementById('join-search').value.toLowerCase();
         let openMatches = appState.openMatches.filter(m => m.matchType === appState.mode);
@@ -276,7 +309,7 @@ const app = {
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
         document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
-        
+
         const roomCard = document.getElementById('details-room-card');
         if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
             roomCard.style.display = 'block';
@@ -289,70 +322,167 @@ const app = {
         this.renderActionArea(match, isHost);
         this.navigate('match-details');
     },
+    async refreshCurrentMatch() {
+        if (!appState.currentMatchId) return;
+        const btn = document.getElementById('btn-refresh-match');
+        if (btn) btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing...';
+
+        await this.refreshMatches();
+        this.viewMatchDetails(appState.currentMatchId);
+    },
+
+    async uploadProof(matchId, inputElement) {
+        const file = inputElement.files[0];
+        if (!file) return;
+
+        const box = document.querySelector('.result-upload-box');
+        if (box) box.innerHTML = '<i class="fas fa-spinner fa-spin text-orange" style="font-size: 2rem;"></i><p class="mt-2">Uploading Proof...</p>';
+
+        try {
+            await window.api.submitMatchProof(matchId, file);
+            this.showToast("Screenshot proof uploaded successfully!");
+            if (box) box.style.display = 'none';
+            document.getElementById('proof-status').style.display = 'block';
+        } catch (err) {
+            this.showToast("Failed to upload proof: " + err.message, "error");
+            if (box) box.innerHTML = '<i class="fas fa-times-circle text-red" style="font-size: 2rem;"></i><p class="mt-2">Upload Failed. Click to Try Again.</p>';
+        }
+    },
 
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');
-        let html = "";
+        let html = `
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button id="btn-refresh-match" class="btn btn-sm btn-outline" style="border-color: rgba(255,255,255,0.2); color: var(--text-muted);" onclick="app.refreshCurrentMatch()">
+                    <i class="fas fa-sync-alt"></i> Refresh Status
+                </button>
+            </div>
+        `;
 
         if (match.status === 'OPEN') {
-            html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
+            html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
                     <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
         }
-        else if (match.status === 'STARTING') {
-             if(isHost) {
-                 html = `
-                    <div class="pg-form-group text-left" style="margin-bottom: 10px;">
-                        <label>Enter Room ID</label>
-                        <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
-                    </div>
-                    <button class="btn btn-primary" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
-                    `;
-             } else {
-                  html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
-             }
-        }
+        // else if (match.status === 'STARTING') {
+        //     if (isHost) {
+        //         html += `
+        //             <div class="pg-form-group text-left" style="margin-bottom: 10px;">
+        //                 <label>Enter Room ID</label>
+        //                 <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
+        //             </div>
+        //             <button class="btn btn-primary full-width" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
+        //             `;
+        //     } else {
+        //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
+        //     }
+        // }
         else if (match.status === 'READY_CHECK') {
-            html = `
+            html += `
                 <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
-                <button class="btn btn-primary" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+                <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
             `;
         }
         else if (match.status === 'IN_PROGRESS') {
-            html = `
+            html += `
                 <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
                 <div style="display:flex; gap:10px; justify-content:center;">
-                    <button class="btn btn-primary" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
-                    <button class="btn btn-outline" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
+                    <button class="btn btn-primary full-width" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
+                    <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
                 </div>
             `;
         }
         else if (match.status === 'COMPLETED') {
-            html = `
+            html += `
                 <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
                 <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
                 <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
             `;
         }
         else if (match.status === 'DISPUTED') {
-            html = `
+            html += `
                 <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
                 <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
-                <p style="color:var(--text-muted);">An admin is reviewing the provided screenshots.</p>
+                <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
+                
+                <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                    <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
+                </div>
+                <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
+                <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none;"><i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.</div>
             `;
+        }
+        else if (match.status === 'REPORTING') {
+            html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> You reported the result. Waiting for opponent to confirm...</p>`;
         }
 
         area.innerHTML = html;
     },
 
+    // renderActionArea(match, isHost) {
+    //     const area = document.getElementById('details-action-area');
+    //     let html = "";
+
+    //     if (match.status === 'OPEN') {
+    //         html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
+    //                 <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
+    //     }
+    //     else if (match.status === 'STARTING') {
+    //          if(isHost) {
+    //              html = `
+    //                 <div class="pg-form-group text-left" style="margin-bottom: 10px;">
+    //                     <label>Enter Room ID</label>
+    //                     <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
+    //                 </div>
+    //                 <button class="btn btn-primary" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
+    //                 `;
+    //          } else {
+    //               html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
+    //          }
+    //     }
+    //     else if (match.status === 'READY_CHECK') {
+    //         html = `
+    //             <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
+    //             <button class="btn btn-primary" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+    //         `;
+    //     }
+    //     else if (match.status === 'IN_PROGRESS') {
+    //         html = `
+    //             <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
+    //             <div style="display:flex; gap:10px; justify-content:center;">
+    //                 <button class="btn btn-primary" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
+    //                 <button class="btn btn-outline" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
+    //             </div>
+    //         `;
+    //     }
+    //     else if (match.status === 'COMPLETED') {
+    //         html = `
+    //             <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
+    //             <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+    //         `;
+    //     }
+    //     else if (match.status === 'DISPUTED') {
+    //         html = `
+    //             <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+    //             <p style="color:var(--text-muted);">An admin is reviewing the provided screenshots.</p>
+    //         `;
+    //     }
+
+    //     area.innerHTML = html;
+    // },
+
     async updateRoomId(matchId) {
         const val = document.getElementById('update-room-id-val').value;
-        if(!val) return this.showToast("Room ID required.", "error");
+        if (!val) return this.showToast("Room ID required.", "error");
         try {
             await window.api.updateRoomId(matchId, val);
             this.showToast("Room ID updated!");
             await this.refreshMatches();
             this.viewMatchDetails(matchId);
-        } catch(e) {
+        } catch (e) {
             this.showToast("Failed to update ID: " + e.message, "error");
         }
     },
@@ -363,29 +493,30 @@ const app = {
             this.showToast("You are set as Ready.");
             await this.refreshMatches();
             this.viewMatchDetails(matchId);
-        } catch(e) {
-             this.showToast("Failed to ready up: " + e.message, "error");
+        } catch (e) {
+            this.showToast("Failed to ready up: " + e.message, "error");
         }
     },
 
     async submitResult(matchId, claimedWin) {
         try {
-             await window.api.reportMatchResult(matchId, claimedWin);
-             this.showToast("Result submitted.");
-             
-             // Update player balance immediately by refreshing user profile
-             const profile = await window.api.myProfile();
-             if (profile) {
-                 appState.currentUser = profile;
-                 this.updateBalances();
-             }
-             
-             await this.refreshMatches();
-             this.viewMatchDetails(matchId);
-        } catch(e) {
-             this.showToast("Failed to submit result: " + e.message, "error");
+            await window.api.reportMatchResult(matchId, claimedWin);
+            this.showToast("Result submitted.");
+
+            // Update player balance immediately by refreshing user profile
+            const profile = await window.api.myProfile();
+            if (profile) {
+                appState.currentUser = profile;
+                this.updateBalances();
+            }
+
+            await this.refreshMatches();
+            this.viewMatchDetails(matchId);
+        } catch (e) {
+            this.showToast("Failed to submit result: " + e.message, "error");
         }
     },
+
 
     async cancelMatch(matchId) {
         try {
@@ -393,8 +524,8 @@ const app = {
             this.showToast("Match cancelled.");
             await this.refreshMatches();
             this.viewMatchDetails(matchId);
-        } catch(e) {
-             this.showToast("Failed to cancel: " + e.message, "error");
+        } catch (e) {
+            this.showToast("Failed to cancel: " + e.message, "error");
         }
     }
 };
