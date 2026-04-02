@@ -396,15 +396,14 @@
         //     } catch (e) { console.error("Settings load error", e); }
         // }
 
+        // Settings Data Loading
         async function loadSettingsData() {
             try {
                 const profile = await window.api.myProfile();
 
-                // Ensure the data actually exists before trying to read it
                 if (profile && profile.myProfile) {
                     const profileData = profile.myProfile;
 
-                    // Safe Math for Wallet Balance
                     const r = isNaN(profileData.realSc) || profileData.realSc === null ? 0 : profileData.realSc;
                     const b = isNaN(profileData.bonusSc) || profileData.bonusSc === null ? 0 : profileData.bonusSc;
                     const totalSc = r + b;
@@ -412,16 +411,30 @@
                     const balEl = document.querySelector('.wallet-bal');
                     if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
 
-                    // Avatar Load
+                    // --- AVATAR RENDERING ---
                     if (profileData.avatarUrl) {
-                        const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                        document.getElementById('profile-avatar-preview').innerHTML = imgTag;
+                        // Cache-busting: Forces the browser to load the new image instead of a cached blank one
+                        const safeUrl = profileData.avatarUrl.startsWith('http')
+                            ? profileData.avatarUrl
+                            : 'https://playstackarena.com' + profileData.avatarUrl;
+
+                        const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+
+                        const previewContainer = document.getElementById('profile-avatar-preview');
+                        if (previewContainer) {
+                            previewContainer.style.overflow = 'hidden'; // Force CSS containment
+                            previewContainer.style.padding = '0';
+                            previewContainer.innerHTML = imgTag;
+                        }
 
                         const headerAvatar = document.getElementById('global-header-avatar');
-                        if (headerAvatar) headerAvatar.innerHTML = imgTag;
+                        if (headerAvatar) {
+                            headerAvatar.style.overflow = 'hidden'; // Force CSS containment
+                            headerAvatar.style.padding = '0';
+                            headerAvatar.innerHTML = imgTag;
+                        }
                     }
 
-                    // Input Fields Load
                     if (profileData.gamerTag) document.getElementById('username-input').value = profileData.gamerTag;
                     if (profileData.bankName) {
                         const bni = document.getElementById('bank-name-input');
@@ -440,6 +453,48 @@
                 console.error("Settings load error:", e);
             }
         }
+
+        // Base64 Avatar Upload
+        document.getElementById('avatar-upload').addEventListener('change', async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const previewContainer = document.getElementById('profile-avatar-preview');
+            previewContainer.innerHTML = '<i class="fas fa-spinner fa-spin text-orange" style="font-size: 2rem;"></i>';
+
+            try {
+                const result = await window.api.uploadAvatar(file);
+
+                // CRITICAL DIAGNOSTIC: Look at your browser console after uploading!
+                console.log("=== UPLOAD SERVER RESPONSE ===", result);
+
+                if (result && result.uploadAvatar && result.uploadAvatar.avatarUrl) {
+                    const rawUrl = result.uploadAvatar.avatarUrl;
+                    const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
+
+                    const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+
+                    previewContainer.style.overflow = 'hidden';
+                    previewContainer.style.padding = '0';
+                    previewContainer.innerHTML = imgTag;
+
+                    const headerAvatar = document.getElementById('global-header-avatar');
+                    if (headerAvatar) {
+                        headerAvatar.style.overflow = 'hidden';
+                        headerAvatar.style.padding = '0';
+                        headerAvatar.innerHTML = imgTag;
+                    }
+
+                    triggerAutoSave();
+                } else {
+                    alert("Upload succeeded, but backend returned no image URL. Check console.");
+                }
+            } catch (err) {
+                console.error("Avatar upload failed:", err);
+                previewContainer.innerHTML = '<i class="fas fa-user"></i>';
+                alert("Failed to upload avatar.");
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => {
             loadSettingsData();
         });
