@@ -366,117 +366,125 @@
     <script>
         async function loadDashboardData() {
             try {
-                // 1. Load Profile
                 const profReq = await window.api.myProfile();
-                if (profReq) {
-                    const profile = profReq;
-                    const totalSc = profile.realSc + profile.bonusSc;
-                    document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
 
-                    document.querySelectorAll('.dash-stat-card')[0].querySelector('.stat-value').innerText = `${totalSc} SC`;
+                if (profReq && profReq.myProfile) {
+                    const profileData = profReq.myProfile;
+                    const realSc = Number(profileData.realSc) || 0;
+                    const bonusSc = Number(profileData.bonusSc) || 0;
+                    const totalSc = realSc + bonusSc;
+
+                    const headerBalEl = document.querySelector('.wallet-bal');
+                    if (headerBalEl) {
+                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc} SC <span style="font-size:0.8rem; color:var(--text-muted); margin-left:5px;">(${bonusSc} Bonus)</span>`;
+                    }
+
+                    const statCards = document.querySelectorAll('.dash-stat-card');
+                    if (statCards.length > 0) {
+                        const firstStatCard = statCards[0].querySelector('.stat-value');
+                        if (firstStatCard) firstStatCard.innerText = `${totalSc} SC`;
+                    }
 
                     const cmBal = document.getElementById('cm-available-bal');
-                    if (cmBal) cmBal.innerHTML = `<i class="fas fa-coins text-gold"></i> ${profile.realSc} SC`;
-
-                    // Streak
-                    document.querySelector('.streak-indicator h2').innerText = `${profile.winStreak || 0} Wins`;
-                    if (profile.winStreak > 0) {
-                        document.querySelector('.streak-icon').style.color = '#ff9800';
-                        document.querySelector('.streak-icon').style.filter = 'drop-shadow(0 0 10px #ff9800)';
+                    if (cmBal) {
+                        cmBal.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc} SC`;
                     }
-                }
 
-                const profileData = await window.api.myProfile();
+                    const streakIndicator = document.querySelector('.streak-indicator h2');
+                    if (streakIndicator) {
+                        const streakCount = profileData.winStreak || 0;
+                        streakIndicator.innerText = `${streakCount} Wins`;
 
-                // if (profileData.avatarUrl) {
-                //     const avatarUrl = profileData.avatarUrl;
-
-
-                //     const headerAvatar = document.getElementById('global-header-avatar');
-                //     if (headerAvatar) {
-                //         headerAvatar.innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                //     }
-
-                //     const mainAvatar = document.getElementById('profile-pic');
-                //     if (mainAvatar) {
-
-                //         if (mainAvatar.tagName.toLowerCase() === 'img') {
-                //             mainAvatar.src = avatarUrl;
-                //         }
-                //         else {
-                //             mainAvatar.innerHTML = `<img src="${avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                //         }
-                //     }
-                // }
-
-                // 2. Load Stats
-
-
-                if (profile && profile.myProfile) {
-                    const profileData = profile.myProfile;
+                        if (streakCount > 0) {
+                            const streakIcon = document.querySelector('.streak-icon');
+                            if (streakIcon) {
+                                streakIcon.style.color = '#ff9800';
+                                streakIcon.style.filter = 'drop-shadow(0 0 10px #ff9800)';
+                            }
+                        }
+                    }
 
                     if (profileData.avatarUrl) {
-                        const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+                        const rawUrl = profileData.avatarUrl;
+                        const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
+
+                        const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; max-width:100%; max-height:100%; border-radius:50%; object-fit:cover; display:block;">`;
 
                         const mainDashboardAvatar = document.getElementById('profile-pic');
                         if (mainDashboardAvatar) {
+                            mainDashboardAvatar.style.overflow = 'hidden';
                             mainDashboardAvatar.innerHTML = imgTag;
                         }
 
                         const headerAvatar = document.getElementById('global-header-avatar');
                         if (headerAvatar) {
+                            headerAvatar.style.overflow = 'hidden';
                             headerAvatar.innerHTML = imgTag;
                         }
                     }
                 }
 
                 let myRankPoints = 0;
-                const statsReq = await window.api.myStats();
-                if (statsReq) {
-                    const stats = statsReq.myStats;
-                    myRankPoints = stats.rankPoints;
-                    // Win Rate Card
-                    document.querySelectorAll('.dash-stat-card')[2].querySelector('.stat-value').innerText = `${stats.winRate}%`;
+                try {
+                    const statsReq = await window.api.myStats();
+                    if (statsReq && statsReq.myStats) {
+                        const stats = statsReq.myStats;
+                        myRankPoints = stats.rankPoints || 0;
 
-                    // Rank & Points Card
-                    let rankTitle = 'Rookie';
-                    if (stats.rankPoints > 500) rankTitle = 'Bronze';
-                    if (stats.rankPoints > 1000) rankTitle = 'Silver';
-                    if (stats.rankPoints > 2000) rankTitle = 'Gold';
-                    document.querySelectorAll('.dash-stat-card')[1].querySelector('.stat-value').innerHTML = `${rankTitle} <span style="font-size: 1rem; color: var(--text-muted); font-weight:normal;">(${stats.rankPoints} XP)</span>`;
+                        const statCards = document.querySelectorAll('.dash-stat-card');
 
-                    const lbScoreNode = document.querySelector('.lb-score');
-                    if (lbScoreNode) lbScoreNode.innerText = `${stats.rankPoints} XP`;
-                }
+                        if (statCards.length > 2) {
+                            const winRateCard = statCards[2].querySelector('.stat-value');
+                            if (winRateCard) winRateCard.innerText = `${stats.winRate || 0}%`;
+                        }
 
-                // 3. Load Missions
-                const missionReq = await window.api.myDailyMissions();
-                if (missionReq && missionReq.myDailyMissions) {
-                    const missions = missionReq.myDailyMissions;
-                    const ml = document.querySelector('.missions-list');
-                    if (missions.length > 0) {
-                        ml.innerHTML = missions.map(m => {
-                            const pct = Math.min(100, (m.currentValue / m.targetValue) * 100);
-                            const statusClr = m.isCompleted ? 'text-green' : '';
-                            const check = m.isCompleted ? `<button onclick="api.claimMissionReward('${m.id}').then(()=>loadDashboardData())" class="btn btn-sm btn-outline" style="border-color:#25d366; color:#25d366; padding: 2px 10px;">Claim</button>` : `<span class="mission-status ${statusClr}">${m.currentValue}/${m.targetValue}</span>`;
+                        if (statCards.length > 1) {
+                            let rankTitle = 'Rookie';
+                            if (myRankPoints > 500) rankTitle = 'Bronze';
+                            if (myRankPoints > 1000) rankTitle = 'Silver';
+                            if (myRankPoints > 2000) rankTitle = 'Gold';
 
-                            return `<div class="mission-card">
-                                        <div class="mission-info" style="flex:1;">
-                                            <h4>${m.title}</h4>
-                                            <div class="progress-bar-container mt-2" style="margin-bottom: 5px; height: 6px;">
-                                                <div class="progress-fill" style="width: ${pct}%; background: ${m.isCompleted ? '#25d366' : 'var(--accent-orange)'}"></div>
-                                            </div>
-                                            <div>${check}</div>
-                                        </div>
-                                        <div class="mission-reward text-right" style="margin-left: 15px;">
-                                            <i class="fas fa-gift text-gold"></i> ${m.rewardBonusSc} SC
-                                        </div>
-                                    </div>`;
-                        }).join('');
+                            const rankCard = statCards[1].querySelector('.stat-value');
+                            if (rankCard) {
+                                rankCard.innerHTML = `${rankTitle} <span style="font-size: 1rem; color: var(--text-muted); font-weight:normal;">(${myRankPoints} XP)</span>`;
+                            }
+                        }
+
+                        const lbScoreNode = document.querySelector('.lb-score');
+                        if (lbScoreNode) lbScoreNode.innerText = `${myRankPoints} XP`;
                     }
-                }
+                } catch (e) { console.error("Stats load failed", e); }
 
-                // 4. Load Leaderboard Snapshot
+                try {
+                    const missionReq = await window.api.myDailyMissions();
+                    if (missionReq && missionReq.myDailyMissions) {
+                        const missions = missionReq.myDailyMissions;
+                        const ml = document.querySelector('.missions-list');
+                        if (ml && missions.length > 0) {
+                            ml.innerHTML = missions.map(m => {
+                                const pct = Math.min(100, ((m.currentValue || 0) / (m.targetValue || 1)) * 100);
+                                const statusClr = m.isCompleted ? 'text-green' : '';
+                                const check = m.isCompleted
+                                    ? `<button onclick="api.claimMissionReward('${m.id}').then(()=>loadDashboardData())" class="btn btn-sm btn-outline" style="border-color:#25d366; color:#25d366; padding: 2px 10px;">Claim</button>`
+                                    : `<span class="mission-status ${statusClr}">${m.currentValue || 0}/${m.targetValue}</span>`;
+
+                                return `<div class="mission-card">
+                                            <div class="mission-info" style="flex:1;">
+                                                <h4>${m.title}</h4>
+                                                <div class="progress-bar-container mt-2" style="margin-bottom: 5px; height: 6px;">
+                                                    <div class="progress-fill" style="width: ${pct}%; background: ${m.isCompleted ? '#25d366' : 'var(--accent-orange)'}"></div>
+                                                </div>
+                                                <div>${check}</div>
+                                            </div>
+                                            <div class="mission-reward text-right" style="margin-left: 15px;">
+                                                <i class="fas fa-gift text-gold"></i> ${m.rewardBonusSc} SC
+                                            </div>
+                                        </div>`;
+                            }).join('');
+                        }
+                    }
+                } catch (e) { console.error("Missions fetch failed", e); }
+
                 try {
                     const lbReq = await window.api.globalLeaderboard();
                     if (lbReq && lbReq.globalLeaderboard) {
@@ -510,45 +518,46 @@
                     }
                 } catch (e) { console.error("Leaderboard fetch failed", e); }
 
-                // 5. Load Recent Activity (Wallet History)
                 try {
                     const historyReq = await window.api.myWalletHistory();
                     if (historyReq && historyReq.myWalletHistory && historyReq.myWalletHistory.length > 0) {
                         const feed = document.querySelector('.activity-feed');
-                        const activities = historyReq.myWalletHistory.slice(0, 5);
+                        if (feed) {
+                            const activities = historyReq.myWalletHistory.slice(0, 5);
 
-                        feed.classList.remove('text-center');
-                        feed.style.padding = '0';
+                            feed.classList.remove('text-center');
+                            feed.style.padding = '0';
 
-                        feed.innerHTML = activities.map(item => {
-                            const isPositive = ['DEPOSIT', 'WINNINGS'].includes(item.transactionType);
-                            const iconStr = isPositive ? '<i class="fas fa-arrow-down text-green"></i>' : '<i class="fas fa-arrow-up" style="color:#ff4444;"></i>';
-                            const amtColor = isPositive ? 'text-green' : 'text-red';
-                            const amtSign = isPositive ? '+' : '-';
-                            const dateStr = item.createdAt ? new Date(parseInt(item.createdAt)).toLocaleDateString() : 'Today';
+                            feed.innerHTML = activities.map(item => {
+                                const isPositive = ['DEPOSIT', 'WINNINGS', 'REFUND'].includes(item.transactionType);
+                                const iconStr = isPositive ? '<i class="fas fa-arrow-down text-green"></i>' : '<i class="fas fa-arrow-up" style="color:#ff4444;"></i>';
+                                const amtColor = isPositive ? 'text-green' : 'text-red';
+                                const amtSign = isPositive ? '+' : '-';
+                                const dateStr = item.createdAt ? new Date(parseInt(item.createdAt)).toLocaleDateString() : 'Today';
 
-                            return `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                        ${iconStr}
+                                return `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                            ${iconStr}
+                                        </div>
+                                        <div style="text-align: left;">
+                                            <h4 style="color: #fff; margin-bottom: 3px; font-size: 1rem; text-transform: capitalize;">${item.transactionType.toLowerCase()}</h4>
+                                            <span style="color: var(--text-muted); font-size: 0.85rem;">Status: ${item.status} • ${dateStr}</span>
+                                        </div>
                                     </div>
-                                    <div style="text-align: left;">
-                                        <h4 style="color: #fff; margin-bottom: 3px; font-size: 1rem; text-transform: capitalize;">${item.transactionType.toLowerCase()}</h4>
-                                        <span style="color: var(--text-muted); font-size: 0.85rem;">Status: ${item.status} • ${dateStr}</span>
+                                    <div class="${amtColor}" style="font-weight: bold; font-size: 1.1rem;">
+                                        ${amtSign}${item.amountSc} SC
                                     </div>
                                 </div>
-                                <div class="${amtColor}" style="font-weight: bold; font-size: 1.1rem;">
-                                    ${amtSign}${item.amountSc} SC
-                                </div>
-                            </div>
-                            `;
-                        }).join('');
+                                `;
+                            }).join('');
+                        }
                     }
                 } catch (e) { console.error("History fetch failed", e); }
 
             } catch (err) {
-                console.error("Dashboard loading error", err);
+                console.error("Dashboard Master Loading Error:", err);
             }
         }
 
