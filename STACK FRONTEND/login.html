@@ -25,8 +25,22 @@
             transition: opacity 0.5s ease;
             opacity: 1;
         }
+
         .error-banner.fade-out {
             opacity: 0;
+        }
+
+        .success-banner {
+            display: none;
+            background-color: rgba(0, 200, 81, 0.15);
+            color: #00C851;
+            border: 1px solid rgba(0, 200, 81, 0.4);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -35,12 +49,14 @@
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                        class="logo-sub">| StackArena</span></a>
                 <h2 style="color:#fff; font-size:2rem; margin-top:15px; text-transform:uppercase;">Welcome Back</h2>
                 <p>Sign in with your credentials to access the arena.</p>
             </div>
-            
+
             <div id="error-message" class="error-banner"></div>
+            <div id="success-message" class="success-banner"></div>
 
             <form id="login-form">
                 <div class="input-group">
@@ -55,7 +71,8 @@
                 <div class="input-group mb-1">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <label style="margin:0;">Password</label>
-                        <a href="#" style="font-size:0.85rem; color:var(--accent-gold); text-decoration:none;">Forgot
+                        <a href="#" onclick="openForgotModal(event)"
+                            style="font-size:0.85rem; color:var(--accent-gold); text-decoration:none;">Forgot
                             Password?</a>
                     </div>
                     <div style="position:relative;">
@@ -65,7 +82,7 @@
                             style="padding-left:45px; padding-right:45px;">
                         <i class="fas fa-eye" id="toggle-pass"
                             style="position:absolute; right:15px; top:50%; transform:translateY(-50%); color:var(--text-muted); cursor:pointer;"
-                            onclick="togglePassword()"></i>
+                            onclick="togglePassword('login-password', 'toggle-pass')"></i>
                     </div>
                 </div>
 
@@ -80,11 +97,65 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="forgot-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div class="dash-panel"
+            style="width: 400px; max-width: 90%; background: #1a1a24; border: 1px solid rgba(255,255,255,0.1); position: relative;">
+            <button class="close-modal" onclick="closeForgotModal()"
+                style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i
+                    class="fas fa-times"></i></button>
+
+            <div id="forgot-step-1">
+                <div class="text-center">
+                    <i class="fas fa-unlock-alt text-gold" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3 style="color:#fff; margin-bottom: 10px;">Reset Password</h3>
+                    <p class="text-muted mb-4" style="font-size: 0.9rem;">Enter your email address and we'll send you a
+                        4-digit code to reset your password.</p>
+                </div>
+                <div class="input-group mb-4">
+                    <input type="email" id="forgot-email" class="settings-input" placeholder="Enter your account email">
+                </div>
+                <button class="btn btn-primary full-width" id="btn-send-otp" onclick="requestResetOTP()">Send Reset
+                    Code</button>
+            </div>
+
+            <div id="forgot-step-2" style="display:none;">
+                <div class="text-center">
+                    <i class="fas fa-shield-alt text-green" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3 style="color:#fff; margin-bottom: 10px;">Check Your Inbox</h3>
+                    <p class="text-muted mb-4" style="font-size: 0.9rem;">Enter the 4-digit code sent to your email and
+                        create a new password.</p>
+                </div>
+
+                <div class="input-group mb-3">
+                    <label>4-Digit OTP Code</label>
+                    <input type="text" id="forgot-otp" class="settings-input text-center" placeholder="e.g. 1234"
+                        maxlength="4" style="letter-spacing: 5px; font-size: 1.2rem; font-weight: bold;">
+                </div>
+
+                <div class="input-group mb-4">
+                    <label>New Password</label>
+                    <div style="position:relative;">
+                        <input type="password" id="forgot-new-pass" class="settings-input"
+                            placeholder="Enter new password" style="padding-right:45px;">
+                        <i class="fas fa-eye" id="toggle-new-pass"
+                            style="position:absolute; right:15px; top:50%; transform:translateY(-50%); color:var(--text-muted); cursor:pointer;"
+                            onclick="togglePassword('forgot-new-pass', 'toggle-new-pass')"></i>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary full-width" id="btn-confirm-reset" onclick="confirmPasswordReset()">Save
+                    New Password</button>
+            </div>
+        </div>
+    </div>
+
     <script src="api.js"></script>
     <script>
-        function togglePassword() {
-            const input = document.getElementById('login-password');
-            const icon = document.getElementById('toggle-pass');
+        // UI Helpers
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -101,42 +172,105 @@
             errorBox.textContent = msg;
             errorBox.style.display = 'block';
             errorBox.classList.remove('fade-out');
-            
-            if (window.errorTimeout) clearTimeout(window.errorTimeout);
-            if (window.fadeTimeout) clearTimeout(window.fadeTimeout);
-            
-            window.errorTimeout = setTimeout(() => {
+            setTimeout(() => {
                 errorBox.classList.add('fade-out');
-                window.fadeTimeout = setTimeout(() => {
-                    errorBox.style.display = 'none';
-                }, 500);
-            }, 3000);
+                setTimeout(() => { errorBox.style.display = 'none'; }, 500);
+            }, 4000);
         }
 
+        function showSuccess(msg) {
+            const successBox = document.getElementById('success-message');
+            successBox.textContent = msg;
+            successBox.style.display = 'block';
+        }
+
+        // Login Logic
         async function processLogin() {
             const email = document.getElementById('login-email').value.trim();
             const pass = document.getElementById('login-password').value;
-            
-            if (!email || !pass) {
-                showError("Please enter both your email address and password.");
-                return;
-            }
 
-            const btn = document.querySelector('button.btn-primary');
-            const originalBtnHtml = btn.innerHTML;
+            if (!email || !pass) return showError("Please enter both email and password.");
+
+            const btn = document.querySelector('#login-form button.btn-primary');
+            const originalText = btn.innerHTML;
             btn.innerHTML = 'Connecting... <i class="fas fa-spinner fa-spin ms-2"></i>';
-            btn.style.opacity = '0.7';
             btn.disabled = true;
 
             try {
-                const result = await window.api.loginUser(email, pass);
-                console.log("Login successful", result);
+                await window.api.loginUser(email, pass);
                 window.location.href = 'dashboard.html';
             } catch (err) {
-                console.error("Login failed", err);
-                showError(err.message || "Invalid credentials or server error. Please try again.");
-                btn.innerHTML = originalBtnHtml;
-                btn.style.opacity = '1';
+                showError(err.message || "Invalid credentials. Please try again.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // --- Forgot Password Logic ---
+        let resetEmailStore = "";
+
+        function openForgotModal(e) {
+            e.preventDefault();
+            document.getElementById('forgot-modal').style.display = 'flex';
+            document.getElementById('forgot-step-1').style.display = 'block';
+            document.getElementById('forgot-step-2').style.display = 'none';
+            document.getElementById('forgot-email').value = document.getElementById('login-email').value; // Auto-fill if typed
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgot-modal').style.display = 'none';
+        }
+
+        // Step 1: Send OTP
+        async function requestResetOTP() {
+            const emailInput = document.getElementById('forgot-email').value.trim();
+            if (!emailInput) return alert("Please enter your email address.");
+
+            const btn = document.getElementById('btn-send-otp');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            try {
+                await window.api.requestPasswordReset(emailInput);
+                resetEmailStore = emailInput; // Store it for step 2
+
+                // Transition to Step 2
+                document.getElementById('forgot-step-1').style.display = 'none';
+                document.getElementById('forgot-step-2').style.display = 'block';
+            } catch (err) {
+                alert(err.message || "Failed to request reset. Please try again.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Step 2: Confirm OTP & New Password
+        async function confirmPasswordReset() {
+            const otp = document.getElementById('forgot-otp').value.trim();
+            const newPassword = document.getElementById('forgot-new-pass').value;
+
+            if (!otp || otp.length !== 4) return alert("Please enter the 4-digit OTP.");
+            if (!newPassword || newPassword.length < 6) return alert("New password must be at least 6 characters.");
+
+            const btn = document.getElementById('btn-confirm-reset');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            try {
+                const responseMsg = await window.api.confirmPasswordReset(resetEmailStore, otp, newPassword);
+
+                // Success! Close modal and show banner
+                closeForgotModal();
+                document.getElementById('login-password').value = ''; // Clear old pass
+                showSuccess(responseMsg || "Password updated! You can now log in.");
+
+            } catch (err) {
+                alert(err.message || "Failed to reset password. OTP may be invalid.");
+            } finally {
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
@@ -144,4 +278,3 @@
 </body>
 
 </html>
-

@@ -161,6 +161,23 @@ const api = {
         `;
         return await graphqlRequest(query, { input: { matchId } });
     },
+    async requestPasswordReset(email) {
+        const query = `
+            mutation RequestPasswordReset($input: RequestPasswordResetInput!) {
+                requestPasswordReset(input: $input)
+            }
+        `;
+        return await graphqlRequest(query, { input: { email } });
+    },
+
+    async confirmPasswordReset(email, otp, newPassword) {
+        const query = `
+            mutation ConfirmPasswordReset($input: ConfirmPasswordResetInput!) {
+                confirmPasswordReset(input: $input)
+            }
+        `;
+        return await graphqlRequest(query, { input: { email, otp, newPassword } });
+    },
 
     async updateRoomId(matchId, roomId) {
         const query = `
