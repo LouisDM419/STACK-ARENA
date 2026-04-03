@@ -253,7 +253,7 @@ const api = {
 
     async reportMatchResult(matchId, claimedWin) {
         const query = `
-            mutation ReportMatchResult($input: ReportMatchResultInput!) {
+            mutation ReportMatchResult($input: ReportMatchInput!) {
                 reportMatchResult(input: $input) {
                     id status winner { id gamerTag }
                 }
