@@ -132,10 +132,11 @@ const api = {
         return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled } });
     },
 
-    async verifyEmail(email, otp) {
+
+    async verifyAccount(email, otp) {
         const query = `
-            mutation VerifyEmail($email: String!, $otp: String!) {
-                verifyEmail(email: $email, otp: $otp)
+            mutation VerifyAccount($email: String!, $otp: String!) {
+                verifyAccount(email: $email, otp: $otp)
             }
         `;
         return await graphqlRequest(query, { email, otp });

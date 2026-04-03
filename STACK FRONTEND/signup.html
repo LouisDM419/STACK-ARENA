@@ -253,7 +253,7 @@
             const email = document.getElementById('email').value.trim();
 
             try {
-                await window.api.verifyEmail(email, otpCode);
+                await window.api.verifyAccount(email, otpCode);
                 window.location.href = 'dashboard.html';
             } catch (err) {
                 console.error(err);
