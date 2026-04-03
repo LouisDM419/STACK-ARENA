@@ -78,8 +78,9 @@ const api = {
     subscribeToMatch(matchId, onUpdateCallback) {
         this.unsubscribeFromMatch();
 
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${window.location.host}/graphql/`;
+        const wsUrl = IS_PRODUCTION
+            ? 'wss://playstackarena.com/graphql/'
+            : 'ws://localhost:8000/graphql/';
 
         this.matchSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
 
