@@ -136,7 +136,11 @@ const api = {
     async verifyAccount(email, otp) {
         const query = `
             mutation VerifyAccount($email: String!, $otp: String!) {
-                verifyAccount(email: $email, otp: $otp)
+                verifyAccount(email: $email, otp: $otp){
+                    id
+                    gamerTag
+                    realSc
+                    }
             }
         `;
         return await graphqlRequest(query, { email, otp });
