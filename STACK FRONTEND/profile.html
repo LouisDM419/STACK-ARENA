@@ -295,7 +295,6 @@
                         document.getElementById('header-sc').innerText = r + b;
                     }
 
-
                     if (pData.avatarUrl && document.getElementById('global-header-avatar')) {
                         document.getElementById('global-header-avatar').innerHTML =
                             `<img src="${pData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
@@ -303,6 +302,7 @@
                 }
             } catch (e) { console.error("Could not load header profile data", e); }
 
+            // IF VIEWING MY OWN PROFILE
             if (!userQuery || userQuery.toLowerCase() === 'you' || userQuery === '') {
                 try {
                     const profReq = await window.api.myProfile();
@@ -312,9 +312,9 @@
                         const profile = profReq.myProfile;
                         const stats = statsReq.myStats;
 
+                        // --- (Keep your existing avatar, email, stats, badges logic here) ---
                         if (profile.avatarUrl) {
-                            document.getElementById('main-profile-avatar').innerHTML =
-                                `<img src="${profile.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                            document.getElementById('main-profile-avatar').innerHTML = `<img src="${profile.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                         }
 
                         document.getElementById('prof-gamerTag').innerText = profile.gamerTag || 'PlayerOne';
@@ -337,13 +337,8 @@
                         document.getElementById('prof-tier').innerText = rankTitle;
 
                         const safeStreak = isNaN(profile.winStreak) || profile.winStreak === null ? 0 : profile.winStreak;
-                        if (safeStreak > 0) {
-                            document.getElementById('prof-streak-badge').style.display = 'flex';
-                            document.getElementById('prof-streak').innerText = safeStreak + ' Wins';
-                        } else {
-                            document.getElementById('prof-streak-badge').style.display = 'flex';
-                            document.getElementById('prof-streak').innerText = '0 Wins';
-                        }
+                        document.getElementById('prof-streak-badge').style.display = 'flex';
+                        document.getElementById('prof-streak').innerText = safeStreak + ' Wins';
 
                         const safeMatches = isNaN(stats.totalMatches) || stats.totalMatches === null ? 0 : stats.totalMatches;
                         const safeWins = isNaN(stats.wins) || stats.wins === null ? 0 : stats.wins;
@@ -355,78 +350,81 @@
 
                         document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-outline" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Edit Settings</button>`;
 
+                        // 👇 NEW LOGIC: LOAD & RENDER MATCH HISTORY 👇
+                        const matchContainer = document.querySelector('.recent-matches');
+                        const matchesReq = await window.api.myMatches();
+
+                        if (matchesReq && matchesReq.myMatches) {
+                            // Filter for finished matches, reverse to get newest first, limit to 5
+                            const pastMatches = matchesReq.myMatches
+                                .filter(m => ['COMPLETED', 'DISPUTED'].includes(m.status))
+                                .reverse()
+                                .slice(0, 5);
+
+                            if (pastMatches.length > 0) {
+                                let historyHtml = `<h3>Recent Match History</h3><div style="display: flex; flex-direction: column; gap: 12px;">`;
+
+                                pastMatches.forEach(m => {
+                                    const isHost = m.host && m.host.gamerTag === profile.gamerTag;
+                                    const oppName = isHost ? (m.guest ? m.guest.gamerTag : "Unknown") : (m.host ? m.host.gamerTag : "Unknown");
+                                    const isWin = m.winner && m.winner.gamerTag === profile.gamerTag;
+
+                                    const resultText = m.status === 'DISPUTED' ? 'DISPUTED' : (isWin ? 'VICTORY' : 'DEFEAT');
+                                    const resultColor = m.status === 'DISPUTED' ? '#ff9800' : (isWin ? '#00C851' : '#ff4444');
+                                    const currency = m.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+                                    const pot = m.entryFeeSc * 2;
+
+                                    historyHtml += `
+                                    <div style="background: rgba(0,0,0,0.3); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'">
+                                        <div>
+                                            <div style="font-weight: bold; color: #fff; margin-bottom: 4px; font-size: 1.1rem;">${m.gameTitle || 'STAR Arena Match'}</div>
+                                            <div style="font-size: 0.85rem; color: var(--text-muted);">vs <strong>${oppName}</strong></div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="color: ${resultColor}; font-weight: 800; letter-spacing: 1px; font-size: 0.9rem;">${resultText}</div>
+                                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Pot: <span style="color: var(--accent-gold); font-weight: bold;">${pot} ${currency}</span></div>
+                                        </div>
+                                    </div>`;
+                                });
+
+                                historyHtml += `</div>`;
+                                matchContainer.innerHTML = historyHtml;
+                            }
+                        }
+                        // 👆 END NEW LOGIC 👆
+
                         pContainer.style.display = 'block';
                     } else {
                         throw new Error('No data');
                     }
                 } catch (e) {
+                    console.error(e);
                     pNotFound.style.display = 'block';
                 }
-            } else {
+            }
+            // IF VIEWING ANOTHER PLAYER (Leave history hidden as intended)
+            else {
                 try {
-                    const lbReq = await window.api.globalLeaderboard();
+                    const lbReq = await window.api.globalLeaderboard(100); // Expanded limit to find user
                     let targetUser = null;
                     if (lbReq && lbReq.globalLeaderboard) {
                         targetUser = lbReq.globalLeaderboard.find(u => u.gamerTag.toLowerCase() === userQuery.toLowerCase());
                     }
 
+                    // --- (Keep your existing fake/randomized public profile generation here) ---
+                    // The recent matches box will automatically default to "Match history is hidden"
+
                     if (targetUser) {
-                        if (targetUser.avatarUrl) {
-                            document.getElementById('main-profile-avatar').innerHTML =
-                                `<img src="${targetUser.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                        } else {
-                            document.getElementById('main-profile-avatar').innerHTML = `<i class="fas fa-user-astronaut"></i>`;
-                        }
-
-                        document.getElementById('prof-gamerTag').innerText = targetUser.gamerTag || 'Unknown';
-                        document.getElementById('prof-email').innerText = 'Email: ' + (targetUser.email || 'Private');
-                        document.getElementById('prof-email').style.display = 'block';
-                        document.getElementById('prof-date').innerText = 'Joined: Not Available';
-
-                        const safeRankPoints = isNaN(targetUser.rankPoints) || targetUser.rankPoints === null ? 0 : targetUser.rankPoints;
-                        let rankTitle = 'Rookie';
-                        if (safeRankPoints > 500) rankTitle = 'Bronze';
-                        if (safeRankPoints > 1000) rankTitle = 'Silver';
-                        if (safeRankPoints > 2000) rankTitle = 'Gold';
-                        document.getElementById('prof-tier').innerText = rankTitle;
-
-                        const safeMatches = isNaN(targetUser.totalMatches) || targetUser.totalMatches === null ? 0 : targetUser.totalMatches;
-                        const safeWins = isNaN(targetUser.wins) || targetUser.wins === null ? 0 : targetUser.wins;
-                        const safeWinRate = isNaN(targetUser.winRate) || targetUser.winRate === null ? 0 : targetUser.winRate;
-
-                        document.getElementById('prof-matches').innerText = safeMatches;
-                        document.getElementById('prof-wins').innerText = safeWins;
-                        document.getElementById('prof-winrate').innerText = safeWinRate + '%';
-
-                        document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
-
-                        pContainer.style.display = 'block';
+                        // ... your existing code for found target ...
                     } else {
-                        document.getElementById('prof-gamerTag').innerText = userQuery;
-                        document.getElementById('prof-email').innerText = 'Email: Private';
-                        document.getElementById('prof-email').style.display = 'block';
-                        document.getElementById('prof-date').innerText = 'Joined: Not Available';
-                        document.getElementById('prof-tier').innerText = 'Rookie';
-                        document.getElementById('main-profile-avatar').innerHTML = `<i class="fas fa-user-astronaut"></i>`;
-
-                        const randMatches = Math.floor(Math.random() * 50) + 5;
-                        const randWins = Math.floor(randMatches * (Math.random() * 0.4 + 0.3));
-                        const randWr = Math.round((randWins / randMatches) * 100);
-
-                        document.getElementById('prof-matches').innerText = randMatches || 0;
-                        document.getElementById('prof-wins').innerText = randWins || 0;
-                        document.getElementById('prof-winrate').innerText = (randWr || 0) + '%';
-
-                        document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
-
-                        pContainer.style.display = 'block';
+                        // ... your existing code for missing target ...
                     }
+
                 } catch (e) {
                     pNotFound.style.display = 'block';
                 }
             }
         }
-
         document.addEventListener('DOMContentLoaded', loadProfilePage);
     </script>
 </body>
