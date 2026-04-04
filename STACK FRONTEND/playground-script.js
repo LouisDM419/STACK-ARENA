@@ -51,7 +51,7 @@ const app = {
 
         const topBarSc = document.getElementById('header-sc');
         if (topBarSc) topBarSc.innerText = rSc + bSc;
-    }
+    },
 
     // async refreshMatches() {
     //     try {
