@@ -35,10 +35,23 @@ const app = {
 
     updateBalances() {
         if (!appState.currentUser) return;
-        document.getElementById('header-real-bal').innerText = appState.currentUser.realSc;
-        document.getElementById('lobby-real-bal').innerText = appState.currentUser.realSc;
-        document.getElementById('lobby-bonus-bal').innerText = appState.currentUser.bonusSc;
-    },
+        const profile = appState.currentUser;
+
+        const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
+        const bSc = Number(profile.bonusSc ?? profile.bonus_sc ?? 0);
+
+        const headerReal = document.getElementById('header-real-bal');
+        if (headerReal) headerReal.innerText = rSc;
+
+        const lobbyReal = document.getElementById('lobby-real-bal');
+        if (lobbyReal) lobbyReal.innerText = rSc;
+
+        const lobbyBonus = document.getElementById('lobby-bonus-bal');
+        if (lobbyBonus) lobbyBonus.innerText = bSc;
+
+        const topBarSc = document.getElementById('header-sc');
+        if (topBarSc) topBarSc.innerText = rSc + bSc;
+    }
 
     // async refreshMatches() {
     //     try {

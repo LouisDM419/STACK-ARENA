@@ -122,14 +122,16 @@
                                         <label>CODM Username <span class="required-asterisk">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-crosshairs"></i>
-                                            <input type="text" class="settings-input" placeholder="e.g. GhostReaper">
+                                            <input type="text" class="settings-input" id="codm-username-input"
+                                                placeholder="e.g. GhostReaper">
                                         </div>
                                     </div>
                                     <div class="setting-group">
                                         <label>CODM UID <span class="required-asterisk">*</span></label>
                                         <div class="input-with-icon">
                                             <i class="fas fa-id-card"></i>
-                                            <input type="text" class="settings-input" placeholder="e.g. 67423985723">
+                                            <input type="text" class="settings-input" id="codm-uid-input"
+                                                placeholder="e.g. 67423985723">
                                         </div>
                                     </div>
                                 </div>
@@ -507,32 +509,66 @@
         }
 
         // Profile Save using API
+        // async function saveProfile(event) {
+        //     const btn = event.target || event.currentTarget;
+        //     const originalText = btn.innerText;
+        //     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        //     btn.disabled = true;
+
+        //     try {
+        //         const username = document.getElementById('username-input').value;
+        //         const bni = document.getElementById('bank-name-input');
+        //         const bankName = bni ? bni.value : "";
+        //         const ani = document.getElementById('account-number-input');
+        //         const accNum = ani ? ani.value : "";
+        //         const accni = document.getElementById('account-name-input');
+        //         const accName = accni ? accni.value : "";
+
+        //         await window.api.updateProfile(username, "N/A", bankName, accNum, accName);
+
+        //         btn.innerHTML = '<i class="fas fa-check"></i> Saved';
+        //         triggerAutoSave();
+        //     } catch (e) {
+        //         console.error(e);
+        //         btn.innerHTML = '<i class="fas fa-times"></i> Error';
+        //     }
+
+        //     setTimeout(() => {
+        //         btn.innerText = originalText;
+        //         btn.disabled = false;
+        //     }, 2000);
+        // }
+
+
+
         async function saveProfile(event) {
             const btn = event.target || event.currentTarget;
-            const originalText = btn.innerText;
+            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
 
             try {
-                const username = document.getElementById('username-input').value;
-                const bni = document.getElementById('bank-name-input');
-                const bankName = bni ? bni.value : "";
-                const ani = document.getElementById('account-number-input');
-                const accNum = ani ? ani.value : "";
-                const accni = document.getElementById('account-name-input');
-                const accName = accni ? accni.value : "";
+                const username = document.getElementById('username-input').value.trim();
 
-                await window.api.updateProfile(username, "N/A", bankName, accNum, accName);
+                const bni = document.getElementById('bank-name-input');
+                const bankName = bni ? bni.value.trim() : "";
+                const ani = document.getElementById('account-number-input');
+                const accNum = ani ? ani.value.trim() : "";
+                const accni = document.getElementById('account-name-input');
+                const accName = accni ? accni.value.trim() : "";
+
+                await window.api.updateProfile(username, "", bankName, accNum, accName, true);
 
                 btn.innerHTML = '<i class="fas fa-check"></i> Saved';
                 triggerAutoSave();
             } catch (e) {
                 console.error(e);
                 btn.innerHTML = '<i class="fas fa-times"></i> Error';
+                alert(e.message || "Failed to save profile.");
             }
 
             setTimeout(() => {
-                btn.innerText = originalText;
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }, 2000);
         }

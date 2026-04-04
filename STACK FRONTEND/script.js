@@ -202,6 +202,20 @@ document.addEventListener('click', (e) => {
     }
 });
 
+async function loadNotifications() {
+    const notifBody = document.querySelector('.notif-body');
+    const req = await window.api.myNotifications();
+
+    if (req && req.myNotifications && req.myNotifications.length > 0) {
+        notifBody.innerHTML = req.myNotifications.map(n => `
+            <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <strong style="color: var(--accent-orange);">${n.title}</strong>
+                <p style="font-size: 0.85rem; margin: 5px 0;">${n.message}</p>
+            </div>
+        `).join('');
+    }
+}
+
 // Sidebar Toggle Logic for Dashboard Layout
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');

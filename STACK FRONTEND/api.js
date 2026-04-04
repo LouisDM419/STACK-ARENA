@@ -166,6 +166,10 @@ const api = {
         `;
         return await graphqlRequest(query);
     },
+    async myNotifications() {
+        const query = `query { myNotifications { id title message isRead createdAt } }`;
+        return await graphqlRequest(query);
+    },
 
     // BASE 64 IMAGE UPLOADS ONLY
     async uploadAvatar(file) {
