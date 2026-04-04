@@ -391,6 +391,75 @@ const app = {
         }
     },
 
+    // renderActionArea(match, isHost) {
+    //     const area = document.getElementById('details-action-area');
+    //     let html = `
+    //         <div style="text-align: right; margin-bottom: 15px;">
+
+    //         </div>
+    //     `;
+
+    //     if (match.status === 'OPEN') {
+    //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
+    //                 <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
+    //     }
+    //     // else if (match.status === 'STARTING') {
+    //     //     if (isHost) {
+    //     //         html += `
+    //     //             <div class="pg-form-group text-left" style="margin-bottom: 10px;">
+    //     //                 <label>Enter Room ID</label>
+    //     //                 <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
+    //     //             </div>
+    //     //             <button class="btn btn-primary full-width" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
+    //     //             `;
+    //     //     } else {
+    //     //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
+    //     //     }
+    //     // }
+    //     else if (match.status === 'READY_CHECK') {
+    //         html += `
+    //             <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
+    //             <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+    //         `;
+    //     }
+    //     else if (match.status === 'IN_PROGRESS') {
+    //         html += `
+    //             <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
+    //             <div style="display:flex; gap:10px; justify-content:center;">
+    //                 <button class="btn btn-primary full-width" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
+    //                 <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
+    //             </div>
+    //         `;
+    //     }
+    //     else if (match.status === 'COMPLETED') {
+    //         html += `
+    //             <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
+    //             <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+    //         `;
+    //     }
+    //     else if (match.status === 'DISPUTED') {
+    //         html += `
+    //             <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+    //             <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
+
+    //             <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
+    //                 <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+    //                 <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
+    //                 <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
+    //             </div>
+    //             <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
+    //             <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none;"><i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.</div>
+    //         `;
+    //     }
+    //     else if (match.status === 'REPORTING') {
+    //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> You reported the result. Waiting for opponent to confirm...</p>`;
+    //     }
+
+    //     area.innerHTML = html;
+    // },
+
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');
         let html = `
@@ -422,14 +491,36 @@ const app = {
                 <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
             `;
         }
-        else if (match.status === 'IN_PROGRESS') {
-            html += `
-                <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
-                <div style="display:flex; gap:10px; justify-content:center;">
-                    <button class="btn btn-primary full-width" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
-                    <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
-                </div>
-            `;
+        else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
+            let hasReported = false;
+
+            if (isHost && match.hostClaimedWin !== null) {
+                hasReported = true;
+            } else if (!isHost && match.guestClaimedWin !== null) {
+                hasReported = true;
+            }
+
+            if (hasReported) {
+                html += `
+                    <div style="padding: 10px 0;">
+                        <h4 style="color: var(--accent-orange); margin-bottom: 10px;">Waiting on Opponent</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">You have submitted your result. Waiting for your opponent to confirm.</p>
+                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-orange); margin-top: 15px;"></i>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <p style="margin-bottom: 15px; color: var(--text-muted);">Please be honest. False reports result in bans.</p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851;" onclick="app.submitResult('${match.id}', true)">
+                            <i class="fas fa-trophy"></i> I Won
+                        </button>
+                        <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">
+                            <i class="fas fa-skull"></i> I Lost
+                        </button>
+                    </div>
+                `;
+            }
         }
         else if (match.status === 'COMPLETED') {
             html += `
@@ -453,66 +544,9 @@ const app = {
                 <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none;"><i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.</div>
             `;
         }
-        else if (match.status === 'REPORTING') {
-            html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> You reported the result. Waiting for opponent to confirm...</p>`;
-        }
 
         area.innerHTML = html;
     },
-
-    // renderActionArea(match, isHost) {
-    //     const area = document.getElementById('details-action-area');
-    //     let html = "";
-
-    //     if (match.status === 'OPEN') {
-    //         html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
-    //                 <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
-    //     }
-    //     else if (match.status === 'STARTING') {
-    //          if(isHost) {
-    //              html = `
-    //                 <div class="pg-form-group text-left" style="margin-bottom: 10px;">
-    //                     <label>Enter Room ID</label>
-    //                     <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
-    //                 </div>
-    //                 <button class="btn btn-primary" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
-    //                 `;
-    //          } else {
-    //               html = `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
-    //          }
-    //     }
-    //     else if (match.status === 'READY_CHECK') {
-    //         html = `
-    //             <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
-    //             <button class="btn btn-primary" onclick="app.readyUp('${match.id}')">I'm Ready</button>
-    //         `;
-    //     }
-    //     else if (match.status === 'IN_PROGRESS') {
-    //         html = `
-    //             <p style="margin-bottom: 15px; color: var(--text-muted);">After the match finishes, report the result.</p>
-    //             <div style="display:flex; gap:10px; justify-content:center;">
-    //                 <button class="btn btn-primary" style="background:#00C851" onclick="app.submitResult('${match.id}', true)">I Won</button>
-    //                 <button class="btn btn-outline" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">I Lost</button>
-    //             </div>
-    //         `;
-    //     }
-    //     else if (match.status === 'COMPLETED') {
-    //         html = `
-    //             <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
-    //             <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
-    //             <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
-    //         `;
-    //     }
-    //     else if (match.status === 'DISPUTED') {
-    //         html = `
-    //             <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
-    //             <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
-    //             <p style="color:var(--text-muted);">An admin is reviewing the provided screenshots.</p>
-    //         `;
-    //     }
-
-    //     area.innerHTML = html;
-    // },
 
     async updateRoomId(matchId) {
         const val = document.getElementById('update-room-id-val').value;
