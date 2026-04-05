@@ -303,12 +303,15 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc roomId host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
+                    id status gameTitle matchType entryFeeSc roomId 
+                    hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
+                    host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
             }
         `;
         return await graphqlRequest(query);
     },
+
 
     async myStats() {
         const query = `

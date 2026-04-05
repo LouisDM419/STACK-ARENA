@@ -492,16 +492,15 @@ const app = {
             `;
         }
         else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
-            let hasReported = false;
+
+            const localReportKey = `reported_${match.id}_${appState.currentUser.id}`;
+            let hasReported = localStorage.getItem(localReportKey) === 'true';
 
             const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
             const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
 
-            if (isHost && typeof hostClaimed === 'boolean') {
-                hasReported = true;
-            } else if (!isHost && typeof guestClaimed === 'boolean') {
-                hasReported = true;
-            }
+            if (isHost && hostClaimed === true) hasReported = true;
+            if (!isHost && guestClaimed === true) hasReported = true;
 
             if (hasReported) {
                 html += `
@@ -533,7 +532,7 @@ const app = {
             `;
         }
         else if (match.status === 'DISPUTED') {
-            const hasProof = isHost ? (match.hostProof ?? match.host_proof) : (match.guestProof ?? match.guest_proof);
+            const hasProof = isHost ? match.hostProofUrl : match.guestProofUrl;
 
             html += `
                 <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
@@ -591,12 +590,31 @@ const app = {
         }
     },
 
+    // async submitResult(matchId, claimedWin) {
+    //     try {
+    //         await window.api.reportMatchResult(matchId, claimedWin);
+    //         this.showToast("Result submitted.");
+
+    //         // Update player balance immediately by refreshing user profile
+    //         const profile = await window.api.myProfile();
+    //         if (profile) {
+    //             appState.currentUser = profile;
+    //             this.updateBalances();
+    //         }
+
+    //         await this.refreshMatches();
+    //         this.viewMatchDetails(matchId);
+    //     } catch (e) {
+    //         this.showToast("Failed to submit result: " + e.message, "error");
+    //     }
+    // },
+
     async submitResult(matchId, claimedWin) {
         try {
+            localStorage.setItem(`reported_${matchId}_${appState.currentUser.id}`, 'true');
+
             await window.api.reportMatchResult(matchId, claimedWin);
             this.showToast("Result submitted.");
-
-            // Update player balance immediately by refreshing user profile
             const profile = await window.api.myProfile();
             if (profile) {
                 appState.currentUser = profile;
@@ -606,6 +624,7 @@ const app = {
             await this.refreshMatches();
             this.viewMatchDetails(matchId);
         } catch (e) {
+            localStorage.removeItem(`reported_${matchId}_${appState.currentUser.id}`);
             this.showToast("Failed to submit result: " + e.message, "error");
         }
     },
