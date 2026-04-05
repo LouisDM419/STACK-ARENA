@@ -37,7 +37,8 @@
     <div class="auth-container">
         <div class="auth-card" style="max-width: 650px;">
             <div class="auth-header">
-                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                        class="logo-sub">| StackArena</span></a>
                 <h2 style="color:#fff; font-size:2rem; margin-top:15px; text-transform:uppercase;">Create Account</h2>
                 <p>Register below to secure your identity and play ranked matches.</p>
             </div>
@@ -165,8 +166,36 @@
             }, 3000);
         }
 
-        function triggerVerification() {
-            // Basic validation
+        // function triggerVerification() {
+        //     // Basic validation
+        //     const fullname = document.getElementById('fullname').value.trim();
+        //     const username = document.getElementById('username').value.trim();
+        //     const gender = document.getElementById('gender').value;
+        //     const email = document.getElementById('email').value.trim();
+        //     const pass = document.getElementById('password').value;
+        //     const cpass = document.getElementById('confirm-password').value;
+        //     const terms = document.getElementById('terms').checked;
+
+        //     if (!fullname || !username || !gender || !email || !pass || !cpass) {
+        //         showError("Please fill in all fields to proceed.");
+        //         return;
+        //     }
+        //     if (!terms) {
+        //         showError("You must agree to the Terms of Service to continue.");
+        //         return;
+        //     }
+        //     if (pass !== cpass) {
+        //         showError("Passwords do not match!");
+        //         return;
+        //     }
+
+        //     document.getElementById('verify-email-display').innerText = email;
+        //     document.getElementById('otp-modal').style.display = 'flex';
+        //     document.getElementById('otp-modal').classList.add('active');
+        //     document.getElementById('otp1').focus();
+        // }
+
+        async function triggerVerification() {
             const fullname = document.getElementById('fullname').value.trim();
             const username = document.getElementById('username').value.trim();
             const gender = document.getElementById('gender').value;
@@ -175,23 +204,28 @@
             const cpass = document.getElementById('confirm-password').value;
             const terms = document.getElementById('terms').checked;
 
-            if (!fullname || !username || !gender || !email || !pass || !cpass) {
-                showError("Please fill in all fields to proceed.");
-                return;
-            }
-            if (!terms) {
-                showError("You must agree to the Terms of Service to continue.");
-                return;
-            }
-            if (pass !== cpass) {
-                showError("Passwords do not match!");
-                return;
-            }
+            if (!fullname || !username || !gender || !email || !pass || !cpass) return showError("Fill all fields.");
+            if (!terms) return showError("Agree to Terms.");
+            if (pass !== cpass) return showError("Passwords do not match!");
 
-            document.getElementById('verify-email-display').innerText = email;
-            document.getElementById('otp-modal').style.display = 'flex';
-            document.getElementById('otp-modal').classList.add('active');
-            document.getElementById('otp1').focus();
+            const btn = document.querySelector('button[onclick="triggerVerification()"]');
+            const orig = btn.innerHTML;
+            btn.innerHTML = 'Sending Code... <i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                await window.api.registerUser(email, pass, username, fullname, gender);
+
+
+                document.getElementById('verify-email-display').innerText = email;
+                document.getElementById('otp-modal').style.display = 'flex';
+                document.getElementById('otp1').focus();
+            } catch (err) {
+                showError("Registration failed: " + err.message);
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+            }
         }
 
         function moveToNext(current, nextFieldID) {
@@ -199,32 +233,94 @@
                 document.getElementById(nextFieldID).focus();
             }
         }
-
         async function completeSignup() {
             const btn = document.getElementById('btn-verify');
             const originalBtnHtml = btn.innerHTML;
-            btn.innerHTML = 'Activating Account... <i class="fas fa-spinner fa-spin ms-2"></i>';
+
+            const otpCode = [
+                document.getElementById('otp1').value,
+                document.getElementById('otp2').value,
+                document.getElementById('otp3').value,
+                document.getElementById('otp4').value
+            ].join('');
+
+            if (otpCode.length < 4) return alert("Please enter the full 4-digit code.");
+
+            btn.innerHTML = 'Verifying... <i class="fas fa-spinner fa-spin ms-2"></i>';
             btn.style.opacity = '0.7';
             btn.disabled = true;
 
             const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value;
-            const gamerTag = document.getElementById('username').value.trim();
 
             try {
-                const result = await window.api.registerUser(email, pass, gamerTag);
-                console.log("Signup successful", result);
+                await window.api.verifyAccount(email, otpCode);
                 window.location.href = 'dashboard.html';
             } catch (err) {
-                console.error("Signup failed", err);
-                alert("Verification failed: " + (err.message || "User already exists or invalid data."));
+                console.error(err);
+                alert("Invalid or Expired Code!");
                 btn.innerHTML = originalBtnHtml;
                 btn.style.opacity = '1';
                 btn.disabled = false;
             }
         }
+
+
+        //     async function completeSignup() {
+        //         const btn = document.getElementById('btn-verify');
+        //         const originalBtnHtml = btn.innerHTML;
+
+        //         const otpCode = [
+        //             document.getElementById('otp1').value,
+        //             document.getElementById('otp2').value,
+        //             document.getElementById('otp3').value,
+        //             document.getElementById('otp4').value
+        //         ].join('');
+
+        //         if (otpCode.length < 4) {
+        //             alert("Please enter the full 4-digit code.");
+        //             return;
+        //         }
+
+        //         btn.innerHTML = 'Activating Account... <i class="fas fa-spinner fa-spin ms-2"></i>';
+        //         btn.style.opacity = '0.7';
+        //         btn.disabled = true;
+
+        //         const email = document.getElementById('email').value.trim();
+        //         const pass = document.getElementById('password').value;
+        //         const gamerTag = document.getElementById('username').value.trim();
+        //         const fullname = document.getElementById('fullname').value.trim();
+        //         const gender = document.getElementById('gender').value;
+
+        //         try {
+        //             // STEP 1: Create the account
+        //             console.log("Creating user record...");
+        //             await window.api.registerUser(email, pass, gamerTag, fullname, gender);
+
+        //             // STEP 2: Automatically log them in
+        //             // This will send the Set-Cookie header to your browser automatically
+        //             console.log("Auto-logging in to establish session...");
+        //             const loginData = await window.api.loginUser(email, pass);
+
+        //             // STEP 3: Verify the login data exists
+        //             // We check for loginData.loginUser because your backend uses cookies, not tokens
+        //             if (loginData && loginData.loginUser) {
+        //                 console.log("Signup & Session established successful!");
+        //                 window.location.href = 'dashboard.html';
+        //             } else {
+        //                 throw new Error("Account created, but session could not be established.");
+        //             }
+
+        //         } catch (err) {
+        //             console.error("Signup failed", err);
+        //             alert("Verification failed: " + (err.message || "User already exists or invalid data."));
+        //             btn.innerHTML = originalBtnHtml;
+        //             btn.style.opacity = '1';
+        //             btn.disabled = false;
+        //         }
+        //     }
+        //
+
     </script>
 </body>
 
 </html>
-

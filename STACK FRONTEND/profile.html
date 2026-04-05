@@ -36,6 +36,8 @@
             color: var(--accent-orange);
             box-shadow: 0 0 20px rgba(249, 109, 0, 0.3);
             flex-shrink: 0;
+            overflow: hidden;
+            /* Ensures the image stays round */
         }
 
         .profile-info {
@@ -156,10 +158,10 @@
 <body class="dashboard-body">
 
     <div class="dashboard-layout">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <br><span class="logo-sub">| StackArena</span></a>
+                <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR">
+                    <br><span class="logo-sub">| StackArena</span></a>
             </div>
             <nav class="sidebar-nav">
                 <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
@@ -173,15 +175,13 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="dashboard-main">
-            <!-- Header -->
             <header class="dashboard-header">
                 <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="header-search">
                     <i class="fas fa-search" style="color: var(--text-muted);"></i>
                     <input type="text" id="dashboard-search-input" placeholder="Search players..."
-                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
+                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { window.location.href = 'profile.html?user=' + this.value.trim(); }">
                 </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
@@ -193,7 +193,6 @@
                             <i class="far fa-bell"></i>
                         </button>
 
-                        <!-- Notification Dropdown -->
                         <div class="notification-dropdown" id="notification-dropdown">
                             <div class="notif-header">
                                 <h3>Notifications</h3>
@@ -203,20 +202,21 @@
                                 <div class="empty-notif text-center">
                                     <i class="far fa-bell-slash"></i>
                                     <p style="color: #fff; margin-bottom: 5px;">No new notifications</p>
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught up!</span>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught
+                                        up!</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="avatar" style="cursor:pointer;" onclick="location.href='profile.html'"><i
-                            class="fas fa-user-astronaut"></i></div>
+                    <div class="avatar" id="global-header-avatar" style="cursor:pointer;"
+                        onclick="location.href='profile.html'"><i class="fas fa-user-astronaut"></i></div>
                 </div>
             </header>
 
             <div class="dashboard-content">
                 <div id="profile-container" style="display:none;">
                     <div class="profile-header">
-                        <div class="profile-avatar-large">
+                        <div class="profile-avatar-large" id="main-profile-avatar">
                             <i class="fas fa-user-astronaut"></i>
                         </div>
                         <div class="profile-info">
@@ -233,7 +233,6 @@
                             </div>
                         </div>
                         <div class="profile-action" id="prof-action-btn">
-                            <!-- Challenge button for others, Edit for self -->
                         </div>
                     </div>
 
@@ -285,110 +284,147 @@
             const pContainer = document.getElementById('profile-container');
             const pNotFound = document.getElementById('profile-not-found');
 
-            // Populate Header SC for Logged in user unconditionally
             try {
-                const myProf = await window.api.myProfile();
-                if (myProf && document.getElementById('header-sc')) {
-                    document.getElementById('header-sc').innerText = myProf.realSc + myProf.bonusSc;
-                }
-            } catch (e) { }
+                const myProfReq = await window.api.myProfile();
+                if (myProfReq && myProfReq.myProfile) {
+                    const pData = myProfReq.myProfile;
 
+                    if (document.getElementById('header-sc')) {
+                        const r = isNaN(pData.realSc) || pData.realSc === null ? 0 : pData.realSc;
+                        const b = isNaN(pData.bonusSc) || pData.bonusSc === null ? 0 : pData.bonusSc;
+                        document.getElementById('header-sc').innerText = r + b;
+                    }
+
+                    if (pData.avatarUrl && document.getElementById('global-header-avatar')) {
+                        document.getElementById('global-header-avatar').innerHTML =
+                            `<img src="${pData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                    }
+                }
+            } catch (e) { console.error("Could not load header profile data", e); }
+
+            // IF VIEWING MY OWN PROFILE
             if (!userQuery || userQuery.toLowerCase() === 'you' || userQuery === '') {
-                // Load OWN Profile
                 try {
                     const profReq = await window.api.myProfile();
                     const statsReq = await window.api.myStats();
 
-                    if (profReq && statsReq) {
-                        const profile = profReq;
+                    if (profReq && profReq.myProfile && statsReq && statsReq.myStats) {
+                        const profile = profReq.myProfile;
                         const stats = statsReq.myStats;
+
+                        // --- (Keep your existing avatar, email, stats, badges logic here) ---
+                        if (profile.avatarUrl) {
+                            document.getElementById('main-profile-avatar').innerHTML = `<img src="${profile.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        }
 
                         document.getElementById('prof-gamerTag').innerText = profile.gamerTag || 'PlayerOne';
                         if (profile.user) {
-                            document.getElementById('prof-email').innerText = 'Email: ' + profile.user.email;
+                            document.getElementById('prof-email').innerText = 'Email: ' + (profile.user.email || 'Unknown');
+                            document.getElementById('prof-email').style.display = 'block';
                             const dJoined = new Date(profile.user.dateJoined).toLocaleDateString();
-                            document.getElementById('prof-date').innerText = 'Joined: ' + dJoined;
+                            document.getElementById('prof-date').innerText = 'Joined: ' + (dJoined !== "Invalid Date" ? dJoined : "Unknown");
                         } else {
-                            document.getElementById('prof-email').innerText = 'Email: hidden';
+                            document.getElementById('prof-email').innerText = 'Email: Unknown';
+                            document.getElementById('prof-email').style.display = 'block';
                             document.getElementById('prof-date').innerText = 'Joined: unknown';
                         }
 
+                        const safeRankPoints = isNaN(stats.rankPoints) || stats.rankPoints === null ? 0 : stats.rankPoints;
                         let rankTitle = 'Rookie';
-                        if (stats.rankPoints > 500) rankTitle = 'Bronze';
-                        if (stats.rankPoints > 1000) rankTitle = 'Silver';
-                        if (stats.rankPoints > 2000) rankTitle = 'Gold';
+                        if (safeRankPoints > 500) rankTitle = 'Bronze';
+                        if (safeRankPoints > 1000) rankTitle = 'Silver';
+                        if (safeRankPoints > 2000) rankTitle = 'Gold';
                         document.getElementById('prof-tier').innerText = rankTitle;
 
-                        if (profile.winStreak > 0) {
-                            document.getElementById('prof-streak-badge').style.display = 'flex';
-                            document.getElementById('prof-streak').innerText = profile.winStreak + ' Wins';
-                        }
+                        const safeStreak = isNaN(profile.winStreak) || profile.winStreak === null ? 0 : profile.winStreak;
+                        document.getElementById('prof-streak-badge').style.display = 'flex';
+                        document.getElementById('prof-streak').innerText = safeStreak + ' Wins';
 
-                        document.getElementById('prof-matches').innerText = stats.totalMatches;
-                        document.getElementById('prof-wins').innerText = stats.wins;
-                        document.getElementById('prof-winrate').innerText = stats.winRate + '%';
+                        const safeMatches = isNaN(stats.totalMatches) || stats.totalMatches === null ? 0 : stats.totalMatches;
+                        const safeWins = isNaN(stats.wins) || stats.wins === null ? 0 : stats.wins;
+                        const safeWinRate = isNaN(stats.winRate) || stats.winRate === null ? 0 : stats.winRate;
+
+                        document.getElementById('prof-matches').innerText = safeMatches;
+                        document.getElementById('prof-wins').innerText = safeWins;
+                        document.getElementById('prof-winrate').innerText = safeWinRate + '%';
 
                         document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-outline" onclick="location.href='settings.html'"><i class="fas fa-cog"></i> Edit Settings</button>`;
+
+                        // 👇 NEW LOGIC: LOAD & RENDER MATCH HISTORY 👇
+                        const matchContainer = document.querySelector('.recent-matches');
+                        const matchesReq = await window.api.myMatches();
+
+                        if (matchesReq && matchesReq.myMatches) {
+                            // Filter for finished matches, reverse to get newest first, limit to 5
+                            const pastMatches = matchesReq.myMatches
+                                .filter(m => ['COMPLETED', 'DISPUTED'].includes(m.status))
+                                .reverse()
+                                .slice(0, 5);
+
+                            if (pastMatches.length > 0) {
+                                let historyHtml = `<h3>Recent Match History</h3><div style="display: flex; flex-direction: column; gap: 12px;">`;
+
+                                pastMatches.forEach(m => {
+                                    const isHost = m.host && m.host.gamerTag === profile.gamerTag;
+                                    const oppName = isHost ? (m.guest ? m.guest.gamerTag : "Unknown") : (m.host ? m.host.gamerTag : "Unknown");
+                                    const isWin = m.winner && m.winner.gamerTag === profile.gamerTag;
+
+                                    const resultText = m.status === 'DISPUTED' ? 'DISPUTED' : (isWin ? 'VICTORY' : 'DEFEAT');
+                                    const resultColor = m.status === 'DISPUTED' ? '#ff9800' : (isWin ? '#00C851' : '#ff4444');
+                                    const currency = m.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+                                    const pot = m.entryFeeSc * 2;
+
+                                    historyHtml += `
+                                    <div style="background: rgba(0,0,0,0.3); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'">
+                                        <div>
+                                            <div style="font-weight: bold; color: #fff; margin-bottom: 4px; font-size: 1.1rem;">${m.gameTitle || 'STAR Arena Match'}</div>
+                                            <div style="font-size: 0.85rem; color: var(--text-muted);">vs <strong>${oppName}</strong></div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="color: ${resultColor}; font-weight: 800; letter-spacing: 1px; font-size: 0.9rem;">${resultText}</div>
+                                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Pot: <span style="color: var(--accent-gold); font-weight: bold;">${pot} ${currency}</span></div>
+                                        </div>
+                                    </div>`;
+                                });
+
+                                historyHtml += `</div>`;
+                                matchContainer.innerHTML = historyHtml;
+                            }
+                        }
+                        // 👆 END NEW LOGIC 👆
 
                         pContainer.style.display = 'block';
                     } else {
                         throw new Error('No data');
                     }
                 } catch (e) {
+                    console.error(e);
                     pNotFound.style.display = 'block';
                 }
-            } else {
-                // Load OTHER Profile via Leaderboard Mock Search
+            }
+            // IF VIEWING ANOTHER PLAYER (Leave history hidden as intended)
+            else {
                 try {
-                    const lbReq = await window.api.globalLeaderboard();
+                    const lbReq = await window.api.globalLeaderboard(100); // Expanded limit to find user
                     let targetUser = null;
                     if (lbReq && lbReq.globalLeaderboard) {
                         targetUser = lbReq.globalLeaderboard.find(u => u.gamerTag.toLowerCase() === userQuery.toLowerCase());
                     }
 
+                    // --- (Keep your existing fake/randomized public profile generation here) ---
+                    // The recent matches box will automatically default to "Match history is hidden"
+
                     if (targetUser) {
-                        document.getElementById('prof-gamerTag').innerText = targetUser.gamerTag;
-                        document.getElementById('prof-email').style.display = 'none';
-                        document.getElementById('prof-date').innerText = 'Joined: hidden';
-
-                        let rankTitle = 'Rookie';
-                        if (targetUser.rankPoints > 500) rankTitle = 'Bronze';
-                        if (targetUser.rankPoints > 1000) rankTitle = 'Silver';
-                        if (targetUser.rankPoints > 2000) rankTitle = 'Gold';
-                        document.getElementById('prof-tier').innerText = rankTitle;
-
-                        document.getElementById('prof-matches').innerText = targetUser.totalMatches;
-                        document.getElementById('prof-wins').innerText = targetUser.wins;
-                        document.getElementById('prof-winrate').innerText = targetUser.winRate + '%';
-
-                        document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
-
-                        pContainer.style.display = 'block';
+                        // ... your existing code for found target ...
                     } else {
-                        // Mock dynamic user generation if not on leaderboard so search always works for demo
-                        document.getElementById('prof-gamerTag').innerText = userQuery;
-                        document.getElementById('prof-email').style.display = 'none';
-                        document.getElementById('prof-date').innerText = 'Joined: hidden';
-                        document.getElementById('prof-tier').innerText = 'Rookie';
-
-                        const randMatches = Math.floor(Math.random() * 50) + 5;
-                        const randWins = Math.floor(randMatches * (Math.random() * 0.4 + 0.3));
-                        const randWr = Math.round((randWins / randMatches) * 100);
-
-                        document.getElementById('prof-matches').innerText = randMatches;
-                        document.getElementById('prof-wins').innerText = randWins;
-                        document.getElementById('prof-winrate').innerText = randWr + '%';
-
-                        document.getElementById('prof-action-btn').innerHTML = `<button class="btn btn-primary"><i class="fas fa-crosshairs"></i> Challenge Player</button>`;
-
-                        pContainer.style.display = 'block';
+                        // ... your existing code for missing target ...
                     }
+
                 } catch (e) {
                     pNotFound.style.display = 'block';
                 }
             }
         }
-
         document.addEventListener('DOMContentLoaded', loadProfilePage);
     </script>
 </body>
