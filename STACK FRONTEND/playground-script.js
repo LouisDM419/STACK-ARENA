@@ -485,19 +485,6 @@ const app = {
             html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
                     <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
         }
-        // else if (match.status === 'STARTING') {
-        //     if (isHost) {
-        //         html += `
-        //             <div class="pg-form-group text-left" style="margin-bottom: 10px;">
-        //                 <label>Enter Room ID</label>
-        //                 <input type="text" class="pg-input" id="update-room-id-val" placeholder="Paste ID from game...">
-        //             </div>
-        //             <button class="btn btn-primary full-width" onclick="app.updateRoomId('${match.id}')">Submit Room ID</button>
-        //             `;
-        //     } else {
-        //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for Host to create the room...</p>`;
-        //     }
-        // }
         else if (match.status === 'READY_CHECK') {
             html += `
                 <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
@@ -507,9 +494,12 @@ const app = {
         else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
             let hasReported = false;
 
-            if (isHost && match.hostClaimedWin !== null) {
+            const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
+            const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
+
+            if (isHost && typeof hostClaimed === 'boolean') {
                 hasReported = true;
-            } else if (!isHost && match.guestClaimedWin !== null) {
+            } else if (!isHost && typeof guestClaimed === 'boolean') {
                 hasReported = true;
             }
 
@@ -543,19 +533,35 @@ const app = {
             `;
         }
         else if (match.status === 'DISPUTED') {
+            const hasProof = isHost ? (match.hostProof ?? match.host_proof) : (match.guestProof ?? match.guest_proof);
+
             html += `
                 <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
                 <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
-                <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
-                
-                <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
-                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
-                    <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
-                    <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
-                </div>
-                <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
-                <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none;"><i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.</div>
             `;
+
+            if (hasProof) {
+                html += `
+                    <p style="color:var(--text-muted); margin-bottom:20px;">Your proof has been submitted.</p>
+                    <div style="font-size: 1rem; color: #00C851; background: rgba(0, 200, 81, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #00C851;">
+                        <i class="fas fa-check-circle"></i> Proof received. Awaiting Admin resolution.
+                    </div>
+                `;
+            } else {
+                html += `
+                    <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
+                    
+                    <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                        <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
+                    </div>
+                    <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
+                    <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none; margin-top: 15px;">
+                        <i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.
+                    </div>
+                `;
+            }
         }
 
         area.innerHTML = html;
