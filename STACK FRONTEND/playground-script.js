@@ -118,6 +118,7 @@ const app = {
             case 'READY_CHECK': return 'badge-accepted';
             case 'STARTING': return 'badge-pending';
             case 'IN_PROGRESS': return 'badge-awaiting';
+            case 'REPORTING': return 'badge-awaiting';
             case 'COMPLETED': return 'badge-completed';
             case 'DISPUTED': return 'badge-disputed';
             case 'CANCELLED': return 'badge-disputed';
@@ -129,6 +130,7 @@ const app = {
         if (status === 'OPEN') return 'PENDING';
         if (status === 'READY_CHECK') return 'ACTION REQUIRED';
         if (status === 'STARTING') return 'JOINED';
+        if (status === 'REPORTING') return 'VERIFYING RESULT';
         if (status === 'IN_PROGRESS') return 'IN PROGRESS';
         if (status === 'COMPLETED') return 'COMPLETED';
         if (status === 'DISPUTED') return 'DISPUTED';
@@ -187,7 +189,7 @@ const app = {
         if (appState.lobbyFilter === 'Pending') {
             matches = matches.filter(m => ['OPEN', 'STARTING'].includes(m.status));
         } else if (appState.lobbyFilter === 'Awaiting') {
-            matches = matches.filter(m => ['READY_CHECK', 'IN_PROGRESS'].includes(m.status));
+            matches = matches.filter(m => ['READY_CHECK', 'REPORTING', 'IN_PROGRESS'].includes(m.status));
         } else if (appState.lobbyFilter === 'Successful') {
             matches = matches.filter(m => ['COMPLETED', 'DISPUTED', 'CANCELLED'].includes(m.status));
         }
