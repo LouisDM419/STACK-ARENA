@@ -171,6 +171,7 @@ const api = {
         return await graphqlRequest(query);
     },
 
+
     // BASE 64 IMAGE UPLOADS ONLY
     async uploadAvatar(file) {
         const base64String = await fileToBase64(file);

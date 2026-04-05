@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STAR | StackArena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <nav class="navbar fixed-top">
         <div class="container nav-container">
-            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                    class="logo-sub">| StackArena</span></a>
             <div class="nav-links">
                 <a href="about.html">About</a>
                 <a href="index.html#how-it-works">How It Works</a>
@@ -25,7 +30,7 @@
             <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
                 <span class="wallet-bal">1,000 SC</span>
                 <div class="avatar"><i class="fas fa-user"></i></div>
-                <button class="btn-logout" onclick="executeLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="performLogout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
             <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
         </div>
@@ -100,27 +105,32 @@
                 <div class="steps-horizontal mt-4">
                     <a href="signup.html" class="step-h-card">
                         <div class="step-icon"><i class="fas fa-user-plus"></i></div>
-                        <h4>Create Account</h4><p>Sign up & connect ID</p>
+                        <h4>Create Account</h4>
+                        <p>Sign up & connect ID</p>
                     </a>
                     <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
                     <a href="login.html" class="step-h-card">
                         <div class="step-icon"><i class="fas fa-wallet"></i></div>
-                        <h4>Deposit SC</h4><p>Add funds to wallet</p>
+                        <h4>Deposit SC</h4>
+                        <p>Add funds to wallet</p>
                     </a>
                     <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
                     <a href="login.html" class="step-h-card">
                         <div class="step-icon"><i class="fas fa-search"></i></div>
-                        <h4>Find Match</h4><p>Challenge or accept</p>
+                        <h4>Find Match</h4>
+                        <p>Challenge or accept</p>
                     </a>
                     <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
                     <a href="login.html" class="step-h-card">
                         <div class="step-icon"><i class="fas fa-gamepad"></i></div>
-                        <h4>Play Match</h4><p>Battle in-game</p>
+                        <h4>Play Match</h4>
+                        <p>Battle in-game</p>
                     </a>
                     <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
                     <a href="login.html" class="step-h-card">
                         <div class="step-icon"><i class="fas fa-hand-holding-usd"></i></div>
-                        <h4>Withdraw</h4><p>Claim real rewards</p>
+                        <h4>Withdraw</h4>
+                        <p>Claim real rewards</p>
                     </a>
                 </div>
             </div>
@@ -132,12 +142,14 @@
             <div class="container text-center">
                 <h2>Climb the <span class="highlight-gold">Arena Ranks</span></h2>
                 <div class="ranks-horizontal mt-4">
-                    <div class="rank-badge-item"><i class="fas fa-star-half-alt text-muted"></i><span>Rookie</span></div>
+                    <div class="rank-badge-item"><i class="fas fa-star-half-alt text-muted"></i><span>Rookie</span>
+                    </div>
                     <div class="rank-badge-item"><i class="fas fa-star icon-blue"></i><span>Challenger</span></div>
                     <div class="rank-badge-item"><i class="fas fa-khanda icon-blue"></i><span>Gladiator</span></div>
                     <div class="rank-badge-item"><i class="fas fa-medal icon-orange"></i><span>Elite</span></div>
                     <div class="rank-badge-item"><i class="fas fa-crown icon-gold"></i><span>Conqueror</span></div>
-                    <div class="rank-badge-item giant"><i class="fas fa-gem icon-gold glow-gold"></i><span class="highlight-gold">Arena King</span></div>
+                    <div class="rank-badge-item giant"><i class="fas fa-gem icon-gold glow-gold"></i><span
+                            class="highlight-gold">Arena King</span></div>
                 </div>
                 <div class="progress-showcase">
                     <h3>Example Progression: <span class="highlight-blue">Elite I to Elite II</span></h3>
@@ -190,10 +202,14 @@
             <div class="container text-center">
                 <h2>Join The <span class="highlight-orange">Community</span></h2>
                 <div class="social-links-large mt-4">
-                    <a href="https://discord.gg/euTYSX4N" target="_blank" class="social-brand discord"><i class="fab fa-discord"></i><span>Discord</span></a>
-                    <a href="https://whatsapp.com/channel/0029VbDKTEm6mYPJkugum61w" target="_blank" class="social-brand whatsapp"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
-                    <a href="https://www.instagram.com/stack_arena?igsh=bDBrcDRxczBmNGds&utm_source=qr" target="_blank" class="social-brand instagram"><i class="fab fa-instagram"></i><span>Instagram</span></a>
-                    <a href="https://www.tiktok.com/@stack.arena.star?_r=1&_t=ZN-94gH1eFRBbS" target="_blank" class="social-brand tiktok"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
+                    <a href="https://discord.gg/euTYSX4N" target="_blank" class="social-brand discord"><i
+                            class="fab fa-discord"></i><span>Discord</span></a>
+                    <a href="https://whatsapp.com/channel/0029VbDKTEm6mYPJkugum61w" target="_blank"
+                        class="social-brand whatsapp"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+                    <a href="https://www.instagram.com/stack_arena?igsh=bDBrcDRxczBmNGds&utm_source=qr" target="_blank"
+                        class="social-brand instagram"><i class="fab fa-instagram"></i><span>Instagram</span></a>
+                    <a href="https://www.tiktok.com/@stack.arena.star?_r=1&_t=ZN-94gH1eFRBbS" target="_blank"
+                        class="social-brand tiktok"><i class="fab fa-tiktok"></i><span>TikTok</span></a>
                 </div>
             </div>
         </section>
@@ -203,8 +219,10 @@
                 <h2 class="giant-cta-title">ENTER THE ARENA</h2>
                 <p>Compete with players across Africa and prove your skill.</p>
                 <div class="cta-actions mt-4" style="justify-content:center; display:flex; gap:20px;">
-                    <button class="btn btn-primary btn-large" onclick="window.location.href='signup.html'">Create Account</button>
-                    <button class="btn btn-outline btn-large" onclick="window.location.href='login.html'">Find Match</button>
+                    <button class="btn btn-primary btn-large" onclick="window.location.href='signup.html'">Create
+                        Account</button>
+                    <button class="btn btn-outline btn-large" onclick="window.location.href='login.html'">Find
+                        Match</button>
                 </div>
             </div>
         </section>
@@ -214,7 +232,8 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+                    <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR">
+                        <span class="logo-sub">| StackArena</span></a>
                 </div>
                 <div class="footer-links">
                     <h4>Navigation</h4>
@@ -222,11 +241,14 @@
                 </div>
                 <div class="footer-links">
                     <h4>Support</h4>
-                    <a href="support.html">Support</a><a href="mailto:support@playstackarena.com">support@playstackarena.com</a>
+                    <a href="support.html">Support</a><a
+                        href="mailto:support@playstackarena.com">support@playstackarena.com</a>
                 </div>
                 <div class="footer-links">
                     <h4>Legal</h4>
-                    <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="fair-play.html">Fair Play Policy</a><a href="responsible-gaming.html">Responsible Gaming</a>
+                    <a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a
+                        href="fair-play.html">Fair Play Policy</a><a href="responsible-gaming.html">Responsible
+                        Gaming</a>
                 </div>
             </div>
         </div>
@@ -241,12 +263,11 @@
             </div>
         </div>
     </div>
-    
+
     <div id="toast" class="toast">Welcome to the Lobby!</div>
 
     <script src="api.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
-
-
