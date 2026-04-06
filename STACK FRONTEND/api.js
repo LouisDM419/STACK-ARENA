@@ -317,7 +317,7 @@ const api = {
         const query = `
             query {
                 myStats {
-                    gamerTag totalMatches wins losses winRate rankPoints realSc practiceCredits lockedWinnings lockedSc
+                    gamerTag totalMatches wins losses winRate rankPoints realSc practiceCredits lockedSc
                 }
             }
         `;
