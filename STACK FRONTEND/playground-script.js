@@ -542,9 +542,9 @@ const app = {
             const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
             const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
 
-            if (isHost && typeof hostClaimed === 'boolean' && typeof guestClaimed === 'boolean') hasReported = true;
-            // if (!isGuest && typeof guestClaimed === 'boolean') hasReported = true;
-
+            if (isHost && typeof hostClaimed === 'boolean') {
+                if (isGuest && typeof guestClaimed === 'boolean') hasReported = true;
+            }
             if (hasReported) {
                 html += `
                     <div style="padding: 10px 0;">
