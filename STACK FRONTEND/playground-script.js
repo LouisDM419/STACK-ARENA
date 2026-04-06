@@ -263,10 +263,14 @@ const app = {
         const roomPassVal = document.getElementById('create-room-pass').value.trim();
         const gameTitle = document.getElementById('create-game').value;
 
-        // Force them to provide the Room ID upfront
         if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
-        if (!rulesVal) return this.showToast("Please provide Match Rules/Description", "error");
-        if (isNaN(stakeInt) || stakeInt < 50) return this.showToast("Min stake is 50", "error");
+
+        if (appState.mode === 'RANKED' && (isNaN(stakeInt) || stakeInt < 50)) {
+            return this.showToast("Min stake for Ranked is 50 SC", "error");
+        }
+        if (appState.mode === 'PRACTICE' && stakeInt !== 1) {
+            return this.showToast("Practice matches cost exactly 1 PC", "error");
+        }
 
         const btn = document.querySelector('#view-create .btn-primary');
         const ogText = btn.innerHTML;
