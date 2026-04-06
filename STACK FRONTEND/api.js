@@ -56,7 +56,7 @@ const api = {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
-                    id gamerTag bonusSc user { id email }
+                    id gamerTag practiceCredits lockedSc hasMadeFirstDeposit user { id email }
                 }
             }
         `;
@@ -67,7 +67,7 @@ const api = {
         const query = `
             mutation LoginUser($input: LoginInput!) {
                 loginUser(input: $input) {
-                    id gamerTag realSc bonusSc
+                    id gamerTag realSc practiceCredits lockedSc
                 }
             }
         `;
@@ -96,8 +96,7 @@ const api = {
                     subscription WatchMatch($matchId: ID!) {
                         watchMatch(matchId: $matchId) {
                             id status roomId hostReady guestReady hostClaimedWin guestClaimedWin
-                            guest { id gamerTag }
-                            winner { id gamerTag }
+                            hostProofUrl guestProofUrl host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                         }
                     }
                 `;
@@ -160,7 +159,8 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id gamerTag realSc avatarUrl bonusSc rankPoints lockedWinnings winStreak bankName accountNumber user { email dateJoined }
+                    id gamerTag realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
+                    user { email dateJoined }
                 }
             }
         `;
@@ -317,7 +317,7 @@ const api = {
         const query = `
             query {
                 myStats {
-                    gamerTag totalMatches wins losses winRate rankPoints realSc bonusSc lockedWinnings
+                    gamerTag totalMatches wins losses winRate rankPoints realSc practiceCredits lockedWinnings
                 }
             }
         `;
@@ -340,7 +340,7 @@ const api = {
         const query = `
             query {
                 myDailyMissions {
-                    id title currentValue targetValue isCompleted rewardBonusSc
+                    id title currentValue targetValue isCompleted rewardPracticeCredits
                 }
             }
         `;
