@@ -536,14 +536,14 @@ const app = {
             `;
         }
         else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
-            const localReportKey = `reported_${match.id}_${appState.currentUser.id}`;
-            let hasReported = localStorage.getItem(localReportKey) === 'true';
+
+            let hasReported = false;
 
             const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
             const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
 
             if (isHost && typeof hostClaimed === 'boolean') hasReported = true;
-            if (isGuest && typeof guestClaimed === 'boolean') hasReported = true;
+            if (!isHost && typeof guestClaimed === 'boolean') hasReported = true;
 
             if (hasReported) {
                 html += `
