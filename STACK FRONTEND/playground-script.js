@@ -149,7 +149,8 @@ const app = {
     },
 
     renderMatchCard(match, isJoinView = false) {
-        const isHost = match.host && appState.currentUser && match.host.id === appState.currentUser.id;
+        const myUserId = appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id;
+        const isHost = match.host && appState.currentUser && match.host.id === myUserId;
         let oppName = "Waiting...";
         if (isHost && match.guest) oppName = match.guest.gamerTag;
         if (!isHost && match.host) oppName = match.host.gamerTag;
@@ -404,7 +405,7 @@ const app = {
         this.renderActionArea(match, isHost);
         this.navigate('match-details');
 
-        //added sockets here for our match task
+        //I added sockets here for our match task
 
         window.api.subscribeToMatch(matchId, (updatedData) => {
             console.log("Real-Time Update Received:", updatedData);
