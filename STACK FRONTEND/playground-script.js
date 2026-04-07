@@ -38,7 +38,7 @@ const app = {
         const profile = appState.currentUser;
 
         const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
-        const bSc = Number(profile.bonusSc ?? profile.bonus_sc ?? 0);
+        const bSc = Number(profile.bonusSc ?? profile.practiceCredits ?? profile.practice_credits ?? 0);
 
         const headerReal = document.getElementById('header-real-bal');
         if (headerReal) headerReal.innerText = rSc;
@@ -149,8 +149,10 @@ const app = {
     },
 
     renderMatchCard(match, isJoinView = false) {
-        const myUserId = appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id;
-        const isHost = match.host && appState.currentUser && match.host.id === myUserId;
+        const isHost = match.host && appState.currentUser && (
+            match.host.id === appState.currentUser.id || 
+            (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
+        );
         let oppName = "Waiting...";
         if (isHost && match.guest) oppName = match.guest.gamerTag;
         if (!isHost && match.host) oppName = match.host.gamerTag;
@@ -360,7 +362,10 @@ const app = {
         const match = appState.myMatches.find(m => m.id === matchId) || appState.openMatches.find(m => m.id === matchId);
         if (!match) return;
 
-        const isHost = match.host && appState.currentUser && match.host.id === appState.currentUser.id;
+        const isHost = match.host && appState.currentUser && (
+            match.host.id === appState.currentUser.id || 
+            (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
+        );
 
         document.getElementById('details-match-id').innerText = match.id;
         document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);

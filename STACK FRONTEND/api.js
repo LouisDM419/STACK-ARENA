@@ -197,7 +197,7 @@ const api = {
             query {
                 myProfile {
                     id gamerTag codmUid realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
-                    user { email dateJoined }
+                    user { id email dateJoined }
                 }
             }
         `;
