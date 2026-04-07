@@ -23,7 +23,7 @@ async function initSessionCheck() {
                     const balEl = profileNav.querySelector('.profile-bal');
                     if (balEl) {
                         const r = profile.realSc || 0;
-                        const b = profile.bonusSc || 0;
+                        const b = profile.practiceCredits || profile.bonusSc || 0;
                         balEl.innerText = `${r + b} SC`;
                     }
                 }

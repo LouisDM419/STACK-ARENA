@@ -529,9 +529,9 @@ const app = {
             this.renderActionArea(match, isHost);
 
             if (justCompleted) {
-                const profile = await window.api.myProfile();
-                if (profile) {
-                    appState.currentUser = profile;
+                const profileReq = await window.api.myProfile();
+                if (profileReq) {
+                    appState.currentUser = profileReq.myProfile || profileReq;
                     this.updateBalances();
                 }
 
