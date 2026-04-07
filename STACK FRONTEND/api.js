@@ -265,8 +265,8 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { 
-            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch } 
+        return await graphqlRequest(query, {
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
         });
     },
 
@@ -366,6 +366,7 @@ const api = {
                 myMatches {
                     id status gameTitle matchType entryFeeSc roomId 
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
+                    hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
             }

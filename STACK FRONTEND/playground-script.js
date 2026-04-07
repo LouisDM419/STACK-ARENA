@@ -11,8 +11,8 @@ const appState = {
 const app = {
     async init() {
         try {
-            const profile = await window.api.myProfile();
-            appState.currentUser = profile;
+            const res = await window.api.myProfile();
+            appState.currentUser = res?.myProfile || res;
             this.updateBalances();
             await this.refreshMatches();
             this.navigate('lobby');
@@ -367,11 +367,17 @@ const app = {
         document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
 
         let subStatus = "";
-        if (match.status === 'OPEN') subStatus = "Waiting for an opponent...";
-        if (match.status === 'STARTING') subStatus = isHost ? "Opponent found. Enter Room ID." : "Waiting for Host to create room...";
-        if (match.status === 'READY_CHECK') subStatus = "Room created. Please ready up and join.";
-        if (match.status === 'IN_PROGRESS') subStatus = "Match in progress. Submit result when done.";
-        if (match.status === 'COMPLETED') subStatus = `Match Completed.`;
+        if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
+            subStatus = "Waiting for an opponent to join...";
+        } else if (match.status === 'STARTING') {
+            subStatus = isHost ? "Opponent found. Enter Room ID." : "Waiting for Host to create room...";
+        } else if (match.status === 'READY_CHECK') {
+            subStatus = "Match ready. Please ready up and join.";
+        } else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
+            subStatus = "Match in progress. Submit result when done.";
+        } else if (match.status === 'COMPLETED') {
+            subStatus = `Match Completed.`;
+        }
         document.getElementById('details-sub-status').innerText = subStatus;
 
         document.getElementById('p1-username').innerText = match.host ? match.host.gamerTag : "Host";
@@ -557,16 +563,25 @@ const app = {
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');
         let html = `<div style="text-align: right; margin-bottom: 15px;"></div>`;
-
-        if (match.status === 'OPEN') {
+        //Remove the OR if I face problems
+        if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
             html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
                     <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
         }
         else if (match.status === 'READY_CHECK') {
-            html += `
-                <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
-                <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
-            `;
+            const isUserReady = isHost ? match.hostReady : match.guestReady;
+
+            if (isUserReady) {
+                html += `
+                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent...</p>
+                    <button class="btn btn-primary full-width" disabled><i class="fas fa-spinner fa-spin"></i> Waiting...</button>
+                `;
+            } else {
+                html += `
+                    <p style="margin-bottom: 15px;">Both players are here. Join game and ready up.</p>
+                    <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+                `;
+            }
         }
         else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
 
@@ -691,9 +706,9 @@ const app = {
             await window.api.reportMatchResult(matchId, claimedWin);
             this.showToast("Result submitted.");
 
-            const profile = await window.api.myProfile();
-            if (profile) {
-                appState.currentUser = profile;
+            const res = await window.api.myProfile();
+            if (res) {
+                appState.currentUser = res.myProfile || res;
                 this.updateBalances();
             }
 
