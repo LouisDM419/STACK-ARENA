@@ -51,8 +51,45 @@ async function graphqlRequest(query, variables = {}) {
 }
 
 const api = {
-    // 1. Accounts API
-    async registerUser(email, password, gamerTag, fullname = "New User", gender = "Prefer Not to Say") {
+    // Commented out the old registerUser function because we're now using the new one with fingerprint ID
+
+    // async registerUser(email, password, gamerTag, fullname = "New User", gender = "Prefer Not to Say") {
+    //     const query = `
+    //         mutation RegisterUser($input: RegisterInput!) {
+    //             registerUser(input: $input) {
+    //                 id gamerTag practiceCredits lockedSc hasMadeFirstDeposit user { id email }
+    //             }
+    //         }
+    //     `;
+    //     return await graphqlRequest(query, { input: { email, password, gamerTag, fullname, gender } });
+    // },
+
+    // async loginUser(email, password) {
+    //     const query = `
+    //         mutation LoginUser($input: LoginInput!) {
+    //             loginUser(input: $input) {
+    //                 id gamerTag realSc practiceCredits lockedSc
+    //             }
+    //         }
+    //     `;
+    //     return await graphqlRequest(query, { input: { email, password } });
+    // },
+    // The Landing Page Stats Fetcher I talked about
+    async getPlatformMetrics() {
+        const query = `
+            query {
+                platformMetrics {
+                    matchesPlayedToday
+                    activePlayersThisWeek
+                    totalScPaidOut
+                }
+            }
+        `;
+        return await graphqlRequest(query);
+    },
+
+    // I Updated Auth to include the Fingerprint ID check it out
+    async registerUser(email, password, gamerTag, fullname = "New User", gender = "Prefer Not to Say", visitorId = null) {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
@@ -60,10 +97,10 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { email, password, gamerTag, fullname, gender } });
+        return await graphqlRequest(query, { input: { email, password, gamerTag, fullname, gender, visitorId } });
     },
 
-    async loginUser(email, password) {
+    async loginUser(email, password, visitorId = null) {
         const query = `
             mutation LoginUser($input: LoginInput!) {
                 loginUser(input: $input) {
@@ -71,7 +108,7 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { email, password } });
+        return await graphqlRequest(query, { input: { email, password, visitorId } });
     },
     matchSocket: null,
 
