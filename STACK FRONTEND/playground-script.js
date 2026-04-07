@@ -238,30 +238,44 @@ const app = {
     //     const stakeInt = parseInt(document.getElementById('create-stake').value);
     //     const rulesVal = document.getElementById('create-rules').value.trim();
     //     const roomIdVal = document.getElementById('create-room-id').value.trim();
+    //     const roomPassVal = document.getElementById('create-room-pass').value.trim();
     //     const gameTitle = document.getElementById('create-game').value;
 
-    //     if (!rulesVal) return this.showToast("Please provide Match Rules/Description", "error");
-    //     if (isNaN(stakeInt) || stakeInt < 50) return this.showToast("Min stake is 50", "error");
+    //     if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
+
+    //     if (appState.mode === 'RANKED' && (isNaN(stakeInt) || stakeInt < 50)) {
+    //         return this.showToast("Min stake for Ranked is 50 SC", "error");
+    //     }
+    //     if (appState.mode === 'PRACTICE' && stakeInt !== 1) {
+    //         return this.showToast("Practice matches cost exactly 1 PC", "error");
+    //     }
+
+    //     const btn = document.querySelector('#view-create .btn-primary');
+    //     const ogText = btn.innerHTML;
+    //     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    //     btn.disabled = true;
 
     //     try {
-    //         await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, "");
+    //         await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal);
     //         this.showToast("Match created successfully!");
 
     //         document.getElementById('create-room-id').value = '';
+    //         document.getElementById('create-room-pass').value = '';
     //         document.getElementById('create-rules').value = '';
 
     //         this.setLobbyFilter('Pending');
     //         this.navigate('lobby');
     //     } catch (e) {
     //         this.showToast("Error creating match: " + e.message, "error");
+    //     } finally {
+    //         btn.innerHTML = ogText;
+    //         btn.disabled = false;
     //     }
     // },
-    async submitCreateMatch() {
+    // 1. Validates input and triggers the popup
+    submitCreateMatch() {
         const stakeInt = parseInt(document.getElementById('create-stake').value);
-        const rulesVal = document.getElementById('create-rules').value.trim();
         const roomIdVal = document.getElementById('create-room-id').value.trim();
-        const roomPassVal = document.getElementById('create-room-pass').value.trim();
-        const gameTitle = document.getElementById('create-game').value;
 
         if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
 
@@ -272,14 +286,31 @@ const app = {
             return this.showToast("Practice matches cost exactly 1 PC", "error");
         }
 
+        document.getElementById('automatch-modal').style.display = 'flex';
+    },
+
+    async finalizeCreateMatch(isAutomatch) {
+        document.getElementById('automatch-modal').style.display = 'none';
+
+        const stakeInt = parseInt(document.getElementById('create-stake').value);
+        const rulesVal = document.getElementById('create-rules').value.trim();
+        const roomIdVal = document.getElementById('create-room-id').value.trim();
+        const roomPassVal = document.getElementById('create-room-pass').value.trim();
+        const gameTitle = document.getElementById('create-game').value;
+
         const btn = document.querySelector('#view-create .btn-primary');
         const ogText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
         btn.disabled = true;
 
         try {
-            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal);
-            this.showToast("Match created successfully!");
+            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch);
+
+            if (isAutomatch) {
+                this.showToast("Searching for opponent...");
+            } else {
+                this.showToast("Match created! Waiting in lobby.");
+            }
 
             document.getElementById('create-room-id').value = '';
             document.getElementById('create-room-pass').value = '';
@@ -287,6 +318,7 @@ const app = {
 
             this.setLobbyFilter('Pending');
             this.navigate('lobby');
+            await this.refreshMatches();
         } catch (e) {
             this.showToast("Error creating match: " + e.message, "error");
         } finally {

@@ -247,7 +247,17 @@ const api = {
     },
 
     // 2. Matchmaking API
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+    //     const query = `
+    //         mutation CreateMatch($input: CreateMatchInput!) {
+    //             createMatch(input: $input) {
+    //                 id status entryFeeSc gameTitle host { id email }
+    //             }
+    //         }
+    //     `;
+    //     return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+    // },
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -255,7 +265,9 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+        return await graphqlRequest(query, { 
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch } 
+        });
     },
 
     async joinMatch(matchId) {
