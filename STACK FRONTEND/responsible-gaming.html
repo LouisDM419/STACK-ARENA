@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsible Gaming | STAR StackArena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <nav class="navbar fixed-top scrolled">
         <div class="container nav-container">
-            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                    class="logo-sub">| StackArena</span></a>
             <div class="nav-links">
                 <a href="about.html">About</a>
                 <a href="index.html#how-it-works">How It Works</a>
@@ -19,13 +24,15 @@
                 <a href="support.html">Support</a>
             </div>
             <div class="nav-buttons">
-                <a href="#" class="btn btn-outline" id="btn-login-nav" onclick="handleAuthRoute(event, 'login')">Login</a>
-                <a href="#" class="btn btn-primary" id="btn-signup-nav" onclick="handleAuthRoute(event, 'signup')">Create Account</a>
+                <a href="#" class="btn btn-outline" id="btn-login-nav"
+                    onclick="handleAuthRoute(event, 'login')">Login</a>
+                <a href="#" class="btn btn-primary" id="btn-signup-nav"
+                    onclick="handleAuthRoute(event, 'signup')">Create Account</a>
             </div>
             <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
                 <span class="wallet-bal">1,000 SC</span>
                 <div class="avatar"><i class="fas fa-user"></i></div>
-                <button class="btn-logout" onclick="simulateLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="performLogout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
             <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
         </div>
@@ -40,35 +47,50 @@
         </section>
 
         <section class="content-section">
-            <p>At Stack Arena, we believe gaming should be competitive, entertaining, and responsible. Our platform is designed to reward skill, discipline, and fair play, not reckless behavior. We encourage players to enjoy competition while maintaining healthy gaming habits.</p>
+            <p>At Stack Arena, we believe gaming should be competitive, entertaining, and responsible. Our platform is
+                designed to reward skill, discipline, and fair play, not reckless behavior. We encourage players to
+                enjoy competition while maintaining healthy gaming habits.</p>
 
             <h3>Play Responsibly</h3>
-            <p>Gaming should always remain a form of entertainment, not a source of financial pressure or stress. Players are encouraged to:</p>
+            <p>Gaming should always remain a form of entertainment, not a source of financial pressure or stress.
+                Players are encouraged to:</p>
             <ul>
                 <li>Set personal spending limits</li>
                 <li>Take regular breaks from gaming</li>
                 <li>Avoid chasing losses</li>
                 <li>Play within their financial means</li>
             </ul>
-            <p>If gaming begins to feel stressful or overwhelming, we strongly recommend stepping away and seeking support.</p>
+            <p>If gaming begins to feel stressful or overwhelming, we strongly recommend stepping away and seeking
+                support.</p>
 
             <h3>Age Restrictions</h3>
-            <p>Stack Arena is intended only for users who meet the legal age requirements in their jurisdiction. By creating an account on Stack Arena, you confirm that you are legally permitted to participate in skill-based competitions, and the information you provided is accurate. Accounts found to be in violation of age restrictions may be suspended or terminated.</p>
+            <p>Stack Arena is intended only for users who meet the legal age requirements in their jurisdiction. By
+                creating an account on Stack Arena, you confirm that you are legally permitted to participate in
+                skill-based competitions, and the information you provided is accurate. Accounts found to be in
+                violation of age restrictions may be suspended or terminated.</p>
 
             <h3>Fair Play</h3>
-            <p>Stack Arena promotes fair competition and integrity. We strictly prohibit cheating, match-fixing, exploiting platform bugs, or abusive conduct.</p>
+            <p>Stack Arena promotes fair competition and integrity. We strictly prohibit cheating, match-fixing,
+                exploiting platform bugs, or abusive conduct.</p>
 
             <h3>Self-Control Tools (Future Features)</h3>
-            <p>To support responsible play, Stack Arena may introduce tools such as deposit limits, match participation limits, temporary account pauses, and activity reminders.</p>
+            <p>To support responsible play, Stack Arena may introduce tools such as deposit limits, match participation
+                limits, temporary account pauses, and activity reminders.</p>
 
             <h3>Recognizing Problem Gaming</h3>
-            <p>If you or someone you know may be experiencing difficulty managing gaming activity, consider seeking assistance. Signs may include spending more time or money than intended, difficulty stopping or taking breaks, and gaming interfering with daily responsibilities.</p>
+            <p>If you or someone you know may be experiencing difficulty managing gaming activity, consider seeking
+                assistance. Signs may include spending more time or money than intended, difficulty stopping or taking
+                breaks, and gaming interfering with daily responsibilities.</p>
 
             <h3>Support & Assistance</h3>
-            <p>If you need assistance or would like to discuss concerns related to gaming activity, you may contact our support team at: <a href="mailto:support@playstackarena.com" class="highlight-orange">support@playstackarena.com</a>. Our team will handle all inquiries confidentially and respectfully.</p>
+            <p>If you need assistance or would like to discuss concerns related to gaming activity, you may contact our
+                support team at: <a href="mailto:support@playstackarena.com"
+                    class="highlight-orange">support@playstackarena.com</a>. Our team will handle all inquiries
+                confidentially and respectfully.</p>
 
             <h3>Our Commitment</h3>
-            <p>Stack Arena is committed to building a platform that promotes fair competition, player safety, community respect, and healthy gaming experiences.</p>
+            <p>Stack Arena is committed to building a platform that promotes fair competition, player safety, community
+                respect, and healthy gaming experiences.</p>
         </section>
     </main>
 
@@ -88,11 +110,10 @@
             </div>
         </div>
     </div>
-    
+
     <div id="toast" class="toast">Welcome to the Lobby!</div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
-
-

@@ -135,12 +135,7 @@ function handleAuthRoute(event, action) {
     }
 }
 
-function executeLogout() {
-    showToast("Logging out...");
-    setTimeout(() => {
-        window.location.href = 'index.html'; // Or clear tokens
-    }, 1000);
-}
+
 
 function showToast(message, success = true) {
     const toast = document.getElementById('toast');
@@ -213,6 +208,52 @@ async function loadNotifications() {
                 <p style="font-size: 0.85rem; margin: 5px 0;">${n.message}</p>
             </div>
         `).join('');
+    }
+}
+
+function performLogout() {
+    localStorage.clear();
+    sessionStorage.clear();
+
+    document.cookie.split(";").forEach(function (c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+
+    window.location.href = 'index.html';
+}
+
+function updateGlobalBalances(profile) {
+    if (!profile) return;
+
+    const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
+    const pCreds = Number(profile.practiceCredits ?? profile.practice_credits ?? 0);
+
+    const topBarSc = document.getElementById('header-sc');
+    if (topBarSc) topBarSc.innerText = rSc;
+
+    const lobbyReal = document.getElementById('lobby-real-bal');
+    if (lobbyReal) lobbyReal.innerText = rSc;
+
+    const lobbyBonus = document.getElementById('lobby-bonus-bal');
+    if (lobbyBonus) lobbyBonus.innerText = pCreds;
+}
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+function triggerAppInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+        });
     }
 }
 

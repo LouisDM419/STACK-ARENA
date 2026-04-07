@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How It Works | STAR StackArena</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <nav class="navbar fixed-top scrolled">
         <div class="container nav-container">
-            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span class="logo-sub">| StackArena</span></a>
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                    class="logo-sub">| StackArena</span></a>
             <div class="nav-links">
                 <a href="about.html">About</a>
                 <a href="index.html#how-it-works">How It Works</a>
@@ -19,13 +24,15 @@
                 <a href="support.html">Support</a>
             </div>
             <div class="nav-buttons">
-                <a href="#" class="btn btn-outline" id="btn-login-nav" onclick="handleAuthRoute(event, 'login')">Login</a>
-                <a href="#" class="btn btn-primary" id="btn-signup-nav" onclick="handleAuthRoute(event, 'signup')">Create Account</a>
+                <a href="#" class="btn btn-outline" id="btn-login-nav"
+                    onclick="handleAuthRoute(event, 'login')">Login</a>
+                <a href="#" class="btn btn-primary" id="btn-signup-nav"
+                    onclick="handleAuthRoute(event, 'signup')">Create Account</a>
             </div>
             <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
                 <span class="wallet-bal">1,000 SC</span>
                 <div class="avatar"><i class="fas fa-user"></i></div>
-                <button class="btn-logout" onclick="simulateLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="performLogout()"><i class="fas fa-sign-out-alt"></i></button>
             </div>
             <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
         </div>
@@ -67,7 +74,7 @@
                     <p>Defeat your opponent and withdraw your winnings safely.</p>
                 </div>
             </div>
-            
+
             <div class="text-center mt-4">
                 <a href="#" class="btn btn-primary btn-large">Get Started Now</a>
             </div>
@@ -90,11 +97,10 @@
             </div>
         </div>
     </div>
-    
+
     <div id="toast" class="toast">Welcome to the Lobby!</div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
-
-

@@ -56,7 +56,7 @@ const api = {
         const query = `
             mutation RegisterUser($input: RegisterInput!) {
                 registerUser(input: $input) {
-                    id gamerTag bonusSc user { id email }
+                    id gamerTag practiceCredits lockedSc hasMadeFirstDeposit user { id email }
                 }
             }
         `;
@@ -67,7 +67,7 @@ const api = {
         const query = `
             mutation LoginUser($input: LoginInput!) {
                 loginUser(input: $input) {
-                    id gamerTag realSc bonusSc
+                    id gamerTag realSc practiceCredits lockedSc
                 }
             }
         `;
@@ -96,8 +96,7 @@ const api = {
                     subscription WatchMatch($matchId: ID!) {
                         watchMatch(matchId: $matchId) {
                             id status roomId hostReady guestReady hostClaimedWin guestClaimedWin
-                            guest { id gamerTag }
-                            winner { id gamerTag }
+                            hostProofUrl guestProofUrl host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                         }
                     }
                 `;
@@ -160,7 +159,8 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id gamerTag realSc avatarUrl bonusSc rankPoints lockedWinnings winStreak bankName accountNumber user { email dateJoined }
+                    id gamerTag realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
+                    user { email dateJoined }
                 }
             }
         `;
@@ -170,6 +170,7 @@ const api = {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
     },
+
 
     // BASE 64 IMAGE UPLOADS ONLY
     async uploadAvatar(file) {
@@ -302,18 +303,21 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc roomId host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
+                    id status gameTitle matchType entryFeeSc roomId 
+                    hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
+                    host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
             }
         `;
         return await graphqlRequest(query);
     },
 
+
     async myStats() {
         const query = `
             query {
                 myStats {
-                    gamerTag totalMatches wins losses winRate rankPoints realSc bonusSc lockedWinnings
+                    gamerTag totalMatches wins losses winRate rankPoints realSc practiceCredits lockedSc
                 }
             }
         `;
@@ -336,7 +340,7 @@ const api = {
         const query = `
             query {
                 myDailyMissions {
-                    id title currentValue targetValue isCompleted rewardBonusSc
+                    id title currentValue targetValue isCompleted rewardPracticeCredits
                 }
             }
         `;
