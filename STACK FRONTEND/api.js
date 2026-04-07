@@ -207,6 +207,10 @@ const api = {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
     },
+    async markNotificationsRead() {
+        const query = `mutation { markNotificationsRead }`;
+        return await graphqlRequest(query);
+    },
     async deleteAccount(password) {
         const query = `
             mutation DeleteAccount($password: String!) {
