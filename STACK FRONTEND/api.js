@@ -158,15 +158,15 @@ const api = {
         }
     },
 
-    async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true) {
+    async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true, codmUid = " ") {
         const query = `
             mutation UpdateProfile($input: UpdateProfileInput!) {
                 updateProfile(input: $input) {
-                    id gamerTag bankName accountNumber accountName
+                    id gamerTag codmUid bankName accountNumber accountName
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled } });
+        return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled, codmUid } });
     },
 
 
@@ -196,7 +196,7 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id gamerTag realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
+                    id gamerTag codmUid realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
                     user { email dateJoined }
                 }
             }
@@ -206,6 +206,14 @@ const api = {
     async myNotifications() {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
+    },
+    async deleteAccount(password) {
+        const query = `
+            mutation DeleteAccount($password: String!) {
+                deleteAccount(password: $password)
+            }
+        `;
+        return await graphqlRequest(query, { password });
     },
 
 

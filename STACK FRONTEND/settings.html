@@ -549,7 +549,7 @@
 
             try {
                 const username = document.getElementById('username-input').value.trim();
-
+                const codmUid = document.getElementById('codm-uid-input').value.trim();
                 const bni = document.getElementById('bank-name-input');
                 const bankName = bni ? bni.value.trim() : "";
                 const ani = document.getElementById('account-number-input');
@@ -557,7 +557,7 @@
                 const accni = document.getElementById('account-name-input');
                 const accName = accni ? accni.value.trim() : "";
 
-                await window.api.updateProfile(username, "", bankName, accNum, accName, true);
+                await window.api.updateProfile(username, "", bankName, accNum, accName, true, codmUid);
 
                 btn.innerHTML = '<i class="fas fa-check"></i> Saved';
                 triggerAutoSave();
