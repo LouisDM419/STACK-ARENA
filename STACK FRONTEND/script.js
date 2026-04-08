@@ -151,35 +151,47 @@ function showToast(message, success = true) {
 }
 
 
-function toggleNotifications() {
+window.toggleNotifications = async function () {
     const dropdown = document.getElementById('notification-dropdown');
     let overlay = document.querySelector('.notif-overlay');
 
-    if (dropdown) {
-        dropdown.classList.toggle('active');
+    if (!dropdown) return;
 
-        if (dropdown.classList.contains('active')) {
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.className = 'notif-overlay';
-                const layout = document.querySelector('.dashboard-layout');
-                if (layout) layout.appendChild(overlay);
-                else document.body.appendChild(overlay);
-                // clicking overlay closes notifications
-                overlay.addEventListener('click', toggleNotifications);
-            }
-            setTimeout(() => overlay.classList.add('active'), 10);
-        } else {
-            if (overlay) {
-                overlay.classList.remove('active');
-                setTimeout(() => {
-                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-                }, 300);
-            }
+    // Toggle the CSS class, NOT display: block
+    dropdown.classList.toggle('active');
+
+    if (dropdown.classList.contains('active')) {
+        // --- 1. HANDLE THE OVERLAY (Your original code) ---
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'notif-overlay';
+            const layout = document.querySelector('.dashboard-layout');
+            if (layout) layout.appendChild(overlay);
+            else document.body.appendChild(overlay);
+            overlay.addEventListener('click', toggleNotifications);
+        }
+        setTimeout(() => overlay.classList.add('active'), 10);
+
+        // --- 2. MARK AS READ (The backend logic) ---
+        try {
+            await window.api.markNotificationsRead();
+            setTimeout(() => {
+                fetchAndRenderNotifications();
+            }, 1000);
+        } catch (e) {
+            console.error("Could not mark notifications read", e);
+        }
+
+    } else {
+        // --- 3. REMOVE OVERLAY WHEN CLOSING ---
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 300);
         }
     }
 }
-
 // Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
     const notifWrapper = document.querySelector('.notification-wrapper');
@@ -266,27 +278,6 @@ async function fetchAndRenderNotifications() {
     }
 }
 
-window.toggleNotifications = async function () {
-    const dropdown = document.getElementById('notification-dropdown');
-
-    // Toggle the display
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-    } else {
-        dropdown.style.display = 'block';
-
-        // If they open it, mark everything as read in the backend
-        try {
-            await window.api.markNotificationsRead();
-            // Wait a second, then re-fetch to clear the red dot and styling
-            setTimeout(() => {
-                fetchAndRenderNotifications();
-            }, 1000);
-        } catch (e) {
-            console.error("Could not mark notifications read", e);
-        }
-    }
-}
 
 
 document.addEventListener('DOMContentLoaded', () => {
