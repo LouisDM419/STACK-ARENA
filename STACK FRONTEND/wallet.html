@@ -401,15 +401,20 @@
                 // Fetch profile for balances
                 const profileReq = await window.api.myProfile();
                 if (profileReq) {
-                    const profile = profileReq;
-                    const totalBal = profile.realSc + profile.bonusSc + profile.lockedWinnings;
+                    const profile = profileReq.myProfile || profileReq;
+                    const rSc = Number(profile.realSc || 0);
+                    const bSc = Number(profile.practiceCredits || profile.bonusSc || 0);
+                    const lockedSc = Number(profile.lockedWinnings || profile.lockedSc || 0);
+                    const totalBal = rSc + bSc + lockedSc;
                     document.querySelector('.wb-val').innerHTML = `${totalBal} <span style="font-size:1.5rem; color:var(--text-muted);">SC</span>`;
-                    document.querySelectorAll('.dash-stat-card')[0].querySelector('.stat-value').innerText = `${profile.realSc} SC`; // Available
-                    document.querySelectorAll('.dash-stat-card')[1].querySelector('.stat-value').innerText = `${profile.bonusSc} SC`; // Bonus
-                    document.querySelectorAll('.dash-stat-card')[2].querySelector('.stat-value').innerText = `${profile.lockedWinnings} SC`; // Locked
-                    document.querySelector('.cm-info-banner p').innerHTML = `You have ${profile.lockedWinnings} SC locked. Play a Ranked Match to unlock your pending rewards into your Available Bonus Balance.`;
-                    document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${profile.realSc} SC`;
-                    document.querySelector('.cm-balance-info .text-gold').innerText = `${profile.realSc} SC`; // Withdraw modal
+                    document.querySelectorAll('.dash-stat-card')[0].querySelector('.stat-value').innerText = `${rSc} SC`; // Available
+                    document.querySelectorAll('.dash-stat-card')[1].querySelector('.stat-value').innerText = `${bSc} SC`; // Bonus
+                    document.querySelectorAll('.dash-stat-card')[2].querySelector('.stat-value').innerText = `${lockedSc} SC`; // Locked
+                    document.querySelector('.cm-info-banner p').innerHTML = `You have ${lockedSc} SC locked. Play a Ranked Match to unlock your pending rewards into your Available Bonus Balance.`;
+                    const walletBalEl = document.querySelector('.wallet-bal');
+                    if(walletBalEl) walletBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${rSc} SC`;
+                    const cmBalInfoEl = document.querySelector('.cm-balance-info .text-gold');
+                    if(cmBalInfoEl) cmBalInfoEl.innerText = `${rSc} SC`; // Withdraw modal
                 }
 
                 // Fetch history

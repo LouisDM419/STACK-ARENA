@@ -158,15 +158,15 @@ const api = {
         }
     },
 
-    async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true) {
+    async updateProfile(gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled = true, codmUid = " ") {
         const query = `
             mutation UpdateProfile($input: UpdateProfileInput!) {
                 updateProfile(input: $input) {
-                    id gamerTag bankName accountNumber accountName
+                    id gamerTag codmUid bankName accountNumber accountName
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled } });
+        return await graphqlRequest(query, { input: { gamerTag, phoneNumber, bankName, accountNumber, accountName, notificationsEnabled, codmUid } });
     },
 
 
@@ -196,8 +196,8 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id gamerTag realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
-                    user { email dateJoined }
+                    id gamerTag codmUid realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
+                    user { id email dateJoined }
                 }
             }
         `;
@@ -206,6 +206,18 @@ const api = {
     async myNotifications() {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
+    },
+    async markNotificationsRead() {
+        const query = `mutation { markNotificationsRead }`;
+        return await graphqlRequest(query);
+    },
+    async deleteAccount(password) {
+        const query = `
+            mutation DeleteAccount($password: String!) {
+                deleteAccount(password: $password)
+            }
+        `;
+        return await graphqlRequest(query, { password });
     },
 
 
@@ -235,7 +247,17 @@ const api = {
     },
 
     // 2. Matchmaking API
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+    //     const query = `
+    //         mutation CreateMatch($input: CreateMatchInput!) {
+    //             createMatch(input: $input) {
+    //                 id status entryFeeSc gameTitle host { id email }
+    //             }
+    //         }
+    //     `;
+    //     return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+    // },
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -243,7 +265,9 @@ const api = {
                 }
             }
         `;
-        return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+        return await graphqlRequest(query, {
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
+        });
     },
 
     async joinMatch(matchId) {
@@ -342,6 +366,7 @@ const api = {
                 myMatches {
                     id status gameTitle matchType entryFeeSc roomId 
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
+                    hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
             }
