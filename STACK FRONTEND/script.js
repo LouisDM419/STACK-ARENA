@@ -150,7 +150,7 @@ function showToast(message, success = true) {
     }, 3000);
 }
 
-// Notification Toggle Logic
+
 function toggleNotifications() {
     const dropdown = document.getElementById('notification-dropdown');
     let overlay = document.querySelector('.notif-overlay');
@@ -210,6 +210,92 @@ async function loadNotifications() {
         `).join('');
     }
 }
+
+
+async function fetchAndRenderNotifications() {
+    try {
+        const res = await window.api.myNotifications();
+        if (!res || !res.myNotifications) return;
+
+        const notifications = res.myNotifications;
+        const notifBody = document.querySelector('.notif-body');
+        const bellBtn = document.getElementById('btn-notifications');
+
+        if (notifications.length === 0) {
+            notifBody.innerHTML = `
+                <div class="empty-notif text-center" style="padding: 20px;">
+                    <i class="far fa-bell-slash" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                    <p style="color: #fff; margin-bottom: 5px;">No new notifications</p>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught up!</span>
+                </div>
+            `;
+            bellBtn.innerHTML = `<i class="far fa-bell"></i>`;
+            return;
+        }
+
+        const unreadCount = notifications.filter(n => !n.isRead).length;
+
+
+        if (unreadCount > 0) {
+            bellBtn.innerHTML = `
+                <i class="far fa-bell"></i>
+                <span style="position: absolute; top: 6px; right: 8px; width: 8px; height: 8px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 5px #ff4444;"></span>
+            `;
+        } else {
+            bellBtn.innerHTML = `<i class="far fa-bell"></i>`;
+        }
+
+        let html = '';
+        notifications.forEach(n => {
+            const dateStr = new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            html += `
+                <div style="padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); background: ${n.isRead ? 'transparent' : 'rgba(255, 68, 68, 0.05)'};">
+                    <strong style="color: ${n.isRead ? '#ccc' : '#fff'}; display: block; font-size: 0.9rem; margin-bottom: 3px;">
+                        ${!n.isRead ? '<span style="color:#ff4444; margin-right:5px;">●</span>' : ''} ${n.title}
+                    </strong>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0 0 5px 0; line-height: 1.4;">${n.message}</p>
+                    <span style="font-size: 0.7rem; color: #666;">${dateStr}</span>
+                </div>
+            `;
+        });
+
+        notifBody.innerHTML = html;
+
+    } catch (e) {
+        console.error("Failed to fetch notifications:", e);
+    }
+}
+
+window.toggleNotifications = async function () {
+    const dropdown = document.getElementById('notification-dropdown');
+
+    // Toggle the display
+    if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    } else {
+        dropdown.style.display = 'block';
+
+        // If they open it, mark everything as read in the backend
+        try {
+            await window.api.markNotificationsRead();
+            // Wait a second, then re-fetch to clear the red dot and styling
+            setTimeout(() => {
+                fetchAndRenderNotifications();
+            }, 1000);
+        } catch (e) {
+            console.error("Could not mark notifications read", e);
+        }
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    setTimeout(fetchAndRenderNotifications, 1500);
+
+
+    setInterval(fetchAndRenderNotifications, 30000);
+});
 
 function performLogout() {
     localStorage.clear();
