@@ -1,0 +1,262 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Win Card - Stack Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0;
+            font-family: var(--font-body);
+            background-image: url('assets/hero-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(10, 10, 15, 0.4);
+            z-index: -1;
+        }
+        .social-card { 
+            width: 100%; 
+            max-width: 380px; 
+            aspect-ratio: 9/16; 
+            background-color: #1a1a2e; /* Fallback if no avatar */ /* Player profile in background */
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px; 
+            border: 1px solid rgba(0, 200, 81, 0.4); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(0, 200, 81, 0.2); 
+            position: relative; 
+            overflow: hidden; 
+            margin: 20px;
+        }
+        .glass-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Fades from completely transparent at the top (face visible) to dark at the bottom for text */
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0) 0%, rgba(10, 10, 15, 0.6) 45%, rgba(10, 10, 15, 0.95) 100%);
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 25px;
+            text-align: center;
+        }
+        .card-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .card-header img { width: 28px; height: 28px; }
+        .card-header span { font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; color: #fff; letter-spacing: 2px; }
+        .player-name { font-family: var(--font-heading); font-weight: 800; font-size: 1.3rem; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 10px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); background: rgba(0,0,0,0.2); padding: 4px 15px; border-radius: 20px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .main-content { margin: auto 0; }
+        .result-title { font-family: var(--font-heading); font-weight: 900; font-size: 2.8rem; color: #00C851; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px; text-shadow: 0 0 15px rgba(0, 200, 81, 0.5); line-height: 1; }
+        .naira-value { font-family: var(--font-heading); font-weight: 900; font-size: 3.5rem; color: #fff; line-height: 1; margin-bottom: 5px; }
+        .sc-value { font-size: 1.1rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .rp-gain { display: inline-block; background: rgba(0, 200, 81, 0.2); color: #00C851; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 1rem; border: 1px solid rgba(0, 200, 81, 0.4); }
+        
+        .footer-content { margin-bottom: 10px; }
+        .match-outcome { color: var(--text-muted); font-size: 1rem; margin-bottom: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .match-outcome strong { color: #fff; font-weight: 700; }
+        .win-streak { color: var(--accent-orange); font-weight: 700; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .card-quote { font-style: italic; color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.4; padding: 0 10px; min-height: 40px; font-weight: 500; }
+        .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; padding: 20px; }
+        .action-buttons { display: flex; gap: 15px; width: 100%; max-width: 380px; }
+        .action-buttons button { flex: 1; padding: 15px 0; border-radius: 12px; font-family: var(--font-heading); font-weight: 800; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-share { background: linear-gradient(135deg, #00C851 0%, #15d666 100%); color: #000; border: none; box-shadow: 0 5px 15px rgba(0, 200, 81, 0.4); }
+        .btn-share:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 20px rgba(0, 200, 81, 0.6); }
+        .btn-skip { background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+        .btn-skip:hover { background: rgba(255,255,255,0.1); }
+        .share-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 1000; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
+        .share-modal-content { width: 100%; max-width: 400px; background: rgba(20,20,35,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; text-align: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .close-modal { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.3s; }
+        .close-modal:hover { opacity: 1; }
+        .modal-title { font-family: var(--font-heading); color: #fff; font-size: 1.5rem; margin-bottom: 20px; font-weight: 800; }
+        .share-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
+        .share-opt-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 8px; transition: all 0.3s; }
+        .share-opt-btn i { font-size: 1.5rem; }
+        .share-opt-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .share-opt-btn.wa:hover { border-color: #25D366; color: #25D366; }
+        .share-opt-btn.ig:hover { border-color: #E1306C; color: #E1306C; }
+        .share-opt-btn.snap:hover { border-color: #FFFC00; color: #FFFC00; }
+        .share-opt-btn.dl:hover { border-color: #00C851; color: #00C851; }
+    </style>
+
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="card-wrapper">
+    <div class="social-card" id="card-node">
+        <div class="glass-overlay">
+            <div class="card-header">
+                <img src="assets/star-logo.svg" alt="STAR">
+                <span>STACK ARENA</span>
+            </div>
+            <div><div class="player-name" id="card-player-name">--</div></div>
+            
+            <div class="main-content">
+                <div class="result-title">VICTORY</div>
+                <div class="naira-value" id="card-naira-val">â‚¦--</div>
+                <div class="sc-value" id="card-sc-val">(-- SC)</div>
+                <div class="rp-gain" id="card-rp-val">+-- RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i></div>
+            </div>
+            
+            <div class="footer-content">
+                <div class="match-outcome" id="card-outcome"><strong>--</strong> defeated <strong>--</strong></div>
+                <div class="win-streak" id="card-streak"><i class="fas fa-fire"></i> -- Win Streak</div>
+                <div class="card-quote" id="random-quote">"Victory tastes sweeter when it's earned."</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="btn-share" onclick="openShare()"><i class="fas fa-share-alt"></i> Share Now</button>
+        <button class="btn-skip" onclick="closePage()">Skip <i class="fas fa-arrow-right"></i></button>
+    </div>
+    </div> <!-- card-wrapper end -->
+
+    <!-- SHARE MODAL -->
+    <div class="share-modal" id="share-modal">
+        <div class="share-modal-content">
+            <button class="close-modal" onclick="closeShare()"><i class="fas fa-times"></i></button>
+            <div class="modal-title">Share Your Result</div>
+            <div id="preview-container" style="min-height: 250px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); border-radius: 16px; margin-bottom: 20px;">
+            </div>
+            <div class="share-options">
+                <button class="share-opt-btn wa" onclick="shareGeneral('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button class="share-opt-btn ig" onclick="shareGeneral('instagram')"><i class="fab fa-instagram"></i> Instagram</button>
+                <button class="share-opt-btn snap" onclick="shareGeneral('snapchat')"><i class="fab fa-snapchat-ghost"></i> Snapchat</button>
+                <button class="share-opt-btn dl" onclick="downloadImage()"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        function openShare() {
+            const card = document.getElementById('card-node');
+            
+            document.getElementById('share-modal').style.display = 'flex';
+            document.getElementById('preview-container').innerHTML = '<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Generating...</p>';
+            
+            setTimeout(() => {
+                html2canvas(card, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
+                    const imgUrl = canvas.toDataURL("image/png");
+                    document.getElementById('preview-container').innerHTML = `<img src="${imgUrl}" alt="Card Preview" style="width: 100%; max-width: 200px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">`;
+                    window.cardImageURL = imgUrl; 
+                }).catch(err => {
+                    document.getElementById('preview-container').innerHTML = '<p style="color:#ff4444;">Error generating preview. Please try again.</p>';
+                });
+            }, 100);
+        }
+
+        function closeShare() { document.getElementById('share-modal').style.display = 'none'; }
+        
+        function closePage() { window.location.href = 'dashboard.html'; }
+
+        function downloadImage() {
+            if(!window.cardImageURL) return;
+            const a = document.createElement('a'); 
+            a.href = window.cardImageURL; 
+            a.download = 'StackArena_Share_Card.png'; 
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function shareGeneral(platform) {
+            if(!window.cardImageURL) return;
+            fetch(window.cardImageURL).then(res => res.blob()).then(blob => {
+                const file = new File([blob], "stackarena_card.png", { type: "image/png" });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({ 
+                        title: 'Stack Arena Result', 
+                        text: 'Look at my latest Stack Arena match! ðŸ”¥', 
+                        files: [file] 
+                    }).catch(e => console.log('Share canceled:', e));
+                } else {
+                    if (platform === 'whatsapp') { 
+                        window.open(`https://api.whatsapp.com/send?text=Look at this match! ðŸ”¥ ` + window.location.href); 
+                    } else { 
+                        alert(`Direct posting to ${platform} usually requires the mobile app's native integration. Please click 'Download', then upload the image to your ${platform} story!`); 
+                    }
+                }
+            }).catch(err => {
+                alert("Something went wrong while preparing the image to share.");
+            });
+        }
+    </script>
+    <script src="api.js"></script>
+    <script>
+        async function initCard() {
+            try {
+                if (!window.api) return;
+                const profile = await api.myProfile();
+                if (!profile) return window.location.href = 'login.html';
+                
+                if (profile.avatarUrl) {
+                    document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                }
+                
+                document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';
+                document.getElementById('card-streak').innerHTML = `<i class="fas fa-fire"></i> ${profile.winStreak || 0} Win Streak`;
+                
+                const matches = await api.myMatches();
+                let match = matches.length > 0 ? matches[0] : null;
+                const params = new URLSearchParams(window.location.search);
+                const matchId = params.get('matchId');
+                
+                if (matchId) {
+                    const found = matches.find(m => m.id === matchId);
+                    if (found) match = found;
+                }
+                
+                if (match) {
+                    const prizePoolSc = match.entryFeeSc * 2;
+                    const nairaPrize = prizePoolSc * 10;
+                    document.getElementById('card-naira-val').innerText = `â‚¦${nairaPrize.toLocaleString()} EARNED`;
+                    document.getElementById('card-sc-val').innerText = `(+${prizePoolSc.toLocaleString()} SC)`;
+                    document.getElementById('card-rp-val').innerHTML = `+25 RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
+                    
+                    const hostName = match.host ? match.host.gamerTag : 'UNKNOWN';
+                    const guestName = match.guest ? match.guest.gamerTag : 'UNKNOWN';
+                    const winnerName = match.winner ? match.winner.gamerTag : 'SOMEONE';
+                    const loserName = winnerName === hostName ? guestName : hostName;
+                    
+                    document.getElementById('card-outcome').innerHTML = `<strong>${winnerName}</strong> defeated <strong>${loserName}</strong>`;
+                }
+            } catch(e) { console.error(e); }
+        }
+        initCard();
+        
+        const quotes = [
+            "Another one. Nothing new.", "I don't chase wins. They come to me.", "You played. I executed.", 
+            "Skill gap is real.", "Different levels. Simple.", "Routine work.", 
+            "Pressure creates diamonds. I shine.", "Not luck. Precision.", "You tried. I delivered.", 
+            "Calculated. Clean. Finished.", "Consistency beats hype.", "I don't miss twice.", 
+            "Game recognised game. Then lost.", "That was expected.", "Nothing personal. Just better.", 
+            "Win secured. Next.", "Execution over emotion.", "Cold hands. Clear mind.", "Built for this.", 
+            "I don't compete. I dominate.", "Too composed to lose.", "That gap? It's skill.", 
+            "Another lesson delivered.", "Outcome was inevitable.", "I do this often."
+        ];
+        document.getElementById('random-quote').innerHTML = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+    </script>
+
+    <script src="pwa.js"></script>
+</body>
+</html>
+
