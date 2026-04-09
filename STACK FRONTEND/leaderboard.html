@@ -273,24 +273,41 @@
         function closeProfile() {
             document.getElementById('profile-modal').style.display = 'none';
         }
+
         async function loadLeaderboardData() {
             try {
                 const profReq = await window.api.myProfile();
-                if (profReq) {
+                if (profReq && profReq.myProfile) {
                     const profile = profReq.myProfile;
                     myGamerTag = profile.gamerTag;
-                    const totalSc = (profile.realSc || 0) + (profile.bonusSc || 0);
-                    document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
-                    document.querySelector('.cur-user-details .cur-username').innerText = myGamerTag;
-                    document.querySelector('.cur-user-details .cur-username').style.color = '#fff';
+
+                    const totalSc = (profile.realSc || 0) + (profile.practiceCredits || profile.bonusSc || 0);
+                    const walletBalNode = document.querySelector('.wallet-bal');
+                    if (walletBalNode) {
+                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+                    }
+
+                    const curUsernameNode = document.querySelector('.cur-user-details .cur-username');
+                    if (curUsernameNode) {
+                        curUsernameNode.innerText = myGamerTag;
+                        curUsernameNode.style.color = '#fff';
+                    }
                 }
 
                 const statsReq = await window.api.myStats();
-                if (statsReq) {
+                if (statsReq && statsReq.myStats) {
                     const st = statsReq.myStats;
-                    myRankPoints = st.rankPoints;
-                    document.querySelector('.cur-stats .badge-rp').innerHTML = `<i class="fas fa-star text-gold"></i> ${myRankPoints} RP`;
-                    document.querySelector('.lb-score').innerText = `${myRankPoints} XP`;
+                    myRankPoints = st.rankPoints || 0;
+
+                    const badgeRpNode = document.querySelector('.cur-stats .badge-rp');
+                    if (badgeRpNode) {
+                        badgeRpNode.innerHTML = `<i class="fas fa-star text-gold"></i> ${myRankPoints} RP`;
+                    }
+
+                    const lbScoreNode = document.querySelector('.lb-score');
+                    if (lbScoreNode) {
+                        lbScoreNode.innerText = `${myRankPoints} XP`;
+                    }
                 }
 
                 const lbReq = await window.api.globalLeaderboard(100);
@@ -298,18 +315,20 @@
                     globalPlayers = lbReq.globalLeaderboard;
                     renderLeaderboardTable('lb-rp');
                 } else {
-                    document.getElementById('lb-container').innerHTML = `
-                        <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
-                            <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
-                            <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
-                            <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
-                        </div>`;
+                    const container = document.getElementById('lb-container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
+                                <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
+                                <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
+                                <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
+                            </div>`;
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load leaderboard", err);
             }
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             loadLeaderboardData();
         });
