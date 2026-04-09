@@ -123,6 +123,7 @@ const api = {
     matchSocket: null,
     userSocket: null,
     userHeartbeat: null,
+    matchHeartbeat: null,
 
     subscribeToUserEvents(onEventCallback) {
         this.unsubscribeFromUserEvents();
@@ -136,6 +137,11 @@ const api = {
             this.userSocket.onopen = () => {
                 this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
             };
+            this.userHeartbeat = setInterval(() => {
+                if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
+                    this.userSocket.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000);
 
             this.userSocket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
@@ -159,7 +165,7 @@ const api = {
                 }
                 else if (msg.type === 'next' && msg.payload && msg.payload.data) {
                     const eventData = msg.payload.data.watchUserEvents;
-                    if (eventData && eventData.type === 'share_card.trigger') {
+                    if (eventData && (eventData.type === 'share_card.trigger' || eventData.type === 'match.redirect')) {
                         onEventCallback({
                             type: eventData.type,
                             card_type: eventData.cardType,
@@ -200,6 +206,12 @@ const api = {
             this.matchSocket.send(JSON.stringify({ type: 'connection_init' }));
         };
 
+        this.matchHeartbeat = setInterval(() => {
+            if (this.matchSocket && this.matchSocket.readyState === WebSocket.OPEN) {
+                this.matchSocket.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000);
+
         this.matchSocket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
 
@@ -227,6 +239,10 @@ const api = {
     },
 
     unsubscribeFromMatch() {
+        if (this.matchHeartbeat) {
+            clearInterval(this.matchHeartbeat);
+            this.matchHeartbeat = null;
+        }
         if (this.matchSocket) {
             this.matchSocket.close();
             this.matchSocket = null;
