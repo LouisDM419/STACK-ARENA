@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -223,7 +223,7 @@
                 }
                 
                 if (match) {
-                    const lossSc = match.entryFeeSc;
+                    const lossSc = match.entryFeeSc || 0;
                     const nairaLoss = lossSc * 10;
                     document.getElementById('card-naira-val').innerText = `â‚¦${nairaLoss.toLocaleString()}`;
                     document.getElementById('card-sc-val').innerText = `(-${lossSc.toLocaleString()} SC) LOST`;
@@ -234,7 +234,10 @@
                     const winnerName = match.winner ? match.winner.gamerTag : 'SOMEONE';
                     const loserName = winnerName === hostName ? guestName : hostName;
                     
-                    document.getElementById('card-outcome').innerHTML = `<strong>${winnerName}</strong> defeated <strong>${loserName}</strong>`;
+                    const safeWinner = window.escapeHTML(winnerName);
+                    const safeLoser = window.escapeHTML(loserName);
+                    
+                    document.getElementById('card-outcome').innerHTML = `<strong>${safeWinner}</strong> defeated <strong>${safeLoser}</strong>`;
                 }
             } catch(e) { console.error(e); }
         }

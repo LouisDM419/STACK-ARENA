@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -282,8 +282,8 @@
                     
                     lbHtml += `
                     <div class="mini-lb-item" style="${style}">
-                        <span>${pos}. <strong>${p.gamerTag}</strong></span>
-                        <span style="${pointColor}">${parseInt(p.rankPoints).toLocaleString()} RP</span>
+                        <span>${pos}. <strong>${window.escapeHTML(p.gamerTag)}</strong></span>
+                        <span style="${pointColor}">${parseInt(p.rankPoints || 0).toLocaleString()} RP</span>
                     </div>`;
                 });
                 document.getElementById('card-mini-lb').innerHTML = lbHtml;
