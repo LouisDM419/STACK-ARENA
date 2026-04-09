@@ -124,6 +124,7 @@ const api = {
     userSocket: null,
     userHeartbeat: null,
     matchHeartbeat: null,
+    userEventCallbacks: [],
 
     // subscribeToUserEvents(onEventCallback) {
     //     this.unsubscribeFromUserEvents();
