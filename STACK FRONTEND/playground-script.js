@@ -15,6 +15,14 @@ const app = {
             appState.currentUser = res?.myProfile || res;
             this.updateBalances();
             await this.refreshMatches();
+            window.api.subscribeToUserEvents((eventData) => {
+                if (eventData.type === 'match.redirect') {
+                    this.showToast("Match Found! Redirecting to opponent...", "success");
+                    this.refreshMatches().then(() => {
+                        this.viewMatchDetails(eventData.match_id || eventData.matchId);
+                    });
+                }
+            });
             this.navigate('lobby');
         } catch (e) {
             console.error(e);
@@ -33,6 +41,38 @@ const app = {
         }, 3000);
     },
 
+    // updateBalances() {
+    //     if (!appState.currentUser) return;
+    //     const profile = appState.currentUser;
+
+    //     const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
+    //     const bSc = Number(profile.bonusSc ?? profile.practiceCredits ?? profile.practice_credits ?? 0);
+
+    //     const headerReal = document.getElementById('header-real-bal');
+    //     if (headerReal) headerReal.innerText = rSc;
+
+    //     const lobbyReal = document.getElementById('lobby-real-bal');
+    //     if (lobbyReal) lobbyReal.innerText = rSc;
+
+    //     const lobbyBonus = document.getElementById('lobby-bonus-bal');
+    //     if (lobbyBonus) lobbyBonus.innerText = bSc;
+
+    //     const topBarSc = document.getElementById('header-sc');
+    //     if (topBarSc) topBarSc.innerText = rSc + bSc;
+
+    //     if (profile.avatarUrl) {
+    //         const rawUrl = profile.avatarUrl;
+    //         const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
+    //         const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; max-width:100%; max-height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+    //         const pp = document.getElementById('profile-pic');
+    //         if (pp) {
+    //             pp.style.overflow = 'hidden';
+    //             pp.innerHTML = imgTag;
+    //         }
+    //     }
+    // },
+
+
     updateBalances() {
         if (!appState.currentUser) return;
         const profile = appState.currentUser;
@@ -40,17 +80,20 @@ const app = {
         const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
         const bSc = Number(profile.bonusSc ?? profile.practiceCredits ?? profile.practice_credits ?? 0);
 
+        const lSc = Number(profile.lockedSc ?? profile.locked_sc ?? 0);
+        const totalPlayable = rSc + lSc;
+
         const headerReal = document.getElementById('header-real-bal');
-        if (headerReal) headerReal.innerText = rSc;
+        if (headerReal) headerReal.innerText = totalPlayable;
 
         const lobbyReal = document.getElementById('lobby-real-bal');
-        if (lobbyReal) lobbyReal.innerText = rSc;
+        if (lobbyReal) lobbyReal.innerText = totalPlayable;
 
         const lobbyBonus = document.getElementById('lobby-bonus-bal');
         if (lobbyBonus) lobbyBonus.innerText = bSc;
 
         const topBarSc = document.getElementById('header-sc');
-        if (topBarSc) topBarSc.innerText = rSc + bSc;
+        if (topBarSc) topBarSc.innerText = totalPlayable + bSc;
 
         if (profile.avatarUrl) {
             const rawUrl = profile.avatarUrl;
@@ -64,14 +107,6 @@ const app = {
         }
     },
 
-    // async refreshMatches() {
-    //     try {
-    //         appState.myMatches = await window.api.myMatches() || [];
-    //         appState.openMatches = await window.api.openMatches() || [];
-    //     } catch (e) {
-    //         console.error("Failed to load matches", e);
-    //     }
-    // },
     async refreshMatches() {
         try {
             const myRes = await window.api.myMatches();
