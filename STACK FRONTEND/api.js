@@ -122,6 +122,7 @@ const api = {
     },
     matchSocket: null,
     userSocket: null,
+    userHeartbeat: null,
 
     subscribeToUserEvents(onEventCallback) {
         this.unsubscribeFromUserEvents();
@@ -174,6 +175,10 @@ const api = {
     },
 
     unsubscribeFromUserEvents() {
+        if (this.userHeartbeat) {
+            clearInterval(this.userHeartbeat);
+            this.userHeartbeat = null;
+        }
         if (this.userSocket) {
             if (this.userSocket.readyState === WebSocket.OPEN) {
                 this.userSocket.close();
