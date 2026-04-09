@@ -477,11 +477,11 @@ const api = {
         return await graphqlRequest(query);
     },
 
-    async globalLeaderboard(limit = 10) {
+    async globalLeaderboard(limit = 100) {
         const query = `
             query GlobalLeaderboard($limit: Int) {
                 globalLeaderboard(limit: $limit) {
-                    gamerTag totalMatches wins winRate rankPoints
+                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc
                 }
             }
         `;

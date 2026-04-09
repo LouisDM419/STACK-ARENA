@@ -169,151 +169,141 @@
     <script src="api.js"></script>
     <script src="script.js"></script>
     <script>
-        // Specific UI Scripts for Leaderboard Only
+        let globalPlayers = [];
+        let myGamerTag = "";
+        let myRankPoints = 0;
+
         document.querySelectorAll('.lb-tab').forEach(tab => {
             tab.addEventListener('click', function () {
                 document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
 
-                // Real app would fetch new data. Here, we just add a visual cue.
+                const target = this.getAttribute('data-target');
+
                 const tableBody = document.querySelector('.lb-body');
-                tableBody.style.opacity = '0.5';
+                if (tableBody) tableBody.style.opacity = '0.5';
+
                 setTimeout(() => {
-                    tableBody.style.opacity = '1';
-                }, 300);
+                    renderLeaderboardTable(target);
+                    if (tableBody) tableBody.style.opacity = '1';
+                }, 200);
             });
         });
 
-        function scrollToCurrent() {
-            const row = document.querySelector('.current-user-row');
-            if (row) {
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.classList.add('flash-highlight');
-                setTimeout(() => row.classList.remove('flash-highlight'), 2000);
+
+        function renderLeaderboardTable(sortBy = 'lb-rp') {
+            const container = document.getElementById('lb-container');
+            if (globalPlayers.length === 0) return;
+
+            let sortedPlayers = [...globalPlayers];
+            if (sortBy === 'lb-rp') {
+                sortedPlayers.sort((a, b) => (b.rankPoints || 0) - (a.rankPoints || 0));
+            } else if (sortBy === 'lb-earnings') {
+
+                sortedPlayers.sort((a, b) => ((b.realSc || 0) + (b.lockedSc || 0)) - ((a.realSc || 0) + (a.lockedSc || 0)));
+            } else if (sortBy === 'lb-winrate') {
+                sortedPlayers.sort((a, b) => (b.winRate || 0) - (a.winRate || 0));
+            }
+
+            let htmlStr = `<div class="dash-panel table-responsive" style="padding: 0; overflow-x: auto; margin-bottom: 40px; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
+                    <thead style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <tr>
+                            <th class="lb-cell lb-rank-col" style="color: var(--text-muted); font-weight: normal; text-align: center;">Rank</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal;">Player</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Win Rate</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Points (RP)</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody class="lb-body">`;
+
+            sortedPlayers.forEach((p, index) => {
+                const rank = index + 1;
+                let rankTrophy = `${rank}`;
+                if (rank === 1) rankTrophy = `<i class="fas fa-trophy" style="color: gold; font-size: 1.2rem;"></i>`;
+                if (rank === 2) rankTrophy = `<i class="fas fa-trophy" style="color: silver; font-size: 1.2rem;"></i>`;
+                if (rank === 3) rankTrophy = `<i class="fas fa-trophy" style="color: #cd7f32; font-size: 1.2rem;"></i>`;
+
+                const isMe = p.gamerTag === myGamerTag;
+                const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
+                const totalEarned = (p.realSc || 0) + (p.lockedSc || 0);
+
+                htmlStr += `
+                    <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
+                        <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
+                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned})">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="avatar" style="width: 35px; height: 35px; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};"><i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i></div>
+                                <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
+                            </div>
+                        </td>
+                        <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
+                        <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} XP</td>
+                        <td class="lb-cell" style="text-align: right; font-weight: bold; color: #25d366;">${totalEarned} SC</td>
+                    </tr>
+                `;
+            });
+
+            htmlStr += `</tbody></table></div>`;
+            container.innerHTML = htmlStr;
+
+
+            const myNewIndex = sortedPlayers.findIndex(p => p.gamerTag === myGamerTag);
+            if (myNewIndex !== -1) {
+                document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myNewIndex + 1}`;
             }
         }
 
-        function openProfile(username) {
+
+        function openProfile(username, winRate = 0, matches = 0, earnings = 0) {
             document.getElementById('profile-modal-name').innerText = username;
+
+
+            const statBoxes = document.querySelectorAll('#profile-modal .font-bold');
+            if (statBoxes.length >= 3) {
+                statBoxes[0].innerText = `${winRate}%`;
+                statBoxes[1].innerText = matches;
+                statBoxes[2].innerText = `${earnings} SC`;
+            }
+
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
         function closeProfile() {
             document.getElementById('profile-modal').style.display = 'none';
         }
-
         async function loadLeaderboardData() {
             try {
-                // Load My Profile for Top Panel
                 const profReq = await window.api.myProfile();
-                let myGamerTag = "";
                 if (profReq) {
                     const profile = profReq.myProfile;
                     myGamerTag = profile.gamerTag;
                     const totalSc = (profile.realSc || 0) + (profile.bonusSc || 0);
                     document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
-
                     document.querySelector('.cur-user-details .cur-username').innerText = myGamerTag;
                     document.querySelector('.cur-user-details .cur-username').style.color = '#fff';
-
-                    if (profile.avatarUrl) {
-                        const rawUrl = profile.avatarUrl;
-                        const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
-                        const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; max-width:100%; max-height:100%; border-radius:50%; object-fit:cover; display:block;">`;
-                        const pp = document.getElementById('profile-pic');
-                        if (pp) {
-                            pp.style.overflow = 'hidden';
-                            pp.innerHTML = imgTag;
-                        }
-                    }
                 }
 
-                // Load My Stats for Top Panel
                 const statsReq = await window.api.myStats();
                 if (statsReq) {
                     const st = statsReq.myStats;
-                    document.querySelector('.cur-stats .badge-rp').innerHTML = `<i class="fas fa-star text-gold"></i> ${st.rankPoints} RP`;
+                    myRankPoints = st.rankPoints;
+                    document.querySelector('.cur-stats .badge-rp').innerHTML = `<i class="fas fa-star text-gold"></i> ${myRankPoints} RP`;
+                    document.querySelector('.lb-score').innerText = `${myRankPoints} XP`;
                 }
 
-                // Load Global Leaderboard
-                let lbReq;
-                try {
-                    lbReq = await window.api.globalLeaderboard(50);
-                } catch (e) { }
-
-                if (!lbReq || !lbReq.globalLeaderboard || lbReq.globalLeaderboard.length === 0) {
-                    lbReq = {
-                        globalLeaderboard: [
-                            { gamerTag: "ShadowSniper", totalMatches: 120, winRate: 85, rankPoints: 4500 },
-                            { gamerTag: "NinjaKong", totalMatches: 95, winRate: 78, rankPoints: 3800 },
-                            { gamerTag: "GhostRider", totalMatches: 110, winRate: 72, rankPoints: 3200 },
-                            { gamerTag: "ProGamer99", totalMatches: 80, winRate: 65, rankPoints: 2900 },
-                            { gamerTag: "NoobMaster", totalMatches: 150, winRate: 50, rankPoints: 2100 },
-                            { gamerTag: "EliteKilla", totalMatches: 45, winRate: 60, rankPoints: 1800 },
-                            { gamerTag: "Starboy", totalMatches: 20, winRate: 55, rankPoints: 1200 },
-                        ]
-                    };
-                }
-
-                const container = document.getElementById('lb-container');
+                const lbReq = await window.api.globalLeaderboard(100);
                 if (lbReq && lbReq.globalLeaderboard && lbReq.globalLeaderboard.length > 0) {
-                    const players = lbReq.globalLeaderboard;
-
-                    // Find my rank
-                    const myIndex = players.findIndex(p => p.gamerTag === myGamerTag);
-                    if (myIndex !== -1) {
-                        document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myIndex + 1}`;
-                    } else {
-                        document.querySelector('.cur-rank-pos .pos-num').innerText = 'Unranked';
-                    }
-
-                    let htmlStr = `<div class="dash-panel table-responsive" style="padding: 0; overflow-x: auto; margin-bottom: 40px; -webkit-overflow-scrolling: touch;">
-                        <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
-                            <thead style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <tr>
-                                    <th class="lb-cell lb-rank-col" style="color: var(--text-muted); font-weight: normal; text-align: center;">Rank</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal;">Player</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Win Rate</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Points (RP)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="lb-body">`;
-
-                    players.forEach((p, index) => {
-                        const rank = index + 1;
-                        let rankTrophy = `${rank}`;
-                        if (rank === 1) rankTrophy = `<i class="fas fa-trophy" style="color: gold; font-size: 1.2rem;"></i>`;
-                        if (rank === 2) rankTrophy = `<i class="fas fa-trophy" style="color: silver; font-size: 1.2rem;"></i>`;
-                        if (rank === 3) rankTrophy = `<i class="fas fa-trophy" style="color: #cd7f32; font-size: 1.2rem;"></i>`;
-
-                        const isMe = p.gamerTag === myGamerTag;
-                        const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
-
-                        htmlStr += `
-                            <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
-                                <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
-                                <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}')">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <div class="avatar" style="width: 35px; height: 35px; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};"><i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i></div>
-                                        <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
-                                    </div>
-                                </td>
-                                <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
-                                <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} XP</td>
-                            </tr>
-                        `;
-                    });
-
-                    htmlStr += `</tbody></table></div>`;
-                    container.innerHTML = htmlStr;
-
+                    globalPlayers = lbReq.globalLeaderboard;
+                    renderLeaderboardTable('lb-rp');
                 } else {
-                    container.innerHTML = `
-                    <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
-                        <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
-                        <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
-                        <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
-                    </div>`;
+                    document.getElementById('lb-container').innerHTML = `
+                        <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
+                            <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
+                            <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
+                            <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
+                        </div>`;
                 }
             } catch (err) {
                 console.error("Failed to load leaderboard", err);
@@ -324,7 +314,6 @@
             loadLeaderboardData();
         });
     </script>
-
     <script src="pwa.js"></script>
 </body>
 
