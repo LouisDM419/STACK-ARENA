@@ -2760,6 +2760,11 @@ input[type=number]::-webkit-outer-spin-button {
     border-radius: 8px;
     overflow-x: auto;
     white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+.lb-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .lb-tab {
@@ -2771,6 +2776,8 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .lb-tab:hover {
@@ -3706,11 +3713,26 @@ h2,
         font-size: 1.5rem;
         cursor: pointer;
         padding: 10px;
-        margin-right: 15px;
+        margin-right: 0;
     }
 
     .header-actions {
+        display: flex;
+        gap: 12px;
         margin-left: auto;
+        align-items: center;
+    }
+
+    .wallet-bal {
+        white-space: nowrap;
+        font-size: 0.95rem;
+    }
+
+    #profile-pic {
+        margin-bottom: 0 !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-width: 2px !important;
     }
 
     .header-search {
@@ -4262,5 +4284,91 @@ h2,
         margin-left: 5px !important;
         margin-right: 5px !important;
         padding: 15px !important;
+    }
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS FIXES (GLOBAL/LEADERBOARD)
+   ========================================= */
+
+/* Prevent Mobile Horizontal Scroll Bounce/Overflow */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.dashboard-body, .dashboard-layout {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Responsive Table Support */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.table-responsive table {
+    min-width: 500px;
+}
+
+/* Base Cells for Leaderboard */
+.lb-cell {
+    padding: 15px 20px;
+}
+
+.lb-rank-col {
+    width: 60px;
+}
+
+/* Specific Leaderboard scaling for mobile density */
+@media (max-width: 900px) {
+    .lb-cell {
+        padding: 10px 12px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .lb-cell .avatar {
+        width: 28px !important;
+        height: 28px !important;
+    }
+
+    .lb-rank-col {
+        width: 45px !important;
+    }
+    
+    .lb-cell span {
+        font-size: 0.9rem;
+    }
+
+    /* Page Specific Mobile Overrides */
+    .dashboard-content.settings-page,
+    .dashboard-content.wallet-page,
+    .dashboard-content.leaderboard-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px !important;
+        box-sizing: border-box;
+    }
+
+    .settings-page .settings-grid,
+    .settings-page .settings-grid.single-column,
+    .settings-page .settings-content-col {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        box-sizing: border-box;
+    }
+
+    .settings-page .settings-section.dash-panel,
+    .wallet-page .dash-panel,
+    .wallet-page .dash-stat-card,
+    .leaderboard-page .dash-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
     }
 }
