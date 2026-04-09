@@ -126,24 +126,50 @@ const api = {
     subscribeToUserEvents(onEventCallback) {
         this.unsubscribeFromUserEvents();
         const wsUrl = IS_PRODUCTION
-            ? 'wss://playstackarena.com/ws/users/'
-            : 'ws://localhost:8000/ws/users/';
+            ? 'wss://playstackarena.com/graphql/'
+            : 'ws://localhost:8000/graphql/';
 
         try {
-            this.userSocket = new WebSocket(wsUrl);
+            this.userSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+            this.userSocket.onopen = () => {
+                this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
+            };
+
             this.userSocket.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data && data.type === 'share_card.trigger') {
-                        onEventCallback(data);
+                const msg = JSON.parse(event.data);
+
+                if (msg.type === 'connection_ack') {
+                    // Subsccribe to the User Events stream on connection
+                    const query = `
+                        subscription WatchUserEvents {
+                            watchUserEvents {
+                                type
+                                cardType
+                                matchId
+                            }
+                        }
+                    `;
+                    this.userSocket.send(JSON.stringify({
+                        id: 'user_events_sub',
+                        type: 'subscribe',
+                        payload: { query, variables: {} }
+                    }));
+                }
+                else if (msg.type === 'next' && msg.payload && msg.payload.data) {
+                    const eventData = msg.payload.data.watchUserEvents;
+                    if (eventData && eventData.type === 'share_card.trigger') {
+                        onEventCallback({
+                            type: eventData.type,
+                            card_type: eventData.cardType,
+                            match_id: eventData.matchId
+                        });
                     }
-                } catch (e) {
-                    console.error("Error parsing user event socket data", e);
                 }
             };
             this.userSocket.onerror = (err) => console.error("User WS Error:", err);
         } catch (e) {
-            console.error("Could not init User WebSocket");
+            console.error("Could not init User WebSocket", e);
         }
     },
 
