@@ -195,6 +195,9 @@ const api = {
     // },
 
     subscribeToUserEvents(onEventCallback) {
+        if (!this.userEventCallbacks) {
+            this.userEventCallbacks = [];
+        }
         if (onEventCallback && !this.userEventCallbacks.includes(onEventCallback)) {
             this.userEventCallbacks.push(onEventCallback);
         }
