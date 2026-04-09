@@ -191,8 +191,8 @@ const app = {
         <div class="match-card-h premium" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px; background: rgba(20, 20, 30, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
                 <div>
-                    <div style="font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 5px;">STAR-${match.id}</div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">Opponent: <strong style="color:#fff;">${oppName}</strong></div>
+                    <div style="font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 5px;">STAR-${window.escapeHTML(match.id)}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted);">Opponent: <strong style="color:#fff;">${window.escapeHTML(oppName)}</strong></div>
                 </div>
                 <div style="text-align: right;">
                     <span class="status-badge ${badgeCls}" style="font-size: 0.75rem;">${this.statusIndicator(match.status)}</span>
@@ -203,11 +203,11 @@ const app = {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
                 <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center;">
                     <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Entry</span>
-                    <strong style="color: #fff; font-size: 1.1rem;">${match.entryFeeSc} ${currency}</strong>
+                    <strong style="color: #fff; font-size: 1.1rem;">${window.escapeHTML(String(match.entryFeeSc))} ${window.escapeHTML(currency)}</strong>
                 </div>
                 <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,215,0,0.15);">
                     <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Total Reward</span>
-                    <strong style="color: var(--accent-gold); font-size: 1.1rem;">${reward} ${currency}</strong>
+                    <strong style="color: var(--accent-gold); font-size: 1.1rem;">${window.escapeHTML(String(reward))} ${window.escapeHTML(currency)}</strong>
                 </div>
             </div>
             ${btnHtml}
@@ -325,21 +325,26 @@ const app = {
         btn.disabled = true;
 
         try {
-            await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch);
+            const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch);
 
             if (isAutomatch) {
                 this.showToast("Searching for opponent...");
             } else {
-                this.showToast("Match created! Waiting in lobby.");
+                this.showToast("Match created! Waiting for challenger.");
             }
 
             document.getElementById('create-room-id').value = '';
             document.getElementById('create-room-pass').value = '';
             document.getElementById('create-rules').value = '';
 
-            this.setLobbyFilter('Pending');
-            this.navigate('lobby');
             await this.refreshMatches();
+
+            if (res && res.createMatch) {
+                this.viewMatchDetails(res.createMatch.id);
+            } else {
+                this.setLobbyFilter('Pending');
+                this.navigate('lobby');
+            }
         } catch (e) {
             this.showToast("Error creating match: " + e.message, "error");
         } finally {

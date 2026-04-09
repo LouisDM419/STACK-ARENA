@@ -13,6 +13,16 @@ const fileToBase64 = (file) => new Promise((resolve, reject) => {
     reader.onerror = error => reject(error);
 });
 
+window.escapeHTML = function (str) {
+    if (str === null || str === undefined) return "";
+    return str.toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
+
 async function graphqlRequest(query, variables = {}) {
     try {
         const response = await fetch(API_ENDPOINT, {
@@ -111,6 +121,38 @@ const api = {
         return await graphqlRequest(query, { input: { email, password, visitorId } });
     },
     matchSocket: null,
+    userSocket: null,
+
+    subscribeToUserEvents(onEventCallback) {
+        this.unsubscribeFromUserEvents();
+        const wsUrl = IS_PRODUCTION
+            ? 'wss://playstackarena.com/ws/users/'
+            : 'ws://localhost:8000/ws/users/';
+
+        try {
+            this.userSocket = new WebSocket(wsUrl);
+            this.userSocket.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data && data.type === 'share_card.trigger') {
+                        onEventCallback(data);
+                    }
+                } catch (e) {
+                    console.error("Error parsing user event socket data", e);
+                }
+            };
+            this.userSocket.onerror = (err) => console.error("User WS Error:", err);
+        } catch (e) {
+            console.error("Could not init User WebSocket");
+        }
+    },
+
+    unsubscribeFromUserEvents() {
+        if (this.userSocket) {
+            this.userSocket.close();
+            this.userSocket = null;
+        }
+    },
 
     subscribeToMatch(matchId, onUpdateCallback) {
         this.unsubscribeFromMatch();

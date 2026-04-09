@@ -27,6 +27,23 @@ async function initSessionCheck() {
                         balEl.innerText = `${r + b} SC`;
                     }
                 }
+                // Setup User WebSocket for global Card Popups
+                if (window.api && window.api.subscribeToUserEvents) {
+                    window.api.subscribeToUserEvents((eventData) => {
+                        if (eventData && eventData.card_type && eventData.match_id) {
+                            const cardUrl = eventData.card_type.toLowerCase().replace(/_/g, '-') + '-card.html?matchId=' + eventData.match_id;
+                            const toastHTML = `
+                                <div style="display:flex; flex-direction:column; gap:5px;">
+                                    <strong><i class="fas fa-gift text-gold"></i> Milestone Reached!</strong>
+                                    <span>You earned a new Social Card.</span>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="window.location.href='${cardUrl}'">View Card</button>
+                                </div>
+                            `;
+                            showToastHTML(toastHTML, true, 8000);
+                        }
+                    });
+                }
+                
                 return true;
             }
         }
@@ -34,6 +51,19 @@ async function initSessionCheck() {
         console.log("No authentic session.");
     }
     return false;
+}
+
+function showToastHTML(htmlContent, success = true, duration = 5000) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+
+    toast.innerHTML = htmlContent;
+    toast.style.background = success ? 'rgba(0, 200, 81, 0.95)' : 'rgba(255, 68, 68, 0.95)';
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, duration);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -216,8 +246,8 @@ async function loadNotifications() {
     if (req && req.myNotifications && req.myNotifications.length > 0) {
         notifBody.innerHTML = req.myNotifications.map(n => `
             <div style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <strong style="color: var(--accent-orange);">${n.title}</strong>
-                <p style="font-size: 0.85rem; margin: 5px 0;">${n.message}</p>
+                <strong style="color: var(--accent-orange);">${window.escapeHTML(n.title)}</strong>
+                <p style="font-size: 0.85rem; margin: 5px 0;">${window.escapeHTML(n.message)}</p>
             </div>
         `).join('');
     }
@@ -263,9 +293,9 @@ async function fetchAndRenderNotifications() {
             html += `
                 <div style="padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); background: ${n.isRead ? 'transparent' : 'rgba(255, 68, 68, 0.05)'};">
                     <strong style="color: ${n.isRead ? '#ccc' : '#fff'}; display: block; font-size: 0.9rem; margin-bottom: 3px;">
-                        ${!n.isRead ? '<span style="color:#ff4444; margin-right:5px;">●</span>' : ''} ${n.title}
+                        ${!n.isRead ? '<span style="color:#ff4444; margin-right:5px;">●</span>' : ''} ${window.escapeHTML(n.title)}
                     </strong>
-                    <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0 0 5px 0; line-height: 1.4;">${n.message}</p>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0 0 5px 0; line-height: 1.4;">${window.escapeHTML(n.message)}</p>
                     <span style="font-size: 0.7rem; color: #666;">${dateStr}</span>
                 </div>
             `;
