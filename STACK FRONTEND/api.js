@@ -125,8 +125,83 @@ const api = {
     userHeartbeat: null,
     matchHeartbeat: null,
 
+    // subscribeToUserEvents(onEventCallback) {
+    //     this.unsubscribeFromUserEvents();
+    //     const wsUrl = IS_PRODUCTION
+    //         ? 'wss://playstackarena.com/graphql/'
+    //         : 'ws://localhost:8000/graphql/';
+
+    //     try {
+    //         this.userSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+    //         this.userSocket.onopen = () => {
+    //             this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
+    //         };
+    //         this.userHeartbeat = setInterval(() => {
+    //             if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
+    //                 this.userSocket.send(JSON.stringify({ type: 'ping' }));
+    //             }
+    //         }, 30000);
+
+    //         this.userSocket.onmessage = (event) => {
+    //             const msg = JSON.parse(event.data);
+
+    //             if (msg.type === 'connection_ack') {
+    //                 // Subsccribe to the User Events stream on connection
+    //                 const query = `
+    //                     subscription WatchUserEvents {
+    //                         watchUserEvents {
+    //                             type
+    //                             cardType
+    //                             matchId
+    //                         }
+    //                     }
+    //                 `;
+    //                 this.userSocket.send(JSON.stringify({
+    //                     id: 'user_events_sub',
+    //                     type: 'subscribe',
+    //                     payload: { query, variables: {} }
+    //                 }));
+    //             }
+    //             else if (msg.type === 'next' && msg.payload && msg.payload.data) {
+    //                 const eventData = msg.payload.data.watchUserEvents;
+    //                 if (eventData && (eventData.type === 'share_card.trigger' || eventData.type === 'match.redirect')) {
+    //                     onEventCallback({
+    //                         type: eventData.type,
+    //                         card_type: eventData.cardType,
+    //                         match_id: eventData.matchId
+    //                     });
+    //                 }
+    //             }
+    //         };
+    //         this.userSocket.onerror = (err) => console.error("User WS Error:", err);
+    //     } catch (e) {
+    //         console.error("Could not init User WebSocket", e);
+    //     }
+    // },
+
+    // unsubscribeFromUserEvents() {
+    //     if (this.userHeartbeat) {
+    //         clearInterval(this.userHeartbeat);
+    //         this.userHeartbeat = null;
+    //     }
+    //     if (this.userSocket) {
+    //         if (this.userSocket.readyState === WebSocket.OPEN) {
+    //             this.userSocket.close();
+    //         }
+    //         this.userSocket = null;
+    //     }
+    // },
+
     subscribeToUserEvents(onEventCallback) {
-        this.unsubscribeFromUserEvents();
+        if (onEventCallback && !this.userEventCallbacks.includes(onEventCallback)) {
+            this.userEventCallbacks.push(onEventCallback);
+        }
+
+        if (this.userSocket && (this.userSocket.readyState === WebSocket.OPEN || this.userSocket.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
         const wsUrl = IS_PRODUCTION
             ? 'wss://playstackarena.com/graphql/'
             : 'ws://localhost:8000/graphql/';
@@ -136,18 +211,18 @@ const api = {
 
             this.userSocket.onopen = () => {
                 this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
+
+                this.userHeartbeat = setInterval(() => {
+                    if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
+                        this.userSocket.send(JSON.stringify({ type: 'ping' }));
+                    }
+                }, 30000);
             };
-            this.userHeartbeat = setInterval(() => {
-                if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
-                    this.userSocket.send(JSON.stringify({ type: 'ping' }));
-                }
-            }, 30000);
 
             this.userSocket.onmessage = (event) => {
                 const msg = JSON.parse(event.data);
 
                 if (msg.type === 'connection_ack') {
-                    // Subsccribe to the User Events stream on connection
                     const query = `
                         subscription WatchUserEvents {
                             watchUserEvents {
@@ -166,11 +241,15 @@ const api = {
                 else if (msg.type === 'next' && msg.payload && msg.payload.data) {
                     const eventData = msg.payload.data.watchUserEvents;
                     if (eventData && (eventData.type === 'share_card.trigger' || eventData.type === 'match.redirect')) {
-                        onEventCallback({
-                            type: eventData.type,
-                            card_type: eventData.cardType,
-                            match_id: eventData.matchId
+
+                        this.userEventCallbacks.forEach(cb => {
+                            cb({
+                                type: eventData.type,
+                                card_type: eventData.cardType,
+                                match_id: eventData.matchId
+                            });
                         });
+
                     }
                 }
             };
@@ -186,11 +265,12 @@ const api = {
             this.userHeartbeat = null;
         }
         if (this.userSocket) {
-            if (this.userSocket.readyState === WebSocket.OPEN) {
+            if (this.userSocket.readyState === WebSocket.OPEN || this.userSocket.readyState === WebSocket.CONNECTING) {
                 this.userSocket.close();
             }
             this.userSocket = null;
         }
+        this.userEventCallbacks = [];
     },
 
     subscribeToMatch(matchId, onUpdateCallback) {
