@@ -175,7 +175,9 @@ const api = {
 
     unsubscribeFromUserEvents() {
         if (this.userSocket) {
-            this.userSocket.close();
+            if (this.userSocket.readyState === WebSocket.OPEN) {
+                this.userSocket.close();
+            }
             this.userSocket = null;
         }
     },
