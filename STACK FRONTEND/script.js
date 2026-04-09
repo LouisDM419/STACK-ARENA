@@ -43,7 +43,7 @@ async function initSessionCheck() {
                         }
                     });
                 }
-                
+
                 return true;
             }
         }
@@ -116,15 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Navbar Background on Scroll
     const navbar = document.querySelector('.navbar');
     if (navbar) {
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
             }
-        });
+        }, { passive: true });
     }
-
     // 3. Modal logic
     const closeBtn = document.getElementById('close-modal');
     if (closeBtn) {
