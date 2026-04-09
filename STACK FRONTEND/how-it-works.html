@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works | STAR StackArena</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <nav class="navbar fixed-top scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                    class="logo-sub">| StackArena</span></a>
+            <div class="nav-links">
+                <a href="about.html">About</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="support.html">Support</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline" id="btn-login-nav"
+                    onclick="handleAuthRoute(event, 'login')">Login</a>
+                <a href="#" class="btn btn-primary" id="btn-signup-nav"
+                    onclick="handleAuthRoute(event, 'signup')">Create Account</a>
+            </div>
+            <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
+                <span class="wallet-bal">1,000 SC</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <button class="btn-logout" onclick="performLogout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>How It Works</h1>
+                <p>Start your journey to the top in 5 simple steps.</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="steps-container" style="grid-template-columns: 1fr; max-width: 600px; margin: 0 auto;">
+                <div class="step-card" style="text-align: left; padding-left: 30px;">
+                    <div class="step-number" style="left: -20px; top: 50%; transform: translateY(-50%);">01</div>
+                    <h3 style="margin-top: 0;">Create an account</h3>
+                    <p>Sign up on our platform.</p>
+                </div>
+                <div class="step-card" style="text-align: left; padding-left: 30px;">
+                    <div class="step-number" style="left: -20px; top: 50%; transform: translateY(-50%);">02</div>
+                    <h3 style="margin-top: 0;">Link your game ID</h3>
+                    <p>Connect your CODM player ID to your StackArena profile.</p>
+                </div>
+                <div class="step-card" style="text-align: left; padding-left: 30px;">
+                    <div class="step-number" style="left: -20px; top: 50%; transform: translateY(-50%);">03</div>
+                    <h3 style="margin-top: 0;">Deposit funds to receive Stack Coins</h3>
+                    <p>Add money to your secure wallet to get SC.</p>
+                </div>
+                <div class="step-card" style="text-align: left; padding-left: 30px;">
+                    <div class="step-number" style="left: -20px; top: 50%; transform: translateY(-50%);">04</div>
+                    <h3 style="margin-top: 0;">Challenge players or join tournaments</h3>
+                    <p>Find an open match or enter a weekend tournament.</p>
+                </div>
+                <div class="step-card" style="text-align: left; padding-left: 30px;">
+                    <div class="step-number" style="left: -20px; top: 50%; transform: translateY(-50%);">05</div>
+                    <h3 style="margin-top: 0;">Win matches and earn rewards</h3>
+                    <p>Defeat your opponent and withdraw your winnings safely.</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-primary btn-large">Get Started Now</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <p>&copy; 2026 StackArena. All rights reserved. | <a href="index.html">Back to Home</a></p>
+            </div>
+        </div>
+    </footer>
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content text-center">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <h2 id="modal-title">Sign In Required</h2>
+            <div class="mt-4">
+                <button class="btn btn-primary full-width" onclick="simulateLogin()">Simulate Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Welcome to the Lobby!</div>
+
+    <script src="script.js"></script>
+
+    <script src="pwa.js"></script>
+</body>
+
+</html>

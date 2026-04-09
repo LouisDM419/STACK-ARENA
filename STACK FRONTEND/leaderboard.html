@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | STAR StackArena</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body class="dashboard-body">
+
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <a href="#" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <br><span
+                        class="logo-sub">| StackArena</span></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+                <a href="playground.html" class="nav-item"><i class="fas fa-crosshairs"></i><span>Playground</span></a>
+                <a href="wallet.html" class="nav-item"><i class="fas fa-wallet"></i><span>Wallet</span></a>
+                <a href="leaderboard.html" class="nav-item active"><i
+                        class="fas fa-list-ol"></i><span>Leaderboard</span></a>
+                <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+                <a href="#" class="nav-item nav-download-btn"><i class="fas fa-download"></i><span>Download
+                        App</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline full-width" onclick="location.href='index.html'">Log Out</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <!-- Search removed -->
+                <div class="header-actions">
+                    <div class="wallet-bal">
+                        <i class="fas fa-coins text-gold"></i> 0 SC
+                    </div>
+                    <div class="notification-wrapper" style="position: relative;">
+                        <button class="icon-btn notification-btn" id="btn-notifications"
+                            onclick="toggleNotifications()">
+                            <i class="far fa-bell"></i>
+                        </button>
+                        <!-- Notification Dropdown -->
+                        <div class="notification-dropdown" id="notification-dropdown">
+                            <div class="notif-header">
+                                <h3>Notifications</h3>
+                                <span class="notif-mark-read">Mark all as read</span>
+                            </div>
+                            <div class="notif-body">
+                                <div class="empty-notif text-center">
+                                    <i class="far fa-bell-slash"></i>
+                                    <p style="color: #fff; margin-bottom: 5px;">No new notifications</p>
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">You're all caught
+                                        up!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="profile-pic" onclick="location.href='profile.html'"
+                        style="cursor:pointer; width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px;">
+                        <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--accent-orange);"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content leaderboard-page">
+                <div class="page-title mb-4">
+                    <h2>Arena Leaderboard</h2>
+                    <p class="text-muted">Compete, climb the ranks, and earn rewards.</p>
+                </div>
+
+                <!-- 1. TOP SECTION (USER POSITION + CONTEXT) -->
+                <div class="current-user-rank-panel border-blue mb-4" style="background: rgba(255,255,255,0.02);">
+                    <div class="cur-rank-info">
+                        <div class="cur-rank-pos">
+                            <span class="pos-label">Your Rank</span>
+                            <span class="pos-num" style="color: var(--text-muted);">-</span>
+                        </div>
+                        <div class="cur-user-details">
+                            <h3 class="cur-username" style="color: var(--text-muted);">Unranked</h3>
+                            <div class="cur-stats">
+                                <span class="badge-rp"><i class="fas fa-star text-muted"></i> 0 RP</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cur-rank-progress">
+                        <div class="progress-info">
+                            <span class="text-muted">Play ranking matches to be placed</span>
+                        </div>
+                        <div class="progress-bar-container mt-2">
+                            <div class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. LEADERBOARD TYPE SWITCHER -->
+                <div class="leaderboard-tabs-wrapper mb-4">
+                    <div class="lb-tabs">
+                        <button class="lb-tab active" data-target="lb-rp">Rank Points (RP)</button>
+                        <button class="lb-tab" data-target="lb-earnings">Earnings (SC)</button>
+                        <button class="lb-tab" data-target="lb-winrate">Win Rate</button>
+                    </div>
+                </div>
+
+                <div id="lb-container">
+                    <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
+                        <i class="fas fa-circle-notch fa-spin"
+                            style="font-size: 4rem; opacity: 0.5; margin-bottom: 20px; color: var(--accent-orange);"></i>
+                        <h3 style="color: var(--text-muted);">Loading Rankings...</h3>
+                    </div>
+                </div>
+
+                <div style="height: 50px;"></div> <!-- Bottom padding -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Player Profile Modal (Optional/Stub) -->
+    <div class="modal-overlay" id="profile-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; justify-content:center; align-items:center;">
+        <div class="dash-panel" style="width: 400px; max-width: 90%; position: relative;">
+            <button onclick="closeProfile()"
+                style="position: absolute; right: 20px; top: 20px; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;"><i
+                    class="fas fa-times"></i></button>
+            <div class="text-center">
+                <div class="avatar-large mx-auto mb-3"
+                    style="width: 80px; height: 80px; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid var(--accent-orange); margin: 0 auto; background: var(--bg-darker);">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 id="profile-modal-name">PlayerName</h3>
+                <p class="text-muted mb-4">Elite IV Rank</p>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                    <div class="stat-box"
+                        style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                        <div class="text-muted" style="font-size: 0.85rem;">Win Rate</div>
+                        <div class="font-bold" style="font-size: 1.2rem;">68%</div>
+                    </div>
+                    <div class="stat-box"
+                        style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+                        <div class="text-muted" style="font-size: 0.85rem;">Matches Played</div>
+                        <div class="font-bold" style="font-size: 1.2rem;">412</div>
+                    </div>
+                    <div class="stat-box full-width"
+                        style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-bottom: 2px solid var(--accent-gold);">
+                        <div class="text-muted" style="font-size: 0.85rem;">Total Earnings (SC)</div>
+                        <div class="font-bold highlight-gold" style="font-size: 1.2rem;">24,500 SC</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Specific UI Scripts for Leaderboard Only
+        document.querySelectorAll('.lb-tab').forEach(tab => {
+            tab.addEventListener('click', function () {
+                document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // Real app would fetch new data. Here, we just add a visual cue.
+                const tableBody = document.querySelector('.lb-body');
+                tableBody.style.opacity = '0.5';
+                setTimeout(() => {
+                    tableBody.style.opacity = '1';
+                }, 300);
+            });
+        });
+
+        function scrollToCurrent() {
+            const row = document.querySelector('.current-user-row');
+            if (row) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.classList.add('flash-highlight');
+                setTimeout(() => row.classList.remove('flash-highlight'), 2000);
+            }
+        }
+
+        function openProfile(username) {
+            document.getElementById('profile-modal-name').innerText = username;
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+
+        function closeProfile() {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+
+        async function loadLeaderboardData() {
+            try {
+                // Load My Profile for Top Panel
+                const profReq = await window.api.myProfile();
+                let myGamerTag = "";
+                if (profReq) {
+                    const profile = profReq.myProfile;
+                    myGamerTag = profile.gamerTag;
+                    const totalSc = (profile.realSc || 0) + (profile.bonusSc || 0);
+                    document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+
+                    document.querySelector('.cur-user-details .cur-username').innerText = myGamerTag;
+                    document.querySelector('.cur-user-details .cur-username').style.color = '#fff';
+
+                    if (profile.avatarUrl) {
+                        const rawUrl = profile.avatarUrl;
+                        const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
+                        const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; max-width:100%; max-height:100%; border-radius:50%; object-fit:cover; display:block;">`;
+                        const pp = document.getElementById('profile-pic');
+                        if (pp) {
+                            pp.style.overflow = 'hidden';
+                            pp.innerHTML = imgTag;
+                        }
+                    }
+                }
+
+                // Load My Stats for Top Panel
+                const statsReq = await window.api.myStats();
+                if (statsReq) {
+                    const st = statsReq.myStats;
+                    document.querySelector('.cur-stats .badge-rp').innerHTML = `<i class="fas fa-star text-gold"></i> ${st.rankPoints} RP`;
+                }
+
+                // Load Global Leaderboard
+                let lbReq;
+                try {
+                    lbReq = await window.api.globalLeaderboard(50);
+                } catch(e) {}
+                
+                if (!lbReq || !lbReq.globalLeaderboard || lbReq.globalLeaderboard.length === 0) {
+                    lbReq = {
+                        globalLeaderboard: [
+                            { gamerTag: "ShadowSniper", totalMatches: 120, winRate: 85, rankPoints: 4500 },
+                            { gamerTag: "NinjaKong", totalMatches: 95, winRate: 78, rankPoints: 3800 },
+                            { gamerTag: "GhostRider", totalMatches: 110, winRate: 72, rankPoints: 3200 },
+                            { gamerTag: "ProGamer99", totalMatches: 80, winRate: 65, rankPoints: 2900 },
+                            { gamerTag: "NoobMaster", totalMatches: 150, winRate: 50, rankPoints: 2100 },
+                            { gamerTag: "EliteKilla", totalMatches: 45, winRate: 60, rankPoints: 1800 },
+                            { gamerTag: "Starboy", totalMatches: 20, winRate: 55, rankPoints: 1200 },
+                        ]
+                    };
+                }
+                
+                const container = document.getElementById('lb-container');
+                if (lbReq && lbReq.globalLeaderboard && lbReq.globalLeaderboard.length > 0) {
+                    const players = lbReq.globalLeaderboard;
+
+                    // Find my rank
+                    const myIndex = players.findIndex(p => p.gamerTag === myGamerTag);
+                    if (myIndex !== -1) {
+                        document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myIndex + 1}`;
+                    } else {
+                        document.querySelector('.cur-rank-pos .pos-num').innerText = 'Unranked';
+                    }
+
+                    let htmlStr = `<div class="dash-panel table-responsive" style="padding: 0; overflow-x: auto; margin-bottom: 40px; -webkit-overflow-scrolling: touch;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
+                            <thead style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <tr>
+                                    <th class="lb-cell lb-rank-col" style="color: var(--text-muted); font-weight: normal; text-align: center;">Rank</th>
+                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal;">Player</th>
+                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Win Rate</th>
+                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Points (RP)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="lb-body">`;
+
+                    players.forEach((p, index) => {
+                        const rank = index + 1;
+                        let rankTrophy = `${rank}`;
+                        if (rank === 1) rankTrophy = `<i class="fas fa-trophy" style="color: gold; font-size: 1.2rem;"></i>`;
+                        if (rank === 2) rankTrophy = `<i class="fas fa-trophy" style="color: silver; font-size: 1.2rem;"></i>`;
+                        if (rank === 3) rankTrophy = `<i class="fas fa-trophy" style="color: #cd7f32; font-size: 1.2rem;"></i>`;
+
+                        const isMe = p.gamerTag === myGamerTag;
+                        const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
+
+                        htmlStr += `
+                            <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
+                                <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
+                                <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}')">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div class="avatar" style="width: 35px; height: 35px; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};"><i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i></div>
+                                        <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
+                                    </div>
+                                </td>
+                                <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
+                                <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} XP</td>
+                            </tr>
+                        `;
+                    });
+
+                    htmlStr += `</tbody></table></div>`;
+                    container.innerHTML = htmlStr;
+
+                } else {
+                    container.innerHTML = `
+                    <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
+                        <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
+                        <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
+                        <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
+                    </div>`;
+                }
+            } catch (err) {
+                console.error("Failed to load leaderboard", err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLeaderboardData();
+        });
+    </script>
+
+    <script src="pwa.js"></script>
+</body>
+
+</html>

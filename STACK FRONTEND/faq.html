@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ | STAR StackArena</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <nav class="navbar fixed-top scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo"><img src="assets/star-logo.svg" class="star-logo" alt="STAR"> <span
+                    class="logo-sub">| StackArena</span></a>
+            <div class="nav-links">
+                <a href="about.html">About</a>
+                <a href="index.html#how-it-works">How It Works</a>
+                <a href="faq.html">FAQ</a>
+                <a href="support.html">Support</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline" id="btn-login-nav"
+                    onclick="handleAuthRoute(event, 'login')">Login</a>
+                <a href="#" class="btn btn-primary" id="btn-signup-nav"
+                    onclick="handleAuthRoute(event, 'signup')">Create Account</a>
+            </div>
+            <div class="user-profile-nav" id="user-profile-nav" style="display: none;">
+                <span class="wallet-bal">1,000 SC</span>
+                <div class="avatar"><i class="fas fa-user"></i></div>
+                <button class="btn-logout" onclick="performLogout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="page-header">
+            <div class="container">
+                <h1>Frequently Asked Questions</h1>
+                <p>Everything you need to know about StackArena.</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <div class="faq-grid">
+                <div class="faq-card">
+                    <h3>What is Stack Arena?</h3>
+                    <p>Stack Arena (STAR) is a competitive gaming platform where players challenge each other in
+                        skill-based matches and tournaments. Players can stake Stack Coins and compete to win rewards.
+                    </p>
+                </div>
+                <div class="faq-card">
+                    <h3>How do matches work?</h3>
+                    <ul>
+                        <li>Choose a match or challenge another player</li>
+                        <li>Both players stake Stack Coins</li>
+                        <li>Play the match in the selected game (CODM initially)</li>
+                        <li>Winner receives the prize pool minus platform fee</li>
+                    </ul>
+                </div>
+                <div class="faq-card">
+                    <h3>What games are supported?</h3>
+                    <p>At launch: <strong class="highlight-blue">Call of Duty Mobile (CODM)</strong>. Planned future
+                        games include FIFA, Mobile Legends, PUBG Mobile, and other major competitive titles.</p>
+                </div>
+                <div class="faq-card">
+                    <h3>How do I deposit and withdraw?</h3>
+                    <p>Users deposit funds through securely supported payment methods to receive Stack Coins (SC). After
+                        winning matches, you can request withdrawals directly to your connected bank account.</p>
+                </div>
+                <div class="faq-card">
+                    <h3>What happens if a player disconnects?</h3>
+                    <p>If a player disconnects during a match, the opponent may report the match immediately. Final
+                        screen recordings/evidence may be required, and platform moderators will review the outcome
+                        securely.</p>
+                </div>
+                <div class="faq-card" style="border-left-color: #ff4444;">
+                    <h3 style="color: #ff4444;">Is cheating allowed?</h3>
+                    <p>Absolutely not. Cheating, exploits, or third-party software will result in an immediate match
+                        loss, account suspension, or permanent ban from the Arena.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <p>&copy; 2026 StackArena. All rights reserved. | <a href="index.html">Back to Home</a></p>
+            </div>
+        </div>
+    </footer>
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content text-center">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <h2 id="modal-title">Sign In Required</h2>
+            <div class="mt-4">
+                <button class="btn btn-primary full-width" onclick="simulateLogin()">Simulate Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Welcome to the Lobby!</div>
+
+    <script src="script.js"></script>
+
+    <script src="pwa.js"></script>
+</body>
+
+</html>
