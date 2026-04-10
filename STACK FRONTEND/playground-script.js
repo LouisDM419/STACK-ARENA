@@ -370,10 +370,125 @@ const app = {
     },
 
 
+    // async viewMatchDetails(matchId) {
+    //     appState.currentMatchId = matchId;
+    //     const match = appState.myMatches.find(m => m.id === matchId) || appState.openMatches.find(m => m.id === matchId);
+    //     if (!match) return;
+
+    //     const myUserId = String(appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id);
+    //     const isHost = match.host && appState.currentUser && String(match.host.id) === myUserId;
+
+    //     document.getElementById('details-match-id').innerText = match.id;
+    //     document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
+    //     document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
+
+    //     let subStatus = "";
+    //     if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
+    //         subStatus = "Waiting for an opponent to join...";
+    //     } else if (match.status === 'STARTING') {
+    //         subStatus = isHost ? "Opponent found. Enter Room ID." : "Waiting for Host to create room...";
+    //     } else if (match.status === 'READY_CHECK') {
+    //         subStatus = "Match ready. Please ready up and join.";
+    //     } else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
+    //         subStatus = "Match in progress. Submit result when done.";
+    //     } else if (match.status === 'COMPLETED') {
+    //         subStatus = `Match Completed.`;
+    //     }
+    //     document.getElementById('details-sub-status').innerText = subStatus;
+
+    //     document.getElementById('p1-username').innerText = match.host ? match.host.gamerTag : "Host";
+    //     if (match.guest) {
+    //         document.getElementById('p2-username').innerText = match.guest.gamerTag;
+    //         document.getElementById('p2-avatar-container').classList.add('ready');
+    //         document.getElementById('p2-avatar-container').classList.remove('waiting');
+    //         document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
+    //     } else {
+    //         document.getElementById('p2-username').innerText = "Waiting...";
+    //         document.getElementById('p2-avatar-container').classList.remove('ready');
+    //         document.getElementById('p2-avatar-container').classList.add('waiting');
+    //         document.getElementById('p2-avatar-icon').className = "fas fa-question text-muted";
+    //     }
+
+    //     document.getElementById('details-game').innerText = match.gameTitle;
+    //     document.getElementById('details-stake').innerText = match.entryFeeSc + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+    //     const pot = match.entryFeeSc * 2;
+    //     const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
+    //     document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+
+    //     const roomCard = document.getElementById('details-room-card');
+    //     if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+    //         roomCard.style.display = 'block';
+    //         document.getElementById('details-room-id').innerText = match.roomId || "N/A";
+    //         document.getElementById('details-room-pass').innerText = "Hidden";
+    //     } else {
+    //         roomCard.style.display = 'none';
+    //     }
+
+    //     this.renderActionArea(match, isHost);
+    //     this.navigate('match-details');
+
+    //     window.api.subscribeToMatch(matchId, async (updatedData) => {
+    //         console.log("Real-Time Update Received:", updatedData);
+
+    //         const justCompleted = (updatedData.status === 'COMPLETED' && match.status !== 'COMPLETED');
+
+    //         Object.assign(match, updatedData);
+
+    //         document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
+    //         document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
+
+    //         if (match.roomId && document.getElementById('details-room-card')) {
+    //             document.getElementById('details-room-card').style.display = 'block';
+    //             document.getElementById('details-room-id').innerText = match.roomId;
+    //         }
+
+    //         if (match.guest) {
+    //             document.getElementById('p2-username').innerText = match.guest.gamerTag;
+    //             document.getElementById('p2-avatar-container').classList.add('ready');
+    //             document.getElementById('p2-avatar-container').classList.remove('waiting');
+    //             document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
+    //         }
+
+    //         this.renderActionArea(match, isHost);
+
+    //         if (justCompleted) {
+    //             const profileReq = await window.api.myProfile();
+    //             if (profileReq) {
+    //                 appState.currentUser = profileReq.myProfile || profileReq;
+    //                 this.updateBalances();
+    //             }
+
+    //             if (match.winner && String(match.winner.id) === myUserId) {
+    //                 this.showToast("Result Confirmed! You WON the match!", "success");
+    //             } else {
+    //                 this.showToast("Match completed. You lost.", "error");
+    //             }
+    //         }
+    //     });
+    // },
+
     async viewMatchDetails(matchId) {
         appState.currentMatchId = matchId;
-        const match = appState.myMatches.find(m => m.id === matchId) || appState.openMatches.find(m => m.id === matchId);
-        if (!match) return;
+        
+        const safeMatchId = String(matchId);
+        let match = appState.myMatches.find(m => String(m.id) === safeMatchId) || 
+                    appState.openMatches.find(m => String(m.id) === safeMatchId);
+        
+        if (!match) {
+            this.showToast("Syncing arena data...", "success");
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await this.refreshMatches();
+            
+            match = appState.myMatches.find(m => String(m.id) === safeMatchId) || 
+                    appState.openMatches.find(m => String(m.id) === safeMatchId);
+                    
+            if (!match) {
+                this.showToast("Match created, but details delayed. Check Lobby.", "error");
+                this.navigate('lobby');
+                return;
+            }
+        }
+
 
         const myUserId = String(appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id);
         const isHost = match.host && appState.currentUser && String(match.host.id) === myUserId;
@@ -466,7 +581,6 @@ const app = {
             }
         });
     },
-
     async refreshCurrentMatch() {
         if (!appState.currentMatchId) return;
         const btn = document.getElementById('btn-refresh-match');
