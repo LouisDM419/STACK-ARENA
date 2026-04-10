@@ -83,18 +83,10 @@
                 <!-- VIEW 1: LOBBY -->
                 <div id="view-lobby" class="pg-view active">
                     <div class="cm-body">
-                        <div id="cm-direct-challenge-banner"
-                            style="display:none; background: rgba(249, 109, 0, 0.1); border-left: 4px solid var(--accent-orange); padding: 12px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
-                            <i class="fas fa-crosshairs text-orange me-2"></i>
-                            <span style="color: #fff;">Direct Challenge: <strong id="cm-target-user"
-                                    class="text-gold"></strong></span>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">This match will
-                                be locked to this player only.</div>
-                        </div>
                         <div class="match-mode-selector"
                             style="background: linear-gradient(to bottom, rgba(7, 8, 11, 0.9), rgba(7, 8, 11, 0.2)); padding: 40px 20px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 0 0 16px 16px;">
                             <div class="lb-tabs"
-                                style="display: inline-flex; margin-bottom: 20px; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                                s="display: inline-flex; margin-bottom: 20px; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                                 <button class="lb-tab active" id="tab-real-matches"
                                     onclick="app.toggleMode('REAL')">Real
                                     Matches</button>
@@ -181,6 +173,14 @@
                                     Match
                                 </h2>
                                 <p style="margin-top: 5px;" id="create-mode-subtitle">Set your stake and parameters.</p>
+                            </div>
+                             <div id="cm-direct-challenge-banner"
+                            style="display:none; background: rgba(249, 109, 0, 0.1); border-left: 4px solid var(--accent-orange); padding: 12px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
+                            <i class="fas fa-crosshairs text-orange me-2"></i>
+                            <span style="color: #fff;">Direct Challenge: <strong id="cm-target-user"
+                                    class="text-gold"></strong></span>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">This match will
+                                be locked to this player only.</div>
                             </div>
 
                             <div class="pg-form-group">
