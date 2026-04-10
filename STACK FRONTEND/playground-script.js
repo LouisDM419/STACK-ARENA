@@ -30,17 +30,41 @@ const app = {
             const urlParams = new URLSearchParams(window.location.search);
             const challengeTarget = urlParams.get('challenge');
 
+            // if (challengeTarget) {
+            //     window.history.replaceState({}, document.title, window.location.pathname);
+
+            //     currentChallengedPlayer = challengeTarget;
+
+            //     app.navigate('create');
+            //     const banner = document.getElementById('cm-direct-challenge-banner');
+            //     const targetText = document.getElementById('cm-target-user');
+            //     if (banner && targetText) {
+            //         banner.style.display = 'block';
+            //         targetText.innerText = challengeTarget;
+            //     }
+            // }
+
             if (challengeTarget) {
                 window.history.replaceState({}, document.title, window.location.pathname);
 
-                currentChallengedPlayer = challengeTarget;
+                try {
+                    const searchRes = await window.api.searchPlayer(challengeTarget);
+                    
+                    if (searchRes && searchRes.searchPlayer) {
+                        currentChallengedPlayer = searchRes.searchPlayer.gamerTag;
 
-                app.navigate('create');
-                const banner = document.getElementById('cm-direct-challenge-banner');
-                const targetText = document.getElementById('cm-target-user');
-                if (banner && targetText) {
-                    banner.style.display = 'block';
-                    targetText.innerText = challengeTarget;
+                        app.navigate('create');
+                        const banner = document.getElementById('cm-direct-challenge-banner');
+                        const targetText = document.getElementById('cm-target-user');
+                        if (banner && targetText) {
+                            banner.style.display = 'block';
+                            targetText.innerText = currentChallengedPlayer;
+                        }
+                    } else {
+                        this.showToast(`Player '${challengeTarget}' not found.`, "error");
+                    }
+                } catch (err) {
+                    this.showToast("Error verifying player.", "error");
                 }
             }
 

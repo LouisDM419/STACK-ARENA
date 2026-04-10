@@ -378,6 +378,16 @@ const api = {
         `;
         return await graphqlRequest(query);
     },
+    async searchPlayer(gamerTag) {
+        const query = `
+            query SearchPlayer($gamerTag: String!) {
+                searchPlayer(gamerTag: $gamerTag) {
+                    gamerTag
+                }
+            }
+        `;
+        return await graphqlRequest(query, { gamerTag });
+    },
     async myNotifications() {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
