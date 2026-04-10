@@ -183,9 +183,13 @@
             <header class="dashboard-header">
                 <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="header-search">
-                    <i class="fas fa-search" style="color: var(--text-muted);"></i>
-                    <input type="text" id="dashboard-search-input" placeholder="Search players..."
-                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { window.location.href = 'profile.html?user=' + this.value.trim(); }">
+                    <i class="fas fa-search" 
+                    style="color: var(--text-muted); cursor: pointer;" 
+                    onclick="const val = document.getElementById('profile-search-input').value.trim(); if(val) { openProfile(val); document.getElementById('profile-search-input').value = ''; }">
+                    </i>
+                    
+                    <input type="text" id="profile-search-input" placeholder="Search players..."
+                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
                 </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
