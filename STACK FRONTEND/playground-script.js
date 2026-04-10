@@ -61,36 +61,6 @@ const app = {
         }, 3000);
     },
 
-    // updateBalances() {
-    //     if (!appState.currentUser) return;
-    //     const profile = appState.currentUser;
-
-    //     const rSc = Number(profile.realSc ?? profile.real_sc ?? 0);
-    //     const bSc = Number(profile.bonusSc ?? profile.practiceCredits ?? profile.practice_credits ?? 0);
-
-    //     const headerReal = document.getElementById('header-real-bal');
-    //     if (headerReal) headerReal.innerText = rSc;
-
-    //     const lobbyReal = document.getElementById('lobby-real-bal');
-    //     if (lobbyReal) lobbyReal.innerText = rSc;
-
-    //     const lobbyBonus = document.getElementById('lobby-bonus-bal');
-    //     if (lobbyBonus) lobbyBonus.innerText = bSc;
-
-    //     const topBarSc = document.getElementById('header-sc');
-    //     if (topBarSc) topBarSc.innerText = rSc + bSc;
-
-    //     if (profile.avatarUrl) {
-    //         const rawUrl = profile.avatarUrl;
-    //         const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
-    //         const imgTag = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; max-width:100%; max-height:100%; border-radius:50%; object-fit:cover; display:block;">`;
-    //         const pp = document.getElementById('profile-pic');
-    //         if (pp) {
-    //             pp.style.overflow = 'hidden';
-    //             pp.innerHTML = imgTag;
-    //         }
-    //     }
-    // },
 
 
     updateBalances() {

@@ -701,9 +701,8 @@ async function submitChallenge() {
     }
 }
 
-// Search Profile Routing
 function openProfile(username) {
     if (username) {
-        window.location.href = `profile.html?user=${encodeURIComponent(username)}`;
+        window.location.href = `playground.html?challenge=${encodeURIComponent(username)}`;
     }
 }
