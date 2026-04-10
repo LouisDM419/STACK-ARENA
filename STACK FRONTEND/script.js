@@ -488,6 +488,9 @@ function selectMatchType(type) {
 }
 
 function closeCreateMatch() {
+    currentChallengedPlayer = null;
+    const banner = document.getElementById('cm-direct-challenge-banner');
+    if (banner) banner.style.display = 'none';
     const modal = document.getElementById('create-match-modal');
     if (modal) modal.classList.remove('active');
 

@@ -1,3 +1,5 @@
+let currentChallengedPlayer = null;
+
 const appState = {
     currentUser: null,
     mode: "RANKED", // REAL -> RANKED, BONUS -> PRACTICE (backend maps)
@@ -7,6 +9,7 @@ const appState = {
     myMatches: [],
     openMatches: []
 };
+
 
 const app = {
     async init() {
@@ -24,6 +27,23 @@ const app = {
                 }
             });
             this.navigate('lobby');
+            const urlParams = new URLSearchParams(window.location.search);
+            const challengeTarget = urlParams.get('challenge');
+
+            if (challengeTarget) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                currentChallengedPlayer = challengeTarget;
+
+                app.navigate('create');
+                const banner = document.getElementById('cm-direct-challenge-banner');
+                const targetText = document.getElementById('cm-target-user');
+                if (banner && targetText) {
+                    banner.style.display = 'block';
+                    targetText.innerText = challengeTarget;
+                }
+            }
+
         } catch (e) {
             console.error(e);
             this.showToast("Failed to authenticate session.", "error");
@@ -290,45 +310,6 @@ const app = {
         }
     },
 
-    // async submitCreateMatch() {
-    //     const stakeInt = parseInt(document.getElementById('create-stake').value);
-    //     const rulesVal = document.getElementById('create-rules').value.trim();
-    //     const roomIdVal = document.getElementById('create-room-id').value.trim();
-    //     const roomPassVal = document.getElementById('create-room-pass').value.trim();
-    //     const gameTitle = document.getElementById('create-game').value;
-
-    //     if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
-
-    //     if (appState.mode === 'RANKED' && (isNaN(stakeInt) || stakeInt < 50)) {
-    //         return this.showToast("Min stake for Ranked is 50 SC", "error");
-    //     }
-    //     if (appState.mode === 'PRACTICE' && stakeInt !== 1) {
-    //         return this.showToast("Practice matches cost exactly 1 PC", "error");
-    //     }
-
-    //     const btn = document.querySelector('#view-create .btn-primary');
-    //     const ogText = btn.innerHTML;
-    //     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-    //     btn.disabled = true;
-
-    //     try {
-    //         await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal);
-    //         this.showToast("Match created successfully!");
-
-    //         document.getElementById('create-room-id').value = '';
-    //         document.getElementById('create-room-pass').value = '';
-    //         document.getElementById('create-rules').value = '';
-
-    //         this.setLobbyFilter('Pending');
-    //         this.navigate('lobby');
-    //     } catch (e) {
-    //         this.showToast("Error creating match: " + e.message, "error");
-    //     } finally {
-    //         btn.innerHTML = ogText;
-    //         btn.disabled = false;
-    //     }
-    // },
-    // 1. Validates input and triggers the popup
     submitCreateMatch() {
         const stakeInt = parseInt(document.getElementById('create-stake').value);
         const roomIdVal = document.getElementById('create-room-id').value.trim();
@@ -360,7 +341,10 @@ const app = {
         btn.disabled = true;
 
         try {
-            const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch);
+            const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch, currentChallengedPlayer);
+            currentChallengedPlayer = null;
+            const banner = document.getElementById('cm-direct-challenge-banner');
+            if (banner) banner.style.display = 'none';
 
             if (isAutomatch) {
                 this.showToast("Searching for opponent...");
@@ -415,95 +399,6 @@ const app = {
         }
     },
 
-    // async viewMatchDetails(matchId) {
-    //     appState.currentMatchId = matchId;
-    //     const match = appState.myMatches.find(m => m.id === matchId) || appState.openMatches.find(m => m.id === matchId);
-    //     if (!match) return;
-
-    //     const isHost = match.host && appState.currentUser && (
-    //         match.host.id === appState.currentUser.id ||
-    //         (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
-    //     );
-
-    //     document.getElementById('details-match-id').innerText = match.id;
-    //     document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
-    //     document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
-
-    //     let subStatus = "";
-    //     if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
-    //         subStatus = "Waiting for an opponent to join...";
-    //     } else if (match.status === 'STARTING') {
-    //         subStatus = isHost ? "Opponent found. Enter Room ID." : "Waiting for Host to create room...";
-    //     } else if (match.status === 'READY_CHECK') {
-    //         subStatus = "Match ready. Please ready up and join.";
-    //     } else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
-    //         subStatus = "Match in progress. Submit result when done.";
-    //     } else if (match.status === 'COMPLETED') {
-    //         subStatus = `Match Completed.`;
-    //     }
-    //     document.getElementById('details-sub-status').innerText = subStatus;
-
-    //     document.getElementById('p1-username').innerText = match.host ? match.host.gamerTag : "Host";
-    //     if (match.guest) {
-    //         document.getElementById('p2-username').innerText = match.guest.gamerTag;
-    //         document.getElementById('p2-avatar-container').classList.add('ready');
-    //         document.getElementById('p2-avatar-container').classList.remove('waiting');
-    //         document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
-    //     } else {
-    //         document.getElementById('p2-username').innerText = "Waiting...";
-    //         document.getElementById('p2-avatar-container').classList.remove('ready');
-    //         document.getElementById('p2-avatar-container').classList.add('waiting');
-    //         document.getElementById('p2-avatar-icon').className = "fas fa-question text-muted";
-    //     }
-
-    //     document.getElementById('details-game').innerText = match.gameTitle;
-    //     document.getElementById('details-stake').innerText = match.entryFeeSc + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
-    //     const pot = match.entryFeeSc * 2;
-    //     const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
-    //     document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
-
-    //     const roomCard = document.getElementById('details-room-card');
-    //     if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
-    //         roomCard.style.display = 'block';
-    //         document.getElementById('details-room-id').innerText = match.roomId || "N/A";
-    //         document.getElementById('details-room-pass').innerText = "Hidden";
-    //     } else {
-    //         roomCard.style.display = 'none';
-    //     }
-
-    //     this.renderActionArea(match, isHost);
-    //     this.navigate('match-details');
-
-    //     //I added sockets here for our match task
-
-    //     window.api.subscribeToMatch(matchId, (updatedData) => {
-    //         console.log("Real-Time Update Received:", updatedData);
-
-
-    //         Object.assign(match, updatedData);
-
-    //         document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
-    //         document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
-
-
-    //         if (match.roomId && document.getElementById('details-room-card')) {
-    //             document.getElementById('details-room-card').style.display = 'block';
-    //             document.getElementById('details-room-id').innerText = match.roomId;
-    //         }
-
-    //         if (match.guest) {
-    //             document.getElementById('p2-username').innerText = match.guest.gamerTag;
-    //             document.getElementById('p2-avatar-container').classList.add('ready');
-    //             document.getElementById('p2-avatar-container').classList.remove('waiting');
-    //             document.getElementById('p2-avatar-icon').className = "fas fa-user-ninja text-blue";
-    //         }
-
-
-    //         this.renderActionArea(match, isHost);
-    //     });
-
-
-    // },
 
     async viewMatchDetails(matchId) {
         appState.currentMatchId = matchId;
@@ -630,98 +525,7 @@ const app = {
     },
 
 
-    // renderActionArea(match, isHost) {
-    //     const area = document.getElementById('details-action-area');
-    //     let html = `
-    //         <div style="text-align: right; margin-bottom: 15px;">
 
-    //         </div>
-    //     `;
-
-    //     if (match.status === 'OPEN') {
-    //         html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
-    //                 <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
-    //     }
-    //     else if (match.status === 'READY_CHECK') {
-    //         html += `
-    //             <p style="margin-bottom: 15px;">Room created. Join game and ready up.</p>
-    //             <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
-    //         `;
-    //     }
-    //     else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
-
-    //         const localReportKey = `reported_${match.id}_${appState.currentUser.id}`;
-    //         let hasReported = localStorage.getItem(localReportKey) === 'true';
-
-    //         const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
-    //         const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
-
-    //         if (isHost && hostClaimed === true) hasReported = true;
-    //         if (!isHost && guestClaimed === true) hasReported = true;
-
-    //         if (hasReported) {
-    //             html += `
-    //                 <div style="padding: 10px 0;">
-    //                     <h4 style="color: var(--accent-orange); margin-bottom: 10px;">Waiting on Opponent</h4>
-    //                     <p style="color: var(--text-muted); font-size: 0.9rem;">You have submitted your result. Waiting for your opponent to confirm.</p>
-    //                     <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-orange); margin-top: 15px;"></i>
-    //                 </div>
-    //             `;
-    //         } else {
-    //             html += `
-    //                 <p style="margin-bottom: 15px; color: var(--text-muted);">Please be honest. False reports result in bans.</p>
-    //                 <div style="display:flex; gap:10px; justify-content:center;">
-    //                     <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851;" onclick="app.submitResult('${match.id}', true)">
-    //                         <i class="fas fa-trophy"></i> I Won
-    //                     </button>
-    //                     <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">
-    //                         <i class="fas fa-skull"></i> I Lost
-    //                     </button>
-    //                 </div>
-    //             `;
-    //         }
-    //     }
-    //     else if (match.status === 'COMPLETED') {
-    //         html += `
-    //             <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
-    //             <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
-    //             <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
-    //         `;
-    //     }
-    //     else if (match.status === 'DISPUTED') {
-    //         const hasProof = isHost ? match.hostProofUrl : match.guestProofUrl;
-
-    //         html += `
-    //             <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
-    //             <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
-    //         `;
-
-    //         if (hasProof) {
-    //             html += `
-    //                 <p style="color:var(--text-muted); margin-bottom:20px;">Your proof has been submitted.</p>
-    //                 <div style="font-size: 1rem; color: #00C851; background: rgba(0, 200, 81, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #00C851;">
-    //                     <i class="fas fa-check-circle"></i> Proof received. Awaiting Admin resolution.
-    //                 </div>
-    //             `;
-    //         } else {
-    //             html += `
-    //                 <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
-
-    //                 <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
-    //                     <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
-    //                     <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
-    //                     <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
-    //                 </div>
-    //                 <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
-    //                 <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none; margin-top: 15px;">
-    //                     <i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.
-    //                 </div>
-    //             `;
-    //         }
-    //     }
-
-    //     area.innerHTML = html;
-    // },
 
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');

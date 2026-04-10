@@ -421,8 +421,8 @@ const api = {
         return await graphqlRequest(query, { matchId, fileBase64: base64String, fileName: file.name });
     },
 
-    // 2. Matchmaking API
-    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+
+    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
     //     const query = `
     //         mutation CreateMatch($input: CreateMatchInput!) {
     //             createMatch(input: $input) {
@@ -430,9 +430,12 @@ const api = {
     //             }
     //         }
     //     `;
-    //     return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+    //     return await graphqlRequest(query, {
+    //         input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
+    //     });
     // },
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
+
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null) {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -441,10 +444,9 @@ const api = {
             }
         `;
         return await graphqlRequest(query, {
-            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag }
         });
     },
-
     async joinMatch(matchId) {
         const query = `
             mutation JoinMatch($input: JoinMatchInput!) {

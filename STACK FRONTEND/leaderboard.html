@@ -158,6 +158,13 @@
                     <div class="stat-box full-width"
                         style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-bottom: 2px solid var(--accent-gold);">
                         <div class="text-muted" style="font-size: 0.85rem;">Total Earnings (SC)</div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                        </div>
+
+                        <button class="btn btn-primary full-width mt-4" style="padding: 15px; font-size: 1.1rem;"
+                            onclick="initiateDirectChallenge()">
+                            <i class="fas fa-crosshairs"></i> Challenge Player
+                        </button>
                         <div class="font-bold highlight-gold" style="font-size: 1.2rem;">24,500 SC</div>
                     </div>
                 </div>
@@ -255,10 +262,10 @@
             }
         }
 
-
+        let currentModalUser = "";
         function openProfile(username, winRate = 0, matches = 0, earnings = 0) {
+            currentModalUser = username;
             document.getElementById('profile-modal-name').innerText = username;
-
 
             const statBoxes = document.querySelectorAll('#profile-modal .font-bold');
             if (statBoxes.length >= 3) {
@@ -270,6 +277,11 @@
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
+        function initiateDirectChallenge() {
+            if (currentModalUser) {
+                window.location.href = `playground.html?challenge=${encodeURIComponent(currentModalUser)}`;
+            }
+        }
         function closeProfile() {
             document.getElementById('profile-modal').style.display = 'none';
         }
