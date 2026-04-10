@@ -299,12 +299,13 @@
                     if (document.getElementById('header-sc')) {
                         const r = isNaN(pData.realSc) || pData.realSc === null ? 0 : pData.realSc;
                         const b = isNaN(pData.bonusSc) || pData.bonusSc === null ? 0 : pData.bonusSc;
-                        document.getElementById('header-sc').innerText = r + b;
+                        document.getElementById('header-sc').innerText = r;
                     }
 
                     if (pData.avatarUrl && document.getElementById('global-header-avatar')) {
-                        document.getElementById('global-header-avatar').innerHTML =
-                            `<img src="${pData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        const avatarEl = document.getElementById('global-header-avatar');
+                        avatarEl.innerHTML = `<img src="${pData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                        avatarEl.style.display = 'block';
                     }
                 }
             } catch (e) { console.error("Could not load header profile data", e); }
@@ -338,10 +339,16 @@
 
                         const safeRankPoints = isNaN(stats.rankPoints) || stats.rankPoints === null ? 0 : stats.rankPoints;
                         let rankTitle = 'Rookie';
-                        if (safeRankPoints > 500) rankTitle = 'Bronze';
-                        if (safeRankPoints > 1000) rankTitle = 'Silver';
-                        if (safeRankPoints > 2000) rankTitle = 'Gold';
+                        let iconCls = 'fa-star';
+                        if (safeRankPoints > 500) { rankTitle = 'Bronze'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 1500) { rankTitle = 'Silver'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 3000) { rankTitle = 'Gold'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 5000) { rankTitle = 'Platinum'; iconCls = 'fa-gem'; }
+                        if (safeRankPoints > 7500) { rankTitle = 'Diamond'; iconCls = 'fa-gem'; }
+                        if (safeRankPoints > 10000) { rankTitle = 'Elite'; iconCls = 'fa-crown'; }
                         document.getElementById('prof-tier').innerText = rankTitle;
+                        const tierIconNode = document.getElementById('prof-tier').previousElementSibling;
+                        if(tierIconNode && tierIconNode.tagName === 'I') tierIconNode.className = `fas ${iconCls}`;
 
                         const safeStreak = isNaN(profile.winStreak) || profile.winStreak === null ? 0 : profile.winStreak;
                         document.getElementById('prof-streak-badge').style.display = 'flex';
@@ -418,13 +425,37 @@
                         targetUser = lbReq.globalLeaderboard.find(u => u.gamerTag.toLowerCase() === userQuery.toLowerCase());
                     }
 
-                    // --- (Keep your existing fake/randomized public profile generation here) ---
-                    // The recent matches box will automatically default to "Match history is hidden"
-
                     if (targetUser) {
-                        // ... your existing code for found target ...
+                        // Populate opponent profile
+                        document.getElementById('prof-gamerTag').innerText = targetUser.gamerTag;
+                        document.getElementById('prof-email').style.display = 'none';
+                        document.getElementById('prof-date').style.display = 'none';
+
+                        const safeRankPoints = isNaN(targetUser.rankPoints) || targetUser.rankPoints === null ? 0 : targetUser.rankPoints;
+                        let rankTitle = 'Rookie';
+                        let iconCls = 'fa-star';
+                        if (safeRankPoints > 500) { rankTitle = 'Bronze'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 1500) { rankTitle = 'Silver'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 3000) { rankTitle = 'Gold'; iconCls = 'fa-medal'; }
+                        if (safeRankPoints > 5000) { rankTitle = 'Platinum'; iconCls = 'fa-gem'; }
+                        if (safeRankPoints > 7500) { rankTitle = 'Diamond'; iconCls = 'fa-gem'; }
+                        if (safeRankPoints > 10000) { rankTitle = 'Elite'; iconCls = 'fa-crown'; }
+
+                        document.getElementById('prof-tier').innerText = rankTitle;
+                        const tierIconNode = document.getElementById('prof-tier').previousElementSibling;
+                        if(tierIconNode && tierIconNode.tagName === 'I') tierIconNode.className = `fas ${iconCls}`;
+
+                        document.getElementById('prof-streak-badge').style.display = 'none'; // Not public
+
+                        document.getElementById('prof-matches').innerText = targetUser.totalMatches || 0;
+                        document.getElementById('prof-wins').innerText = targetUser.wins || 0;
+                        document.getElementById('prof-winrate').innerText = (targetUser.winRate || 0) + '%';
+
+                        document.getElementById('prof-action-btn').innerHTML = ''; // Cannot edit someone else
+
+                        pContainer.style.display = 'block';
                     } else {
-                        // ... your existing code for missing target ...
+                        pNotFound.style.display = 'block';
                     }
 
                 } catch (e) {
