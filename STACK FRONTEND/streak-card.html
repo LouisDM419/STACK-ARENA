@@ -111,7 +111,7 @@
                 <div class="streak-count" id="card-streak-val">-- WINS IN A ROW</div>
                 
                 <div class="match-outcome" style="border:none; padding:0; margin-bottom:10px;">Total Earned This Streak</div>
-                <div class="naira-value" id="card-naira-val">â‚¦--</div>
+                <div class="naira-value" id="card-naira-val">&#8358;--</div>
                 <div class="sc-value" id="card-sc-val">(+-- SC)</div>
                 <div class="rp-gain" id="card-rp-val">+-- RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i></div>
             </div>
@@ -220,7 +220,7 @@
                 const lockedSc = profile.lockedWinnings || 0;
                 const nairaVal = lockedSc * 10;
                 
-                document.getElementById('card-naira-val').innerText = `â‚¦${nairaVal.toLocaleString()}`;
+                document.getElementById('card-naira-val').innerText = `&#8358;${nairaVal.toLocaleString()}`;
                 document.getElementById('card-sc-val').innerText = `(+${lockedSc.toLocaleString()} SC)`;
                 document.getElementById('card-rp-val').innerHTML = `+${(profile.winStreak || 0) * 15} RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
                 

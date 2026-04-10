@@ -117,7 +117,7 @@
                 <div class="top-label">TOP PLAYER - THIS WEEK</div>
                 <div class="username" id="card-player-name">--</div>
                 
-                <div class="naira-value" id="card-naira-val">â‚¦-- WON</div>
+                <div class="naira-value" id="card-naira-val">&#8358;-- WON</div>
                 <div class="sc-value" id="card-sc-val">(+-- SC)</div>
                 <div class="rp-gain" id="card-rp-val">+-- RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i></div>
                 
@@ -259,7 +259,7 @@
                 const lockedSc = profile.lockedWinnings || 0;
                 const nairaVal = lockedSc * 10;
                 
-                document.getElementById('card-naira-val').innerText = `â‚¦${nairaVal.toLocaleString()} WON`;
+                document.getElementById('card-naira-val').innerText = `&#8358;${nairaVal.toLocaleString()} WON`;
                 document.getElementById('card-sc-val').innerText = `(+${lockedSc.toLocaleString()} SC)`;
                 document.getElementById('card-rp-val').innerHTML = `+${stats.rankPoints || 0} RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
                 

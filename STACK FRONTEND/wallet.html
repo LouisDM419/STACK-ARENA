@@ -202,7 +202,7 @@
                     <label>Amount (NGN)</label>
                     <div class="cm-stake-control">
                         <span
-                            style="background:rgba(255,255,255,0.05); padding:12px 15px; border:1px solid rgba(255,255,255,0.1); border-right:none; border-radius:8px 0 0 8px; color:var(--text-muted); font-size:1.2rem;">â‚¦</span>
+                            style="background:rgba(255,255,255,0.05); padding:12px 15px; border:1px solid rgba(255,255,255,0.1); border-right:none; border-radius:8px 0 0 8px; color:var(--text-muted); font-size:1.2rem;">&#8358;</span>
                         <input type="number" id="dep-amount" class="cm-input"
                             style="border-radius:0 8px 8px 0; font-size:1.2rem; flex:1;" value="1000" min="1000">
                     </div>
@@ -249,7 +249,7 @@
                         style="width:100%; font-size:1.2rem; font-weight:bold; color:var(--accent-gold);"
                         placeholder="Enter amount..." oninput="checkWithdrawal()" min="10">
                     <div style="font-size:0.85rem; color:var(--text-muted); margin-top:8px; text-align:right;">
-                        Equivalent: <span id="wd-conversion" style="color:#fff; font-weight:bold;">0 â‚¦</span></div>
+                        Equivalent: <span id="wd-conversion" style="color:#fff; font-weight:bold;">0 &#8358;</span></div>
                 </div>
                 <div class="cm-error-text" id="wd-error"
                     style="display:none; color: #ff4444; font-size: 0.85rem; margin-bottom: 15px;">Amount exceeds
@@ -309,7 +309,7 @@
             // Withdrawal 1 SC = 10 NGN
             const ngnEquiv = val * 10;
             const convEl = document.getElementById('wd-conversion');
-            if (convEl) convEl.innerText = ngnEquiv.toLocaleString() + ' â‚¦';
+            if (convEl) convEl.innerText = ngnEquiv.toLocaleString() + ' &#8358;';
 
             if (val > 0) {
                 err.style.display = 'block';

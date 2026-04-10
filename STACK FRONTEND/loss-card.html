@@ -107,7 +107,7 @@
             
             <div class="main-content">
                 <div class="result-title">DEFEAT</div>
-                <div class="naira-value" id="card-naira-val">â‚¦--</div>
+                <div class="naira-value" id="card-naira-val">&#8358;--</div>
                 <div class="sc-value" id="card-sc-val">(-- SC) LOST</div>
                 <div class="rp-loss" id="card-rp-val">--- RP <i class="fas fa-arrow-down" style="margin-left: 2px;"></i></div>
             </div>
@@ -225,7 +225,7 @@
                 if (match) {
                     const lossSc = match.entryFeeSc || 0;
                     const nairaLoss = lossSc * 10;
-                    document.getElementById('card-naira-val').innerText = `â‚¦${nairaLoss.toLocaleString()}`;
+                    document.getElementById('card-naira-val').innerText = `&#8358;${nairaLoss.toLocaleString()}`;
                     document.getElementById('card-sc-val').innerText = `(-${lossSc.toLocaleString()} SC) LOST`;
                     document.getElementById('card-rp-val').innerHTML = `-25 RP <i class="fas fa-arrow-down" style="margin-left: 2px;"></i>`;
                     

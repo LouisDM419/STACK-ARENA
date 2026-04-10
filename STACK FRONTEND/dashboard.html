@@ -81,7 +81,7 @@
                     <!-- <div class="avatar" style="cursor:pointer;" onclick="location.href='profile.html'"><i
                             class="fas fa-user"></i></div> -->
                     <div id="profile-pic" onclick="location.href='profile.html'"
-                        style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 15px;">
+                        style="cursor: pointer; width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; overflow: hidden;">
                         <i class="fas fa-user-astronaut" style="font-size: 3rem; color: var(--accent-orange);"></i>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
 
             <div class="dashboard-content">
                 <!-- Alerts Section -->
-                <div class="alert-box alert-warning">
+                <div class="alert-box alert-warning" id="zero-balance-alert">
                     <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <div class="alert-text">
                         <h4>Zero Balance</h4>
@@ -114,7 +114,7 @@
                             <span class="stat-title">Rank & Points</span>
                             <span class="stat-value">Rookie <span
                                     style="font-size: 1rem; color: var(--text-muted); font-weight:normal;">(0
-                                    XP)</span></span>
+                                    RP)</span></span>
                         </div>
                         <i class="fas fa-medal stat-bg-icon"></i>
                     </div>
@@ -166,31 +166,9 @@
                                 <h3>Daily Missions</h3>
                             </div>
                             <div class="missions-list">
-                                <div class="mission-card">
-                                    <div class="mission-info">
-                                        <h4>Win 1 match</h4>
-                                        <div class="progress-bar-container mt-2"
-                                            style="margin-bottom: 5px; height: 6px;">
-                                            <div class="progress-fill" style="width: 0%;"></div>
-                                        </div>
-                                        <span class="mission-status">0/1</span>
-                                    </div>
-                                    <div class="mission-reward">
-                                        <i class="fas fa-gift text-gold"></i> 50 SC
-                                    </div>
-                                </div>
-                                <div class="mission-card">
-                                    <div class="mission-info">
-                                        <h4>Play 3 games</h4>
-                                        <div class="progress-bar-container mt-2"
-                                            style="margin-bottom: 5px; height: 6px;">
-                                            <div class="progress-fill" style="width: 0%;"></div>
-                                        </div>
-                                        <span class="mission-status">0/3</span>
-                                    </div>
-                                    <div class="mission-reward">
-                                        <i class="fas fa-gift text-gold"></i> 100 SC
-                                    </div>
+                                <div class="text-center"
+                                    style="padding: 20px 0; color: var(--text-muted); font-size: 0.95rem;">
+                                    <p>No daily missions available right now.</p>
                                 </div>
                             </div>
                         </div>
@@ -208,7 +186,7 @@
                                 <div class="lb-item highlight-me mt-4" style="border-style: dashed;">
                                     <span class="lb-rank">--</span>
                                     <span class="lb-name">You</span>
-                                    <span class="lb-score">0 XP</span>
+                                    <span class="lb-score">0 RP</span>
                                 </div>
                             </div>
                         </div>
@@ -382,15 +360,21 @@
                     const bonusSc = Number(profileData.bonusSc) || 0;
                     const totalSc = realSc + bonusSc;
 
+                    const zeroBalAlert = document.getElementById('zero-balance-alert');
+                    if (zeroBalAlert) {
+                        if (realSc > 0) zeroBalAlert.style.display = 'none';
+                        else zeroBalAlert.style.display = 'flex';
+                    }
+
                     const headerBalEl = document.querySelector('.wallet-bal');
                     if (headerBalEl) {
-                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc} SC <span style="font-size:0.8rem; color:var(--text-muted); margin-left:5px;">(${bonusSc} Bonus)</span>`;
+                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc} SC`;
                     }
 
                     const statCards = document.querySelectorAll('.dash-stat-card');
                     if (statCards.length > 0) {
                         const firstStatCard = statCards[0].querySelector('.stat-value');
-                        if (firstStatCard) firstStatCard.innerText = `${totalSc} SC`;
+                        if (firstStatCard) firstStatCard.innerText = `${realSc} SC`;
                     }
 
                     const cmBal = document.getElementById('cm-available-bal');
@@ -448,18 +432,24 @@
 
                         if (statCards.length > 1) {
                             let rankTitle = 'Rookie';
-                            if (myRankPoints > 500) rankTitle = 'Bronze';
-                            if (myRankPoints > 1000) rankTitle = 'Silver';
-                            if (myRankPoints > 2000) rankTitle = 'Gold';
+                            let iconCls = 'fa-star';
+                            if (myRankPoints > 500) { rankTitle = 'Bronze'; iconCls = 'fa-medal'; }
+                            if (myRankPoints > 1500) { rankTitle = 'Silver'; iconCls = 'fa-medal'; }
+                            if (myRankPoints > 3000) { rankTitle = 'Gold'; iconCls = 'fa-medal'; }
+                            if (myRankPoints > 5000) { rankTitle = 'Platinum'; iconCls = 'fa-gem'; }
+                            if (myRankPoints > 7500) { rankTitle = 'Diamond'; iconCls = 'fa-gem'; }
+                            if (myRankPoints > 10000) { rankTitle = 'Elite'; iconCls = 'fa-crown'; }
 
                             const rankCard = statCards[1].querySelector('.stat-value');
                             if (rankCard) {
-                                rankCard.innerHTML = `${rankTitle} <span style="font-size: 1rem; color: var(--text-muted); font-weight:normal;">(${myRankPoints} XP)</span>`;
+                                rankCard.innerHTML = `${rankTitle} <span style="font-size: 1rem; color: var(--text-muted); font-weight:normal;">(${myRankPoints} RP)</span>`;
                             }
+                            const bgIcon = statCards[1].querySelector('.stat-bg-icon');
+                            if (bgIcon) bgIcon.className = `fas ${iconCls} stat-bg-icon`;
                         }
 
                         const lbScoreNode = document.querySelector('.lb-score');
-                        if (lbScoreNode) lbScoreNode.innerText = `${myRankPoints} XP`;
+                        if (lbScoreNode) lbScoreNode.innerText = `${myRankPoints} RP`;
                     }
                 } catch (e) { console.error("Stats load failed", e); }
 
@@ -485,7 +475,7 @@
                                                 <div>${check}</div>
                                             </div>
                                             <div class="mission-reward text-right" style="margin-left: 15px;">
-                                                <i class="fas fa-gift text-gold"></i> ${m.rewardBonusSc} SC
+                                                <i class="fas fa-gift text-gold"></i> ${m.rewardPracticeCredits || 0} SC
                                             </div>
                                         </div>`;
                             }).join('');
@@ -505,7 +495,7 @@
                                     <div class="lb-item mt-2">
                                         <span class="lb-rank" style="color:var(--text-muted);">#${index + 1}</span>
                                         <span class="lb-name" style="flex:1; margin:0 10px;">${p.gamerTag}</span>
-                                        <span class="lb-score text-gold">${p.rankPoints} XP</span>
+                                        <span class="lb-score text-gold">${p.rankPoints} RP</span>
                                     </div>
                                 `).join('');
                             } else {
@@ -518,7 +508,7 @@
                                 <div class="lb-item highlight-me mt-4" style="border-style: dashed;">
                                     <span class="lb-rank">--</span>
                                     <span class="lb-name" style="flex:1; margin:0 10px;">You</span>
-                                    <span class="lb-score">${myRankPoints} XP</span>
+                                    <span class="lb-score">${myRankPoints} RP</span>
                                 </div>
                             `;
                             lbSnap.innerHTML = html + userRankHTML;
@@ -551,7 +541,7 @@
                                         </div>
                                         <div style="text-align: left;">
                                             <h4 style="color: #fff; margin-bottom: 3px; font-size: 1rem; text-transform: capitalize;">${item.transactionType.toLowerCase()}</h4>
-                                            <span style="color: var(--text-muted); font-size: 0.85rem;">Status: ${item.status} â€¢ ${dateStr}</span>
+                                            <span style="color: var(--text-muted); font-size: 0.85rem;">Status: ${item.status} &bull; ${dateStr}</span>
                                         </div>
                                     </div>
                                     <div class="${amtColor}" style="font-weight: bold; font-size: 1.1rem;">
