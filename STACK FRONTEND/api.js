@@ -577,7 +577,7 @@ const api = {
         const query = `
             query GlobalLeaderboard($limit: Int) {
                 globalLeaderboard(limit: $limit) {
-                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc avatarUrl
+                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc
                 }
             }
         `;
