@@ -158,6 +158,13 @@
                     <div class="stat-box full-width"
                         style="grid-column: span 2; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-bottom: 2px solid var(--accent-gold);">
                         <div class="text-muted" style="font-size: 0.85rem;">Total Earnings (SC)</div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                        </div>
+
+                        <button class="btn btn-primary full-width mt-4" style="padding: 15px; font-size: 1.1rem;"
+                            onclick="initiateDirectChallenge()">
+                            <i class="fas fa-crosshairs"></i> Challenge Player
+                        </button>
                         <div class="font-bold highlight-gold" style="font-size: 1.2rem;">24,500 SC</div>
                     </div>
                 </div>
@@ -168,54 +175,154 @@
     <!-- Scripts -->
     <script src="api.js"></script>
     <script src="script.js"></script>
-    <script>
-        // Specific UI Scripts for Leaderboard Only
+<script>
+        let globalPlayers = [];
+        let myGamerTag = "";
+        let myRankPoints = 0;
+
         document.querySelectorAll('.lb-tab').forEach(tab => {
             tab.addEventListener('click', function () {
                 document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
 
-                // Real app would fetch new data. Here, we just add a visual cue.
+                const target = this.getAttribute('data-target');
+
                 const tableBody = document.querySelector('.lb-body');
-                tableBody.style.opacity = '0.5';
+                if (tableBody) tableBody.style.opacity = '0.5';
+
                 setTimeout(() => {
-                    tableBody.style.opacity = '1';
-                }, 300);
+                    renderLeaderboardTable(target);
+                    if (tableBody) tableBody.style.opacity = '1';
+                }, 200);
             });
         });
 
-        function scrollToCurrent() {
-            const row = document.querySelector('.current-user-row');
-            if (row) {
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.classList.add('flash-highlight');
-                setTimeout(() => row.classList.remove('flash-highlight'), 2000);
+        function renderLeaderboardTable(sortBy = 'lb-rp') {
+            const container = document.getElementById('lb-container');
+            if (globalPlayers.length === 0) return;
+
+            let sortedPlayers = [...globalPlayers];
+            if (sortBy === 'lb-rp') {
+                sortedPlayers.sort((a, b) => (b.rankPoints || 0) - (a.rankPoints || 0));
+            } else if (sortBy === 'lb-earnings') {
+                sortedPlayers.sort((a, b) => ((b.realSc || 0) + (b.lockedSc || 0)) - ((a.realSc || 0) + (a.lockedSc || 0)));
+            } else if (sortBy === 'lb-winrate') {
+                sortedPlayers.sort((a, b) => (b.winRate || 0) - (a.winRate || 0));
+            }
+
+            let htmlStr = `<div class="dash-panel table-responsive" style="padding: 0; overflow-x: auto; margin-bottom: 40px; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
+                    <thead style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <tr>
+                            <th class="lb-cell lb-rank-col" style="color: var(--text-muted); font-weight: normal; text-align: center;">Rank</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal;">Player</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Win Rate</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Points (RP)</th>
+                            <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody class="lb-body">`;
+
+            sortedPlayers.forEach((p, index) => {
+                const rank = index + 1;
+                let rankTrophy = `${rank}`;
+                if (rank === 1) rankTrophy = `<i class="fas fa-trophy" style="color: gold; font-size: 1.2rem;"></i>`;
+                if (rank === 2) rankTrophy = `<i class="fas fa-trophy" style="color: silver; font-size: 1.2rem;"></i>`;
+                if (rank === 3) rankTrophy = `<i class="fas fa-trophy" style="color: #cd7f32; font-size: 1.2rem;"></i>`;
+
+                const isMe = p.gamerTag === myGamerTag;
+                const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
+                const totalEarned = (p.realSc || 0) + (p.lockedSc || 0);
+
+                // AVATAR FIX: Check for avatarUrl, otherwise use default icon
+                let avatarHtml = `<i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i>`;
+                if (p.avatarUrl) {
+                    const safeUrl = p.avatarUrl.startsWith('http') ? p.avatarUrl : 'https://playstackarena.com' + p.avatarUrl;
+                    avatarHtml = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                }
+
+                htmlStr += `
+                    <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
+                        <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
+                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${p.avatarUrl || ''}')">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="avatar" style="width: 35px; height: 35px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};">
+                                    ${avatarHtml}
+                                </div>
+                                <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
+                            </div>
+                        </td>
+                        <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
+                        <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} XP</td>
+                        <td class="lb-cell" style="text-align: right; font-weight: bold; color: #25d366;">${totalEarned} SC</td>
+                    </tr>
+                `;
+            });
+
+            htmlStr += `</tbody></table></div>`;
+            container.innerHTML = htmlStr;
+
+            const myNewIndex = sortedPlayers.findIndex(p => p.gamerTag === myGamerTag);
+            if (myNewIndex !== -1) {
+                document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myNewIndex + 1}`;
             }
         }
 
-        function openProfile(username) {
+        let currentModalUser = "";
+        // AVATAR FIX: Accept avatarUrl as a parameter
+        function openProfile(username, winRate = 0, matches = 0, earnings = 0, avatarUrl = '') {
+            currentModalUser = username;
             document.getElementById('profile-modal-name').innerText = username;
+
+            const statBoxes = document.querySelectorAll('#profile-modal .font-bold');
+            if (statBoxes.length >= 3) {
+                statBoxes[0].innerText = `${winRate}%`;
+                statBoxes[1].innerText = matches;
+                statBoxes[2].innerText = `${earnings} SC`;
+            }
+
+            // AVATAR FIX: Inject into the modal
+            const modalAvatar = document.querySelector('#profile-modal .avatar-large');
+            if (modalAvatar) {
+                if (avatarUrl) {
+                    const safeUrl = avatarUrl.startsWith('http') ? avatarUrl : 'https://playstackarena.com' + avatarUrl;
+                    modalAvatar.innerHTML = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                } else {
+                    modalAvatar.innerHTML = `<i class="fas fa-user"></i>`;
+                }
+            }
+
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
+        function initiateDirectChallenge() {
+            if (currentModalUser) {
+                window.location.href = `playground.html?challenge=${encodeURIComponent(currentModalUser)}`;
+            }
+        }
         function closeProfile() {
             document.getElementById('profile-modal').style.display = 'none';
         }
 
         async function loadLeaderboardData() {
             try {
-                // Load My Profile for Top Panel
                 const profReq = await window.api.myProfile();
-                let myGamerTag = "";
-                if (profReq) {
+                if (profReq && profReq.myProfile) {
                     const profile = profReq.myProfile;
-                    if(profile) {
-                        const rSc = Number(profile.realSc) || 0;
-                        document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${rSc} SC`;
-                        myGamerTag = profile.gamerTag;
-                    } document.querySelector('.cur-user-details .cur-username').innerText = myGamerTag;
-                    document.querySelector('.cur-user-details .cur-username').style.color = '#fff';
+                    myGamerTag = profile.gamerTag;
 
+                    const totalSc = (profile.realSc || 0) + (profile.practiceCredits || profile.bonusSc || 0);
+                    const walletBalNode = document.querySelector('.wallet-bal');
+                    if (walletBalNode) {
+                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+                    }
+
+                    const curUsernameNode = document.querySelector('.cur-user-details .cur-username');
+                    if (curUsernameNode) {
+                        curUsernameNode.innerText = myGamerTag;
+                        curUsernameNode.style.color = '#fff';
+                    }
+                    
                     if (profile.avatarUrl) {
                         const rawUrl = profile.avatarUrl;
                         const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
@@ -228,89 +335,45 @@
                     }
                 }
 
-                // Load My Stats for Top Panel
                 const statsReq = await window.api.myStats();
-                if (statsReq) {
+                if (statsReq && statsReq.myStats) {
                     const st = statsReq.myStats;
-                    document.querySelector('.cur-stats .badge-rp').innerHTML = `<i class="fas fa-star text-gold"></i> ${st.rankPoints} RP`;
-                }
+                    myRankPoints = st.rankPoints || 0;
 
-                // Load Global Leaderboard
-                let lbReq;
-                try {
-                    lbReq = await window.api.globalLeaderboard(50);
-                } catch (e) { }
-
-                const container = document.getElementById('lb-container');
-                if (lbReq && lbReq.globalLeaderboard && lbReq.globalLeaderboard.length > 0) {
-                    const players = lbReq.globalLeaderboard;
-
-                    // Find my rank
-                    const myIndex = players.findIndex(p => p.gamerTag === myGamerTag);
-                    if (myIndex !== -1) {
-                        document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myIndex + 1}`;
-                    } else {
-                        document.querySelector('.cur-rank-pos .pos-num').innerText = 'Unranked';
+                    const badgeRpNode = document.querySelector('.cur-stats .badge-rp');
+                    if (badgeRpNode) {
+                        badgeRpNode.innerHTML = `<i class="fas fa-star text-gold"></i> ${myRankPoints} RP`;
                     }
 
-                    let htmlStr = `<div class="dash-panel table-responsive" style="padding: 0; overflow-x: auto; margin-bottom: 40px; -webkit-overflow-scrolling: touch;">
-                        <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
-                            <thead style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                <tr>
-                                    <th class="lb-cell lb-rank-col" style="color: var(--text-muted); font-weight: normal; text-align: center;">Rank</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal;">Player</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Win Rate</th>
-                                    <th class="lb-cell" style="color: var(--text-muted); font-weight: normal; text-align: right;">Points (RP)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="lb-body">`;
+                    const lbScoreNode = document.querySelector('.lb-score');
+                    if (lbScoreNode) {
+                        lbScoreNode.innerText = `${myRankPoints} XP`;
+                    }
+                }
 
-                    players.forEach((p, index) => {
-                        const rank = index + 1;
-                        let rankTrophy = `${rank}`;
-                        if (rank === 1) rankTrophy = `<i class="fas fa-trophy" style="color: gold; font-size: 1.2rem;"></i>`;
-                        if (rank === 2) rankTrophy = `<i class="fas fa-trophy" style="color: silver; font-size: 1.2rem;"></i>`;
-                        if (rank === 3) rankTrophy = `<i class="fas fa-trophy" style="color: #cd7f32; font-size: 1.2rem;"></i>`;
-
-                        const isMe = p.gamerTag === myGamerTag;
-                        const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
-
-                        htmlStr += `
-                            <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
-                                <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
-                                <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}')">
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <div class="avatar" style="width: 35px; height: 35px; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};"><i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i></div>
-                                        <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
-                                    </div>
-                                </td>
-                                <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
-                                <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} RP</td>
-                            </tr>
-                        `;
-                    });
-
-                    htmlStr += `</tbody></table></div>`;
-                    container.innerHTML = htmlStr;
-
+                const lbReq = await window.api.globalLeaderboard(100);
+                if (lbReq && lbReq.globalLeaderboard && lbReq.globalLeaderboard.length > 0) {
+                    globalPlayers = lbReq.globalLeaderboard;
+                    renderLeaderboardTable('lb-rp');
                 } else {
-                    container.innerHTML = `
-                    <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
-                        <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
-                        <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
-                        <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
-                    </div>`;
+                    const container = document.getElementById('lb-container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div class="dash-panel text-center py-5" style="margin-bottom: 40px; padding: 60px 20px;">
+                                <i class="fas fa-trophy" style="font-size: 4rem; opacity: 0.1; margin-bottom: 20px; color: #fff;"></i>
+                                <h3 style="color: var(--text-muted);">Leaderboard is Empty</h3>
+                                <p style="color: var(--text-muted); opacity: 0.7;">Play a ranked match to conquer the board and set the first score!</p>
+                            </div>`;
+                    }
                 }
             } catch (err) {
                 console.error("Failed to load leaderboard", err);
             }
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             loadLeaderboardData();
         });
     </script>
-
     <script src="pwa.js"></script>
 </body>
 

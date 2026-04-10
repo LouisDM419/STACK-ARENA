@@ -122,36 +122,159 @@ const api = {
     },
     matchSocket: null,
     userSocket: null,
+    userHeartbeat: null,
+    matchHeartbeat: null,
+    userEventCallbacks: [],
+
+    // subscribeToUserEvents(onEventCallback) {
+    //     this.unsubscribeFromUserEvents();
+    //     const wsUrl = IS_PRODUCTION
+    //         ? 'wss://playstackarena.com/graphql/'
+    //         : 'ws://localhost:8000/graphql/';
+
+    //     try {
+    //         this.userSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+    //         this.userSocket.onopen = () => {
+    //             this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
+    //         };
+    //         this.userHeartbeat = setInterval(() => {
+    //             if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
+    //                 this.userSocket.send(JSON.stringify({ type: 'ping' }));
+    //             }
+    //         }, 30000);
+
+    //         this.userSocket.onmessage = (event) => {
+    //             const msg = JSON.parse(event.data);
+
+    //             if (msg.type === 'connection_ack') {
+    //                 // Subsccribe to the User Events stream on connection
+    //                 const query = `
+    //                     subscription WatchUserEvents {
+    //                         watchUserEvents {
+    //                             type
+    //                             cardType
+    //                             matchId
+    //                         }
+    //                     }
+    //                 `;
+    //                 this.userSocket.send(JSON.stringify({
+    //                     id: 'user_events_sub',
+    //                     type: 'subscribe',
+    //                     payload: { query, variables: {} }
+    //                 }));
+    //             }
+    //             else if (msg.type === 'next' && msg.payload && msg.payload.data) {
+    //                 const eventData = msg.payload.data.watchUserEvents;
+    //                 if (eventData && (eventData.type === 'share_card.trigger' || eventData.type === 'match.redirect')) {
+    //                     onEventCallback({
+    //                         type: eventData.type,
+    //                         card_type: eventData.cardType,
+    //                         match_id: eventData.matchId
+    //                     });
+    //                 }
+    //             }
+    //         };
+    //         this.userSocket.onerror = (err) => console.error("User WS Error:", err);
+    //     } catch (e) {
+    //         console.error("Could not init User WebSocket", e);
+    //     }
+    // },
+
+    // unsubscribeFromUserEvents() {
+    //     if (this.userHeartbeat) {
+    //         clearInterval(this.userHeartbeat);
+    //         this.userHeartbeat = null;
+    //     }
+    //     if (this.userSocket) {
+    //         if (this.userSocket.readyState === WebSocket.OPEN) {
+    //             this.userSocket.close();
+    //         }
+    //         this.userSocket = null;
+    //     }
+    // },
 
     subscribeToUserEvents(onEventCallback) {
-        this.unsubscribeFromUserEvents();
+        if (!this.userEventCallbacks) {
+            this.userEventCallbacks = [];
+        }
+        if (onEventCallback && !this.userEventCallbacks.includes(onEventCallback)) {
+            this.userEventCallbacks.push(onEventCallback);
+        }
+
+        if (this.userSocket && (this.userSocket.readyState === WebSocket.OPEN || this.userSocket.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
         const wsUrl = IS_PRODUCTION
-            ? 'wss://playstackarena.com/ws/users/'
-            : 'ws://localhost:8000/ws/users/';
+            ? 'wss://playstackarena.com/graphql/'
+            : 'ws://localhost:8000/graphql/';
 
         try {
-            this.userSocket = new WebSocket(wsUrl);
-            this.userSocket.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data && data.type === 'share_card.trigger') {
-                        onEventCallback(data);
+            this.userSocket = new WebSocket(wsUrl, 'graphql-transport-ws');
+
+            this.userSocket.onopen = () => {
+                this.userSocket.send(JSON.stringify({ type: 'connection_init' }));
+
+                this.userHeartbeat = setInterval(() => {
+                    if (this.userSocket && this.userSocket.readyState === WebSocket.OPEN) {
+                        this.userSocket.send(JSON.stringify({ type: 'ping' }));
                     }
-                } catch (e) {
-                    console.error("Error parsing user event socket data", e);
+                }, 30000);
+            };
+
+            this.userSocket.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+
+                if (msg.type === 'connection_ack') {
+                    const query = `
+                        subscription WatchUserEvents {
+                            watchUserEvents {
+                                type
+                                cardType
+                                matchId
+                            }
+                        }
+                    `;
+                    this.userSocket.send(JSON.stringify({
+                        id: 'user_events_sub',
+                        type: 'subscribe',
+                        payload: { query, variables: {} }
+                    }));
+                }
+                else if (msg.type === 'next' && msg.payload && msg.payload.data) {
+                    const eventData = msg.payload.data.watchUserEvents;
+                    if (eventData && (eventData.type === 'share_card.trigger' || eventData.type === 'match.redirect')) {
+
+                        this.userEventCallbacks.forEach(cb => {
+                            cb({
+                                type: eventData.type,
+                                card_type: eventData.cardType,
+                                match_id: eventData.matchId
+                            });
+                        });
+
+                    }
                 }
             };
             this.userSocket.onerror = (err) => console.error("User WS Error:", err);
         } catch (e) {
-            console.error("Could not init User WebSocket");
+            console.error("Could not init User WebSocket", e);
         }
     },
 
     unsubscribeFromUserEvents() {
+        if (this.userHeartbeat) {
+            clearInterval(this.userHeartbeat);
+            this.userHeartbeat = null;
+        }
         if (this.userSocket) {
-            this.userSocket.close();
+            if (this.userSocket.readyState === WebSocket.OPEN || this.userSocket.readyState === WebSocket.CONNECTING) {
+                this.userSocket.close();
+            }
             this.userSocket = null;
         }
+        this.userEventCallbacks = [];
     },
 
     subscribeToMatch(matchId, onUpdateCallback) {
@@ -166,6 +289,12 @@ const api = {
         this.matchSocket.onopen = () => {
             this.matchSocket.send(JSON.stringify({ type: 'connection_init' }));
         };
+
+        this.matchHeartbeat = setInterval(() => {
+            if (this.matchSocket && this.matchSocket.readyState === WebSocket.OPEN) {
+                this.matchSocket.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000);
 
         this.matchSocket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
@@ -194,6 +323,10 @@ const api = {
     },
 
     unsubscribeFromMatch() {
+        if (this.matchHeartbeat) {
+            clearInterval(this.matchHeartbeat);
+            this.matchHeartbeat = null;
+        }
         if (this.matchSocket) {
             this.matchSocket.close();
             this.matchSocket = null;
@@ -245,6 +378,16 @@ const api = {
         `;
         return await graphqlRequest(query);
     },
+    async searchPlayer(gamerTag) {
+        const query = `
+            query SearchPlayer($gamerTag: String!) {
+                searchPlayer(gamerTag: $gamerTag) {
+                    gamerTag
+                }
+            }
+        `;
+        return await graphqlRequest(query, { gamerTag });
+    },
     async myNotifications() {
         const query = `query { myNotifications { id title message isRead createdAt } }`;
         return await graphqlRequest(query);
@@ -288,8 +431,8 @@ const api = {
         return await graphqlRequest(query, { matchId, fileBase64: base64String, fileName: file.name });
     },
 
-    // 2. Matchmaking API
-    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "") {
+
+    // async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
     //     const query = `
     //         mutation CreateMatch($input: CreateMatchInput!) {
     //             createMatch(input: $input) {
@@ -297,9 +440,12 @@ const api = {
     //             }
     //         }
     //     `;
-    //     return await graphqlRequest(query, { input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass } });
+    //     return await graphqlRequest(query, {
+    //         input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
+    //     });
     // },
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false) {
+
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null) {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -308,10 +454,9 @@ const api = {
             }
         `;
         return await graphqlRequest(query, {
-            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch }
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag }
         });
     },
-
     async joinMatch(matchId) {
         const query = `
             mutation JoinMatch($input: JoinMatchInput!) {
@@ -428,11 +573,11 @@ const api = {
         return await graphqlRequest(query);
     },
 
-    async globalLeaderboard(limit = 10) {
+    async globalLeaderboard(limit = 100) {
         const query = `
             query GlobalLeaderboard($limit: Int) {
                 globalLeaderboard(limit: $limit) {
-                    gamerTag totalMatches wins winRate rankPoints
+                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc avatarUrl
                 }
             }
         `;

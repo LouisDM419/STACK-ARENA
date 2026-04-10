@@ -44,10 +44,14 @@
             <header class="dashboard-header">
                 <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="header-search">
-                    <i class="fas fa-search" style="color: var(--text-muted);"></i>
-                    <input type="text" id="dashboard-search-input" placeholder="Search players..."
-                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
-                </div>
+                <i class="fas fa-search" 
+                style="color: var(--text-muted); cursor: pointer;" 
+                onclick="const val = document.getElementById('dashboard-search-input').value.trim(); if(val) { openProfile(val); document.getElementById('dashboard-search-input').value = ''; }">
+                </i>
+                
+                <input type="text" id="dashboard-search-input" placeholder="Search players..."
+                    onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
+            </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
                         <i class="fas fa-coins text-gold"></i> 0 SC

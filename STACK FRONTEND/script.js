@@ -43,7 +43,7 @@ async function initSessionCheck() {
                         }
                     });
                 }
-                
+
                 return true;
             }
         }
@@ -116,15 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Navbar Background on Scroll
     const navbar = document.querySelector('.navbar');
     if (navbar) {
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
             }
-        });
+        }, { passive: true });
     }
-
     // 3. Modal logic
     const closeBtn = document.getElementById('close-modal');
     if (closeBtn) {
@@ -482,6 +488,9 @@ function selectMatchType(type) {
 }
 
 function closeCreateMatch() {
+    currentChallengedPlayer = null;
+    const banner = document.getElementById('cm-direct-challenge-banner');
+    if (banner) banner.style.display = 'none';
     const modal = document.getElementById('create-match-modal');
     if (modal) modal.classList.remove('active');
 
@@ -692,9 +701,8 @@ async function submitChallenge() {
     }
 }
 
-// Search Profile Routing
 function openProfile(username) {
     if (username) {
-        window.location.href = `profile.html?user=${encodeURIComponent(username)}`;
+        window.location.href = `playground.html?challenge=${encodeURIComponent(username)}`;
     }
 }
