@@ -191,36 +191,91 @@ const app = {
         return status;
     },
 
+    // renderMatchCard(match, isJoinView = false) {
+    //     const isHost = match.host && appState.currentUser && (
+    //         match.host.id === appState.currentUser.id ||
+    //         (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
+    //     );
+        
+    //     let oppName = "Waiting...";
+    //     if (isHost && match.guest) oppName = match.guest.gamerTag;
+    //     if (!isHost && match.host) oppName = match.host.gamerTag;
+
+    //     const badgeCls = this.getBadgeClass(match.status);
+    //     const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+    //     const pot = match.entryFeeSc * 2;
+    //     const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
+
+    //     let btnHtml = '';
+    //     if (isJoinView) {
+    //         btnHtml = `<button class="btn btn-primary full-width mt-3" onclick="app.joinMatch('${match.id}')">Join Match</button>`;
+    //     } else {
+    //         btnHtml = `<button class="btn btn-outline full-width mt-3" onclick="app.viewMatchDetails('${match.id}')">View Match</button>`;
+    //     }
+
+    //     return `
+    //     <div class="match-card-h premium" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px; background: rgba(20, 20, 30, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px;">
+    //         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+    //             <div>
+    //                 <div style="font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 5px;">STAR-${window.escapeHTML(match.id)}</div>
+    //                 <div style="font-size: 0.85rem; color: var(--text-muted);">Opponent: <strong style="color:#fff;">${window.escapeHTML(oppName)}</strong></div>
+    //             </div>
+    //             <div style="text-align: right;">
+    //                 <span class="status-badge ${badgeCls}" style="font-size: 0.75rem;">${this.statusIndicator(match.status)}</span>
+    //                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-users"></i> ${match.guest ? '2/2' : '1/2'} Players</div>
+    //             </div>
+    //         </div>
+            
+    //         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+    //             <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center;">
+    //                 <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Entry</span>
+    //                 <strong style="color: #fff; font-size: 1.1rem;">${window.escapeHTML(String(match.entryFeeSc))} ${window.escapeHTML(currency)}</strong>
+    //             </div>
+    //             <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,215,0,0.15);">
+    //                 <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Total Reward</span>
+    //                 <strong style="color: var(--accent-gold); font-size: 1.1rem;">${window.escapeHTML(String(reward))} ${window.escapeHTML(currency)}</strong>
+    //             </div>
+    //         </div>
+    //         ${btnHtml}
+    //     </div>`;
+    // },
+
     renderMatchCard(match, isJoinView = false) {
-        const isHost = match.host && appState.currentUser && (
-            match.host.id === appState.currentUser.id ||
-            (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
-        );
+        const myUserId = String(appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id);
+        const isHost = match.host && String(match.host.id) === myUserId;
+        
+       const isPendingChallenge = !isHost && match.status === 'OPEN' && !match.guest && !isJoinView;
+       
         let oppName = "Waiting...";
         if (isHost && match.guest) oppName = match.guest.gamerTag;
         if (!isHost && match.host) oppName = match.host.gamerTag;
 
-        const badgeCls = this.getBadgeClass(match.status);
+        const badgeCls = isPendingChallenge ? 'badge-disputed' : this.getBadgeClass(match.status);
+        const statusText = isPendingChallenge ? 'CHALLENGED YOU' : this.statusIndicator(match.status);
+        
         const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
 
         let btnHtml = '';
-        if (isJoinView) {
+        if (isPendingChallenge) {
+          
+            btnHtml = `<button class="btn btn-primary full-width mt-3" style="background: var(--accent-orange); border-color: var(--accent-orange);" onclick="app.joinMatch('${match.id}')"><i class="fas fa-fire me-2"></i> Accept Challenge</button>`;
+        } else if (isJoinView) {
             btnHtml = `<button class="btn btn-primary full-width mt-3" onclick="app.joinMatch('${match.id}')">Join Match</button>`;
         } else {
             btnHtml = `<button class="btn btn-outline full-width mt-3" onclick="app.viewMatchDetails('${match.id}')">View Match</button>`;
         }
 
         return `
-        <div class="match-card-h premium" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px; background: rgba(20, 20, 30, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px;">
+        <div class="match-card-h premium" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px; background: rgba(20, 20, 30, 0.4); border: ${isPendingChallenge ? '1px solid var(--accent-orange)' : '1px solid rgba(255, 255, 255, 0.05)'}; border-radius: 16px; ${isPendingChallenge ? 'box-shadow: 0 0 15px rgba(249, 109, 0, 0.2);' : ''}">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
                 <div>
                     <div style="font-weight: bold; color: #fff; font-size: 1.1rem; margin-bottom: 5px;">STAR-${window.escapeHTML(match.id)}</div>
                     <div style="font-size: 0.85rem; color: var(--text-muted);">Opponent: <strong style="color:#fff;">${window.escapeHTML(oppName)}</strong></div>
                 </div>
                 <div style="text-align: right;">
-                    <span class="status-badge ${badgeCls}" style="font-size: 0.75rem;">${this.statusIndicator(match.status)}</span>
+                    <span class="status-badge ${badgeCls}" style="font-size: 0.75rem;">${statusText}</span>
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-users"></i> ${match.guest ? '2/2' : '1/2'} Players</div>
                 </div>
             </div>
@@ -238,7 +293,6 @@ const app = {
             ${btnHtml}
         </div>`;
     },
-
     renderLobby() {
         let matches = appState.myMatches.filter(m => m.matchType === appState.mode);
 
