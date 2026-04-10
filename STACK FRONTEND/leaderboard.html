@@ -175,7 +175,7 @@
     <!-- Scripts -->
     <script src="api.js"></script>
     <script src="script.js"></script>
-    <script>
+<script>
         let globalPlayers = [];
         let myGamerTag = "";
         let myRankPoints = 0;
@@ -197,7 +197,6 @@
             });
         });
 
-
         function renderLeaderboardTable(sortBy = 'lb-rp') {
             const container = document.getElementById('lb-container');
             if (globalPlayers.length === 0) return;
@@ -206,7 +205,6 @@
             if (sortBy === 'lb-rp') {
                 sortedPlayers.sort((a, b) => (b.rankPoints || 0) - (a.rankPoints || 0));
             } else if (sortBy === 'lb-earnings') {
-
                 sortedPlayers.sort((a, b) => ((b.realSc || 0) + (b.lockedSc || 0)) - ((a.realSc || 0) + (a.lockedSc || 0)));
             } else if (sortBy === 'lb-winrate') {
                 sortedPlayers.sort((a, b) => (b.winRate || 0) - (a.winRate || 0));
@@ -236,12 +234,21 @@
                 const rowStyle = isMe ? "background: rgba(249, 109, 0, 0.1); border-left: 3px solid var(--accent-orange);" : "border-bottom: 1px solid rgba(255,255,255,0.05);";
                 const totalEarned = (p.realSc || 0) + (p.lockedSc || 0);
 
+                // AVATAR FIX: Check for avatarUrl, otherwise use default icon
+                let avatarHtml = `<i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i>`;
+                if (p.avatarUrl) {
+                    const safeUrl = p.avatarUrl.startsWith('http') ? p.avatarUrl : 'https://playstackarena.com' + p.avatarUrl;
+                    avatarHtml = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                }
+
                 htmlStr += `
                     <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
                         <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
-                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned})">
+                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${p.avatarUrl || ''}')">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="avatar" style="width: 35px; height: 35px; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};"><i class="fas fa-user ${isMe ? 'text-orange' : 'text-blue'}"></i></div>
+                                <div class="avatar" style="width: 35px; height: 35px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};">
+                                    ${avatarHtml}
+                                </div>
                                 <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
                             </div>
                         </td>
@@ -255,7 +262,6 @@
             htmlStr += `</tbody></table></div>`;
             container.innerHTML = htmlStr;
 
-
             const myNewIndex = sortedPlayers.findIndex(p => p.gamerTag === myGamerTag);
             if (myNewIndex !== -1) {
                 document.querySelector('.cur-rank-pos .pos-num').innerText = `#${myNewIndex + 1}`;
@@ -263,7 +269,8 @@
         }
 
         let currentModalUser = "";
-        function openProfile(username, winRate = 0, matches = 0, earnings = 0) {
+        // AVATAR FIX: Accept avatarUrl as a parameter
+        function openProfile(username, winRate = 0, matches = 0, earnings = 0, avatarUrl = '') {
             currentModalUser = username;
             document.getElementById('profile-modal-name').innerText = username;
 
@@ -272,6 +279,17 @@
                 statBoxes[0].innerText = `${winRate}%`;
                 statBoxes[1].innerText = matches;
                 statBoxes[2].innerText = `${earnings} SC`;
+            }
+
+            // AVATAR FIX: Inject into the modal
+            const modalAvatar = document.querySelector('#profile-modal .avatar-large');
+            if (modalAvatar) {
+                if (avatarUrl) {
+                    const safeUrl = avatarUrl.startsWith('http') ? avatarUrl : 'https://playstackarena.com' + avatarUrl;
+                    modalAvatar.innerHTML = `<img src="${safeUrl}?t=${new Date().getTime()}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                } else {
+                    modalAvatar.innerHTML = `<i class="fas fa-user"></i>`;
+                }
             }
 
             document.getElementById('profile-modal').style.display = 'flex';
@@ -304,6 +322,7 @@
                         curUsernameNode.innerText = myGamerTag;
                         curUsernameNode.style.color = '#fff';
                     }
+                    
                     if (profile.avatarUrl) {
                         const rawUrl = profile.avatarUrl;
                         const safeUrl = rawUrl.startsWith('http') ? rawUrl : 'https://playstackarena.com' + rawUrl;
