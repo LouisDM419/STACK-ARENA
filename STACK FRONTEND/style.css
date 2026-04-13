@@ -2282,6 +2282,16 @@ a {
     }
 }
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 /* Fix Chrome/Edge input number arrows */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
@@ -2763,6 +2773,7 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-overflow-scrolling: touch;
     max-width: 100%;
 }
+
 .lb-tabs::-webkit-scrollbar {
     display: none;
 }
@@ -4077,15 +4088,18 @@ h2,
 .ios-steps {
     counter-reset: item;
 }
+
 /* ========================================================================= */
 /* --- V3 MOBILE VIEW COMPACT ADJUSTMENTS ---                                */
 /* ========================================================================= */
 @media (max-width: 900px) {
+
     /* 1. Mobile Sidebar Navigation */
     .sidebar {
-        width: 230px !important; /* Slightly narrower burger menu width */
+        width: 230px !important;
+        /* Slightly narrower burger menu width */
     }
-    
+
     .sidebar-header {
         display: flex !important;
         flex-direction: row !important;
@@ -4096,38 +4110,44 @@ h2,
         margin-bottom: 20px !important;
     }
 
-    .sidebar-logo, .logo .star-logo {
-        margin-bottom: 0 !important; 
-        width: 40px !important;      
+    .sidebar-logo,
+    .logo .star-logo {
+        margin-bottom: 0 !important;
+        width: 40px !important;
     }
 }
 
 
 @media (max-width: 768px) {
+
     /* Dashboard Activity Feed Mobile Fix */
-    .activity-feed > div {
+    .activity-feed>div {
         display: flex !important;
         flex-direction: row !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-        padding: 10px 5px !important; /* Reduce lateral padding inside the rows */
-    }
-    
-    .activity-feed > div > div:first-child {
-        gap: 8px !important; /* Bring icon and text closer */
+        padding: 10px 5px !important;
+        /* Reduce lateral padding inside the rows */
     }
 
-    .activity-feed > div > div:first-child > div:nth-child(2) h4 {
-        font-size: 0.9rem !important; 
+    .activity-feed>div>div:first-child {
+        gap: 8px !important;
+        /* Bring icon and text closer */
+    }
+
+    .activity-feed>div>div:first-child>div:nth-child(2) h4 {
+        font-size: 0.9rem !important;
         white-space: nowrap;
     }
-    .activity-feed > div > div:first-child > div:nth-child(2) span {
+
+    .activity-feed>div>div:first-child>div:nth-child(2) span {
         font-size: 0.75rem !important;
         white-space: nowrap;
     }
 
-    .activity-feed > div > div:last-child {
-        font-size: 0.95rem !important; /* Scale SC amount so it fits strictly on one line */
+    .activity-feed>div>div:last-child {
+        font-size: 0.95rem !important;
+        /* Scale SC amount so it fits strictly on one line */
         white-space: nowrap !important;
         margin-left: 5px !important;
     }
@@ -4137,6 +4157,7 @@ h2,
 /* --- V4 COMPREHENSIVE MOBILE VIEW FIXES ---                                */
 /* ========================================================================= */
 @media (max-width: 768px) {
+
     /* Wallet Page Optimization */
     .recent-activity {
         margin-left: 10px !important;
@@ -4145,7 +4166,8 @@ h2,
     }
 
     .tx-item {
-        flex-direction: row !important; /* Force items to stay inline */
+        flex-direction: row !important;
+        /* Force items to stay inline */
         flex-wrap: nowrap !important;
         align-items: center !important;
         gap: 8px !important;
@@ -4153,11 +4175,12 @@ h2,
     }
 
     .tx-amount {
-        font-size: 0.9rem !important; /* Fit SC on one line */
+        font-size: 0.9rem !important;
+        /* Fit SC on one line */
         white-space: nowrap !important;
         align-self: center !important;
     }
-    
+
     .tx-info h4 {
         font-size: 0.85rem !important;
         white-space: nowrap;
@@ -4165,20 +4188,23 @@ h2,
         text-overflow: ellipsis;
     }
 
-    .wallet-profile-pic, .avatar {
+    .wallet-profile-pic,
+    .avatar {
         width: 70px !important;
         height: 70px !important;
     }
 
     /* Leaderboard Margins */
-    .leaderboard-container, .lb-card {
+    .leaderboard-container,
+    .lb-card {
         margin-left: 5px !important;
         margin-right: 5px !important;
         padding: 15px 10px !important;
     }
 
     /* Settings Page Margins & Boxes */
-    .settings-section, .settings-card {
+    .settings-section,
+    .settings-card {
         margin-left: 5px !important;
         margin-right: 5px !important;
         padding: 20px 15px !important;
@@ -4193,16 +4219,19 @@ h2,
         padding: 15px 0 !important;
         gap: 15px !important;
     }
-    
-    .setting-row.flex-between > div {
-        flex: 1; /* Allow the text area to flexibly occupy the left side */
-        padding-right: 10px; /* buffer from the toggle switch */
+
+    .setting-row.flex-between>div {
+        flex: 1;
+        /* Allow the text area to flexibly occupy the left side */
+        padding-right: 10px;
+        /* buffer from the toggle switch */
     }
 
     .setting-row.flex-between .switch {
-        flex-shrink: 0 !important; /* Guard the toggle button from being forcibly compressed by long text */
+        flex-shrink: 0 !important;
+        /* Guard the toggle button from being forcibly compressed by long text */
     }
-    
+
     .toggle-item {
         padding: 15px 10px !important;
         margin-bottom: 10px !important;
@@ -4210,8 +4239,10 @@ h2,
     }
 
     /* Profile/Dashboard Prominent Item Sizing */
-    .level-number, .counter {
-        font-size: 2.2rem !important; /* Make prominent items responsive */
+    .level-number,
+    .counter {
+        font-size: 2.2rem !important;
+        /* Make prominent items responsive */
     }
 
     .level-badge {
@@ -4227,57 +4258,74 @@ h2,
     .stat-value {
         font-size: 1.5rem !important;
     }
-    
-    .dashboard-grid-layout, .quick-actions-grid {
+
+    .dashboard-grid-layout,
+    .quick-actions-grid {
         gap: 15px !important;
     }
-    
-    .quick-action-card, .dashboard-item {
+
+    .quick-action-card,
+    .dashboard-item {
         padding: 20px 15px !important;
     }
 }
 
 @media (max-width: 768px) {
+
     /* -------------------------------------- */
     /* PROFILE PAGE V5 MOBILE COMPACT         */
     /* -------------------------------------- */
     .profile-header {
-        padding: 20px 15px !important; /* shrink the giant header block */
+        padding: 20px 15px !important;
+        /* shrink the giant header block */
         margin-left: 5px !important;
         margin-right: 5px !important;
     }
+
     .profile-avatar-large {
-        width: 90px !important;      /* Scale down image */
+        width: 90px !important;
+        /* Scale down image */
         height: 90px !important;
         font-size: 2.5rem !important;
         margin: 0 auto 15px !important;
     }
+
     .profile-info h1 {
-        font-size: 1.8rem !important; /* scale down username header */
+        font-size: 1.8rem !important;
+        /* scale down username header */
     }
+
     .profile-badges {
         gap: 5px !important;
         margin-top: 5px !important;
     }
+
     .p-badge {
         padding: 4px 10px !important;
         font-size: 0.8rem !important;
     }
-    
+
     .profile-stats-grid {
         gap: 10px !important;
         margin-left: 5px !important;
         margin-right: 5px !important;
-        grid-template-columns: repeat(3, 1fr) !important; /* Keep them inline instead of stacking to 1fr! */
+        grid-template-columns: repeat(3, 1fr) !important;
+        /* Keep them inline instead of stacking to 1fr! */
     }
+
     .p-stat-card {
-        padding: 15px 5px !important; /* Huge squeeze on padding */
+        padding: 15px 5px !important;
+        /* Huge squeeze on padding */
     }
+
     .p-stat-val {
-        font-size: 1.3rem !important; /* Shrink the large text values */
+        font-size: 1.3rem !important;
+        /* Shrink the large text values */
     }
+
     .p-stat-label {
-        font-size: 0.7rem !important; /* shrink labels */
+        font-size: 0.7rem !important;
+        /* shrink labels */
     }
 
     .recent-matches {
@@ -4292,12 +4340,14 @@ h2,
    ========================================= */
 
 /* Prevent Mobile Horizontal Scroll Bounce/Overflow */
-html, body {
+html,
+body {
     max-width: 100vw;
     overflow-x: hidden;
 }
 
-.dashboard-body, .dashboard-layout {
+.dashboard-body,
+.dashboard-layout {
     max-width: 100vw;
     overflow-x: hidden;
 }
@@ -4337,7 +4387,7 @@ html, body {
     .lb-rank-col {
         width: 45px !important;
     }
-    
+
     .lb-cell span {
         font-size: 0.9rem;
     }
