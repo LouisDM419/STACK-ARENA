@@ -28,6 +28,9 @@ const app = {
                         this.viewMatchDetails(eventData.match_id || eventData.matchId);
                     });
                 }
+                if (eventData.type === 'share_card.trigger') {
+                    this.showEngagementCard(eventData.card_type);
+                }
             });
             this.navigate('lobby');
             const urlParams = new URLSearchParams(window.location.search);
@@ -92,6 +95,28 @@ const app = {
             setTimeout(() => toast.remove(), 300);
         }, 3000);
 
+    },
+    showEngagementCard(cardType) {
+        let title = "Milestone Unlocked!";
+        let icon = "fa-star";
+
+        if (cardType === 'first_win') { title = "First Win of the Day!"; icon = "fa-sun"; }
+        if (cardType === 'hot_streak') { title = "Hot Streak!"; icon = "fa-fire"; }
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; flex-direction:column;";
+        overlay.innerHTML = `
+            <div style="background: linear-gradient(135deg, #1a1d24, #2a2d34); border: 2px solid var(--accent-gold); padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 0 40px rgba(255,215,0,0.2); max-width: 90%;">
+                <i class="fas ${icon} text-gold" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                <h2 style="color: #fff; text-transform: uppercase; font-family: 'Black Ops One', sans-serif;">${title}</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">You're dominating the Arena. Keep it up!</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-outline full-width" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+                    <button class="btn btn-primary full-width" style="background: #1DA1F2; border-color: #1DA1F2;" onclick="alert('Downloading image...')"><i class="fas fa-download"></i> Share</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
     },
 
 

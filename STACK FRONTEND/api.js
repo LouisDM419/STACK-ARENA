@@ -303,7 +303,7 @@ const api = {
                 const query = `
                     subscription WatchMatch($matchId: ID!) {
                         watchMatch(matchId: $matchId) {
-                            id status roomId hostReady guestReady hostClaimedWin guestClaimedWin
+                            id status roomId roomLink roomPass hostReady guestReady hostClaimedWin guestClaimedWin
                             hostProofUrl guestProofUrl host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                         }
                     }
@@ -551,7 +551,7 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc roomId 
+                    id status gameTitle matchType entryFeeSc roomId roomLink roomPass
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
                     hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
