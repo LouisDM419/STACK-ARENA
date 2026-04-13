@@ -718,7 +718,7 @@ const app = {
         document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
 
         const roomCard = document.getElementById('details-room-card');
-        if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+        if (['IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
             roomCard.style.display = 'block';
 
             const idRow = document.getElementById('details-room-id-row');
@@ -742,8 +742,36 @@ const app = {
                 }
             }
 
-            document.getElementById('details-room-pass').innerText = "Hidden";
-        } else {
+            document.getElementById('details-room-pass').innerText = "None";
+        }
+        else if (match.status === 'READY_CHECK') {
+            roomCard.style.display = 'block';
+
+            const idRow = document.getElementById('details-room-id-row');
+            if (idRow) {
+                if (match.roomId) {
+                    idRow.style.display = 'flex';
+                    document.getElementById('details-room-id').innerHTML = "Click I'm ready for the ID";
+                } else {
+                    idRow.style.display = 'none';
+                }
+            }
+
+            const linkRow = document.getElementById('details-room-link-row');
+            if (linkRow) {
+                const actualLink = match.roomLink || match.room_link;
+                if (actualLink) {
+                    linkRow.style.display = 'flex';
+                    document.getElementById('details-room-link-btn').innerHTML = "Click I'm ready for the Link";
+                } else {
+                    linkRow.style.display = 'none';
+                }
+            }
+
+            document.getElementById('details-room-pass').innerText = "None";
+        }
+
+        else {
             roomCard.style.display = 'none';
         }
 
