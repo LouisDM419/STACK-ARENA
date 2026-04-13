@@ -49,7 +49,7 @@ const app = {
 
                 try {
                     const searchRes = await window.api.searchPlayer(challengeTarget);
-                    
+
                     if (searchRes && searchRes.searchPlayer) {
                         currentChallengedPlayer = searchRes.searchPlayer.gamerTag;
 
@@ -220,7 +220,7 @@ const app = {
     //         match.host.id === appState.currentUser.id ||
     //         (appState.currentUser.user && match.host.id === appState.currentUser.user.id)
     //     );
-        
+
     //     let oppName = "Waiting...";
     //     if (isHost && match.guest) oppName = match.guest.gamerTag;
     //     if (!isHost && match.host) oppName = match.host.gamerTag;
@@ -249,7 +249,7 @@ const app = {
     //                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;"><i class="fas fa-users"></i> ${match.guest ? '2/2' : '1/2'} Players</div>
     //             </div>
     //         </div>
-            
+
     //         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
     //             <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; text-align: center;">
     //                 <span style="display: block; font-size: 0.8rem; color: var(--text-muted);">Entry</span>
@@ -267,23 +267,23 @@ const app = {
     renderMatchCard(match, isJoinView = false) {
         const myUserId = String(appState.currentUser.user ? appState.currentUser.user.id : appState.currentUser.id);
         const isHost = match.host && String(match.host.id) === myUserId;
-        
-       const isPendingChallenge = !isHost && match.status === 'OPEN' && !match.guest && !isJoinView;
-       
+
+        const isPendingChallenge = !isHost && match.status === 'OPEN' && !match.guest && !isJoinView;
+
         let oppName = "Waiting...";
         if (isHost && match.guest) oppName = match.guest.gamerTag;
         if (!isHost && match.host) oppName = match.host.gamerTag;
 
         const badgeCls = isPendingChallenge ? 'badge-disputed' : this.getBadgeClass(match.status);
         const statusText = isPendingChallenge ? 'CHALLENGED YOU' : this.statusIndicator(match.status);
-        
+
         const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
 
         let btnHtml = '';
         if (isPendingChallenge) {
-          
+
             btnHtml = `<button class="btn btn-primary full-width mt-3" style="background: var(--accent-orange); border-color: var(--accent-orange);" onclick="app.joinMatch('${match.id}')"><i class="fas fa-fire me-2"></i> Accept Challenge</button>`;
         } else if (isJoinView) {
             btnHtml = `<button class="btn btn-primary full-width mt-3" onclick="app.joinMatch('${match.id}')">Join Match</button>`;
@@ -358,17 +358,87 @@ const app = {
         }
     },
 
+    // submitCreateMatch() {
+    //     const stakeInt = parseInt(document.getElementById('create-stake').value);
+    //     const roomIdVal = document.getElementById('create-room-id').value.trim();
+
+    //     if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
+
+    //     if (appState.mode === 'RANKED' && (isNaN(stakeInt) || stakeInt < 50)) {
+    //         return this.showToast("Min stake for Ranked is 50 SC", "error");
+    //     }
+    //     if (appState.mode === 'PRACTICE' && stakeInt !== 1) {
+    //         return this.showToast("Practice matches cost exactly 1 PC", "error");
+    //     }
+
+    //     document.getElementById('automatch-modal').style.display = 'flex';
+    // },
+
+    // async finalizeCreateMatch(isAutomatch) {
+    //     document.getElementById('automatch-modal').style.display = 'none';
+
+    //     const stakeInt = parseInt(document.getElementById('create-stake').value);
+    //     const rulesVal = document.getElementById('create-rules').value.trim();
+    //     const roomIdVal = document.getElementById('create-room-id').value.trim();
+    //     const roomPassVal = document.getElementById('create-room-pass').value.trim();
+    //     const gameTitle = document.getElementById('create-game').value;
+
+    //     const btn = document.querySelector('#view-create .btn-primary');
+    //     const ogText = btn.innerHTML;
+    //     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    //     btn.disabled = true;
+
+    //     try {
+    //         const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch, currentChallengedPlayer);
+    //         currentChallengedPlayer = null;
+    //         const banner = document.getElementById('cm-direct-challenge-banner');
+    //         if (banner) banner.style.display = 'none';
+
+    //         if (isAutomatch) {
+    //             this.showToast("Searching for opponent...");
+    //         } else {
+    //             this.showToast("Match created! Waiting for challenger.");
+    //         }
+
+    //         document.getElementById('create-room-id').value = '';
+    //         document.getElementById('create-room-pass').value = '';
+    //         document.getElementById('create-rules').value = '';
+
+    //         await this.refreshMatches();
+
+    //         if (res && res.createMatch) {
+    //             this.viewMatchDetails(res.createMatch.id);
+    //         } else {
+    //             this.setLobbyFilter('Pending');
+    //             this.navigate('lobby');
+    //         }
+    //     } catch (e) {
+    //         this.showToast("Error creating match: " + e.message, "error");
+    //     } finally {
+    //         btn.innerHTML = ogText;
+    //         btn.disabled = false;
+    //     }
+    // },
+
+
     submitCreateMatch() {
         const stakeInt = parseInt(document.getElementById('create-stake').value);
         const roomIdVal = document.getElementById('create-room-id').value.trim();
+        const roomLinkInput = document.getElementById('create-room-link');
+        const roomLinkVal = roomLinkInput ? roomLinkInput.value.trim() : "";
 
-        if (!roomIdVal) return this.showToast("Please provide the in-game Room ID to host this match.", "error");
+        if (!roomIdVal && !roomLinkVal) return this.showToast("Please provide either an In-game Room ID or a Room Link.", "error");
 
         if (appState.mode === 'RANKED' && (isNaN(stakeInt) || stakeInt < 50)) {
             return this.showToast("Min stake for Ranked is 50 SC", "error");
         }
         if (appState.mode === 'PRACTICE' && stakeInt !== 1) {
             return this.showToast("Practice matches cost exactly 1 PC", "error");
+        }
+
+
+        if (currentChallengedPlayer) {
+            return this.finalizeCreateMatch(false);
         }
 
         document.getElementById('automatch-modal').style.display = 'flex';
@@ -381,6 +451,8 @@ const app = {
         const rulesVal = document.getElementById('create-rules').value.trim();
         const roomIdVal = document.getElementById('create-room-id').value.trim();
         const roomPassVal = document.getElementById('create-room-pass').value.trim();
+        const roomLinkInput = document.getElementById('create-room-link');
+        const roomLinkVal = roomLinkInput ? roomLinkInput.value.trim() : "";
         const gameTitle = document.getElementById('create-game').value;
 
         const btn = document.querySelector('#view-create .btn-primary');
@@ -389,7 +461,9 @@ const app = {
         btn.disabled = true;
 
         try {
-            const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch, currentChallengedPlayer);
+
+            const res = await window.api.createMatch(gameTitle, stakeInt, appState.mode, rulesVal, roomIdVal, roomPassVal, isAutomatch, currentChallengedPlayer, roomLinkVal);
+
             currentChallengedPlayer = null;
             const banner = document.getElementById('cm-direct-challenge-banner');
             if (banner) banner.style.display = 'none';
@@ -401,6 +475,7 @@ const app = {
             }
 
             document.getElementById('create-room-id').value = '';
+            if (roomLinkInput) roomLinkInput.value = '';
             document.getElementById('create-room-pass').value = '';
             document.getElementById('create-rules').value = '';
 
@@ -547,19 +622,19 @@ const app = {
 
     async viewMatchDetails(matchId) {
         appState.currentMatchId = matchId;
-        
+
         const safeMatchId = String(matchId);
-        let match = appState.myMatches.find(m => String(m.id) === safeMatchId) || 
-                    appState.openMatches.find(m => String(m.id) === safeMatchId);
-        
+        let match = appState.myMatches.find(m => String(m.id) === safeMatchId) ||
+            appState.openMatches.find(m => String(m.id) === safeMatchId);
+
         if (!match) {
             this.showToast("Syncing arena data...", "success");
             await new Promise(resolve => setTimeout(resolve, 1000));
             await this.refreshMatches();
-            
-            match = appState.myMatches.find(m => String(m.id) === safeMatchId) || 
-                    appState.openMatches.find(m => String(m.id) === safeMatchId);
-                    
+
+            match = appState.myMatches.find(m => String(m.id) === safeMatchId) ||
+                appState.openMatches.find(m => String(m.id) === safeMatchId);
+
             if (!match) {
                 this.showToast("Match created, but details delayed. Check Lobby.", "error");
                 this.navigate('lobby');
@@ -611,7 +686,27 @@ const app = {
         const roomCard = document.getElementById('details-room-card');
         if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
             roomCard.style.display = 'block';
-            document.getElementById('details-room-id').innerText = match.roomId || "N/A";
+
+            const idRow = document.getElementById('details-room-id-row');
+            if (idRow) {
+                if (match.roomId) {
+                    idRow.style.display = 'flex';
+                    document.getElementById('details-room-id').innerText = match.roomId;
+                } else {
+                    idRow.style.display = 'none';
+                }
+            }
+
+            const linkRow = document.getElementById('details-room-link-row');
+            if (linkRow) {
+                if (match.roomLink) {
+                    linkRow.style.display = 'flex';
+                    document.getElementById('details-room-link-btn').href = match.roomLink;
+                } else {
+                    linkRow.style.display = 'none';
+                }
+            }
+
             document.getElementById('details-room-pass').innerText = "Hidden";
         } else {
             roomCard.style.display = 'none';
@@ -630,9 +725,20 @@ const app = {
             document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
             document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
 
-            if (match.roomId && document.getElementById('details-room-card')) {
+            if (document.getElementById('details-room-card')) {
                 document.getElementById('details-room-card').style.display = 'block';
-                document.getElementById('details-room-id').innerText = match.roomId;
+
+                const idRow = document.getElementById('details-room-id-row');
+                if (idRow) {
+                    if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
+                    else { idRow.style.display = 'none'; }
+                }
+
+                const linkRow = document.getElementById('details-room-link-row');
+                if (linkRow) {
+                    if (match.roomLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = match.roomLink; }
+                    else { linkRow.style.display = 'none'; }
+                }
             }
 
             if (match.guest) {
