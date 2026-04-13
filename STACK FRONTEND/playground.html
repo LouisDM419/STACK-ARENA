@@ -163,205 +163,216 @@
                     </div>
                 </div>
 
-                    <!-- VIEW 2: CREATE MATCH -->
-                    <div id="view-create" class="pg-view" style="padding: 20px;">
-                        <button class="btn btn-outline" style="margin-bottom: 20px;" onclick="app.navigate('lobby')"><i
-                                class="fas fa-arrow-left me-2"></i> Back to Lobby</button>
+                <!-- VIEW 2: CREATE MATCH -->
+                <div id="view-create" class="pg-view" style="padding: 20px;">
+                    <button class="btn btn-outline" style="margin-bottom: 20px;" onclick="app.navigate('lobby')"><i
+                            class="fas fa-arrow-left me-2"></i> Back to Lobby</button>
 
-                        <div class="auth-card" style="max-width: 600px; margin: 0 auto;">
-                            <div class="auth-header" style="margin-bottom: 20px;">
-                                <h2 style="margin:0; text-transform: uppercase; color: var(--accent-orange);">Create
-                                    Match
-                                </h2>
-                                <p style="margin-top: 5px;" id="create-mode-subtitle">Set your stake and parameters.</p>
-                            </div>
-                             <div id="cm-direct-challenge-banner"
+                    <div class="auth-card" style="max-width: 600px; margin: 0 auto;">
+                        <div class="auth-header" style="margin-bottom: 20px;">
+                            <h2 style="margin:0; text-transform: uppercase; color: var(--accent-orange);">Create
+                                Match
+                            </h2>
+                            <p style="margin-top: 5px;" id="create-mode-subtitle">Set your stake and parameters.</p>
+                        </div>
+                        <div id="cm-direct-challenge-banner"
                             style="display:none; background: rgba(249, 109, 0, 0.1); border-left: 4px solid var(--accent-orange); padding: 12px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
                             <i class="fas fa-crosshairs text-orange me-2"></i>
                             <span style="color: #fff;">Direct Challenge: <strong id="cm-target-user"
                                     class="text-gold"></strong></span>
                             <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">This match will
                                 be locked to this player only.</div>
-                            </div>
-
-                            <div class="pg-form-group">
-                                <label>Game</label>
-                                <select class="pg-select" id="create-game">
-                                    <option value="CODM">Call of Duty Mobile (1v1)</option>
-                                    <option value="PUBGM" disabled>PUBG Mobile (TDM) - Coming Soon</option>
-                                </select>
-                            </div>
-
-                            <div class="pg-form-group">
-                                <label>Stake Amount (<span id="create-currency-lbl">SC</span>)</label>
-                                <input type="number" class="pg-input" id="create-stake" value="100" min="1"
-                                    oninput="app.updateCreateCalculations()">
-                            </div>
-
-                            <!-- Calculations -->
-                            <div
-                                style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 20px;">
-                                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
-                                    <span style="color:var(--text-muted); font-size:0.9rem;">Total Pool:</span>
-                                    <strong id="create-calc-pool">200 SC</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; margin-bottom: 8px;"
-                                    id="create-fee-row">
-                                    <span style="color:var(--text-muted); font-size:0.9rem;">Platform Fee (10%):</span>
-                                    <strong id="create-calc-fee" style="color:#ff4444">-20 SC</strong>
-                                </div>
-                                <div
-                                    style="display:flex; justify-content:space-between; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); font-size:1.1rem;">
-                                    <span style="color:var(--accent-gold);">Winner Reward:</span>
-                                    <strong class="text-gold" id="create-calc-reward">180 SC</strong>
-                                </div>
-                            </div>
-
-                            <div class="pg-form-group">
-                                <label>Match Rules (Optional)</label>
-                                <textarea class="pg-textarea" id="create-rules" rows="3"
-                                    placeholder="E.g. Snipers only, Killhouse map..."></textarea>
-                            </div>
-
-                            <div
-                                style="background: rgba(33, 150, 243, 0.05); border: 1px solid rgba(33, 150, 243, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                                <h4 style="margin:0 0 10px; color: var(--accent-blue); font-size: 0.9rem;">Game Room
-                                    Details
-                                </h4>
-                                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">This will be
-                                    securely hidden until an opponent joins.</p>
-
-                                <div class="pg-form-group">
-                                    <label>In-game Room ID</label>
-                                    <input type="text" class="pg-input" id="create-room-id" placeholder="Enter Room ID"
-                                        maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                </div>
-                                <div class="pg-form-group" style="margin-bottom:0;">
-                                    <label>Room Password (if any)</label>
-                                    <input type="text" class="pg-input" id="create-room-pass"
-                                        placeholder="Enter Password">
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary full-width"
-                                style="padding: 15px; font-size: 1.1rem; font-weight: bold;"
-                                onclick="app.submitCreateMatch()">
-                                Confirm & Create Match
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- VIEW 3: JOIN LOBBY -->
-                    <div id="view-join" class="pg-view" style="padding: 20px;">
-                        <button class="btn btn-outline" style="margin-bottom: 20px;" onclick="app.navigate('lobby')"><i
-                                class="fas fa-arrow-left me-2"></i> Back to Lobby</button>
-
-                        <div class="match-feed-header">
-                            <h2 style="margin:0; text-transform: uppercase;">Public Matches</h2>
-                            <div class="pg-search-bar">
-                                <i class="fas fa-search"></i>
-                                <input type="text" class="pg-input" id="join-search"
-                                    placeholder="Search by Match ID or User" oninput="app.renderJoinFeed()">
-                            </div>
                         </div>
 
-                        <div id="join-matches-feed" class="challenges-grid mt-4">
-                            <!-- Injected via JS -->
+                        <div class="pg-form-group">
+                            <label>Game</label>
+                            <select class="pg-select" id="create-game">
+                                <option value="CODM">Call of Duty Mobile (1v1)</option>
+                                <option value="PUBGM" disabled>PUBG Mobile (TDM) - Coming Soon</option>
+                            </select>
                         </div>
-                    </div>
 
-                    <!-- VIEW 4: MATCH DETAILS -->
-                    <div id="view-match-details" class="pg-view"
-                        style="padding: 20px; max-width: 900px; margin: 0 auto;">
+                        <div class="pg-form-group">
+                            <label>Stake Amount (<span id="create-currency-lbl">SC</span>)</label>
+                            <input type="number" class="pg-input" id="create-stake" value="100" min="1"
+                                oninput="app.updateCreateCalculations()">
+                        </div>
+
+                        <!-- Calculations -->
                         <div
-                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                            <button class="btn btn-outline" onclick="app.navigate('lobby')"><i
-                                    class="fas fa-arrow-left me-2"></i> Lobby</button>
-                            <h3 style="margin:0; text-transform:uppercase; color:var(--text-muted);"
-                                id="details-match-id">
-                                MATCH #1234</h3>
-                        </div>
-
-                        <!-- Status Display -->
-                        <div style="text-align: center; margin-bottom: 10px;">
-                            <span id="details-status-badge" class="status-badge badge-pending">PENDING</span>
-                            <p style="margin-top: 10px; font-size: 0.95rem; color: var(--text-muted);"
-                                id="details-sub-status">Waiting for an opponent to join.</p>
-                        </div>
-
-                        <!-- VS Layout -->
-                        <div class="match-vs-layout">
-                            <!-- Player 1 -->
-                            <div class="player-head-to-head">
-                                <div class="player-avatar-large ready" id="p1-avatar-container">
-                                    <i class="fas fa-user text-orange" id="p1-avatar-icon"></i>
-                                </div>
-                                <div class="player-name-large" id="p1-username">You</div>
-                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top:5px;">Host</div>
+                            style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 20px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                                <span style="color:var(--text-muted); font-size:0.9rem;">Total Pool:</span>
+                                <strong id="create-calc-pool">200 SC</strong>
                             </div>
-
-                            <!-- VS Badge -->
-                            <div class="vs-badge">VS</div>
-
-                            <!-- Player 2 -->
-                            <div class="player-head-to-head">
-                                <div class="player-avatar-large waiting" id="p2-avatar-container">
-                                    <i class="fas fa-question text-muted" id="p2-avatar-icon"></i>
-                                </div>
-                                <div class="player-name-large" id="p2-username">Waiting...</div>
-                                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top:5px;" id="p2-role">
-                                    Opponent</div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom: 8px;"
+                                id="create-fee-row">
+                                <span style="color:var(--text-muted); font-size:0.9rem;">Platform Fee (10%):</span>
+                                <strong id="create-calc-fee" style="color:#ff4444">-20 SC</strong>
+                            </div>
+                            <div
+                                style="display:flex; justify-content:space-between; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); font-size:1.1rem;">
+                                <span style="color:var(--accent-gold);">Winner Reward:</span>
+                                <strong class="text-gold" id="create-calc-reward">180 SC</strong>
                             </div>
                         </div>
 
-                        <!-- Details Grid -->
-                        <div class="match-details-grid">
-                            <div class="details-card">
-                                <h4>Match Details</h4>
-                                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                    <span style="color:var(--text-muted);">Game:</span>
-                                    <strong id="details-game">CODM (1v1)</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                    <span style="color:var(--text-muted);">Stake (Each):</span>
-                                    <strong id="details-stake">100 SC</strong>
-                                </div>
-                                <div style="display:flex; justify-content:space-between;">
-                                    <span style="color:var(--text-muted);">Winner Reward:</span>
-                                    <strong class="text-gold" id="details-reward">180 SC</strong>
-                                </div>
-                                <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
-                                <div style="color:var(--text-muted); font-size:0.85rem;" id="details-rules">No custom
-                                    rules
-                                    provided.</div>
-                            </div>
+                        <div class="pg-form-group">
+                            <label>Match Rules (Optional)</label>
+                            <textarea class="pg-textarea" id="create-rules" rows="3"
+                                placeholder="E.g. Snipers only, Killhouse map..."></textarea>
+                        </div>
 
-                            <div class="details-card room-details-card" id="details-room-card" style="display:none;">
-                                <h4 style="color: var(--accent-orange);"><i class="fas fa-gamepad me-2"></i> In-Game
-                                    Room
-                                </h4>
-                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom:15px;">Enter these
-                                    details in-game to join the lobby.</p>
-                                <div class="room-info-row">
-                                    <span>Room ID:</span>
-                                    <strong id="details-room-id">123456</strong>
-                                </div>
-                                <div class="room-info-row">
-                                    <span>Password:</span>
-                                    <strong id="details-room-pass">N/A</strong>
-                                </div>
+                        <div
+                            style="background: rgba(33, 150, 243, 0.05); border: 1px solid rgba(33, 150, 243, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <h4 style="margin:0 0 10px; color: var(--accent-blue); font-size: 0.9rem;">Game Room
+                                Details
+                            </h4>
+                            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">This will be
+                                securely hidden until an opponent joins.</p>
+
+                            <div class="pg-form-group">
+                                <label>In-game Room ID</label>
+                                <input type="text" class="pg-input" id="create-room-id" placeholder="Enter Room ID"
+                                    maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                            </div>
+                            <div
+                                style="text-align: center; color: var(--text-muted); margin: -10px 0 10px; font-size: 0.8rem; font-weight: bold;">
+                                OR</div>
+                            <div class="pg-form-group">
+                                <label>In-game Room Link</label>
+                                <input type="url" class="pg-input" id="create-room-link"
+                                    placeholder="Enter Private Room Link (e.g., https://...)">
+                            </div>
+                            <div class="pg-form-group" style="margin-bottom:0;">
+                                <label>Room Password (if any)</label>
+                                <input type="text" class="pg-input" id="create-room-pass" placeholder="Enter Password">
                             </div>
                         </div>
 
-                        <!-- Dynamic Action Area -->
-                        <div id="details-action-area"
-                            style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                            <!-- Injected by JS based on Status -->
+                        <button class="btn btn-primary full-width"
+                            style="padding: 15px; font-size: 1.1rem; font-weight: bold;"
+                            onclick="app.submitCreateMatch()">
+                            Confirm & Create Match
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: JOIN LOBBY -->
+                <div id="view-join" class="pg-view" style="padding: 20px;">
+                    <button class="btn btn-outline" style="margin-bottom: 20px;" onclick="app.navigate('lobby')"><i
+                            class="fas fa-arrow-left me-2"></i> Back to Lobby</button>
+
+                    <div class="match-feed-header">
+                        <h2 style="margin:0; text-transform: uppercase;">Public Matches</h2>
+                        <div class="pg-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="pg-input" id="join-search"
+                                placeholder="Search by Match ID or User" oninput="app.renderJoinFeed()">
+                        </div>
+                    </div>
+
+                    <div id="join-matches-feed" class="challenges-grid mt-4">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- VIEW 4: MATCH DETAILS -->
+                <div id="view-match-details" class="pg-view" style="padding: 20px; max-width: 900px; margin: 0 auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <button class="btn btn-outline" onclick="app.navigate('lobby')"><i
+                                class="fas fa-arrow-left me-2"></i> Lobby</button>
+                        <h3 style="margin:0; text-transform:uppercase; color:var(--text-muted);" id="details-match-id">
+                            MATCH #1234</h3>
+                    </div>
+
+                    <!-- Status Display -->
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <span id="details-status-badge" class="status-badge badge-pending">PENDING</span>
+                        <p style="margin-top: 10px; font-size: 0.95rem; color: var(--text-muted);"
+                            id="details-sub-status">Waiting for an opponent to join.</p>
+                    </div>
+
+                    <!-- VS Layout -->
+                    <div class="match-vs-layout">
+                        <!-- Player 1 -->
+                        <div class="player-head-to-head">
+                            <div class="player-avatar-large ready" id="p1-avatar-container">
+                                <i class="fas fa-user text-orange" id="p1-avatar-icon"></i>
+                            </div>
+                            <div class="player-name-large" id="p1-username">You</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top:5px;">Host</div>
                         </div>
 
+                        <!-- VS Badge -->
+                        <div class="vs-badge">VS</div>
+
+                        <!-- Player 2 -->
+                        <div class="player-head-to-head">
+                            <div class="player-avatar-large waiting" id="p2-avatar-container">
+                                <i class="fas fa-question text-muted" id="p2-avatar-icon"></i>
+                            </div>
+                            <div class="player-name-large" id="p2-username">Waiting...</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top:5px;" id="p2-role">
+                                Opponent</div>
+                        </div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="match-details-grid">
+                        <div class="details-card">
+                            <h4>Match Details</h4>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span style="color:var(--text-muted);">Game:</span>
+                                <strong id="details-game">CODM (1v1)</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span style="color:var(--text-muted);">Stake (Each):</span>
+                                <strong id="details-stake">100 SC</strong>
+                            </div>
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="color:var(--text-muted);">Winner Reward:</span>
+                                <strong class="text-gold" id="details-reward">180 SC</strong>
+                            </div>
+                            <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
+                            <div style="color:var(--text-muted); font-size:0.85rem;" id="details-rules">No custom
+                                rules
+                                provided.</div>
+                        </div>
+
+                        <div class="details-card room-details-card" id="details-room-card" style="display:none;">
+                            <h4 style="color: var(--accent-orange);"><i class="fas fa-gamepad me-2"></i> In-Game Room
+                            </h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom:15px;">Use these
+                                details to join the lobby.</p>
+
+                            <div class="room-info-row" id="details-room-id-row">
+                                <span>Room ID:</span>
+                                <strong id="details-room-id">123456</strong>
+                            </div>
+                            <div class="room-info-row" id="details-room-link-row"
+                                style="display: none; margin-top: 8px;">
+                                <span>Room Link:</span>
+                                <strong><a href="#" id="details-room-link-btn" target="_blank"
+                                        style="color: var(--accent-blue); text-decoration: underline;"><i
+                                            class="fas fa-external-link-alt"></i> Click to Join</a></strong>
+                            </div>
+                            <div class="room-info-row" style="margin-top: 8px;">
+                                <span>Password:</span>
+                                <strong id="details-room-pass">N/A</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Action Area -->
+                    <div id="details-action-area"
+                        style="text-align: center; margin-top: 20px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <!-- Injected by JS based on Status -->
                     </div>
 
                 </div>
+
+            </div>
         </main>
     </div>
 
