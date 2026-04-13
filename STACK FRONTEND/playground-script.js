@@ -733,9 +733,10 @@ const app = {
 
             const linkRow = document.getElementById('details-room-link-row');
             if (linkRow) {
-                if (match.roomLink) {
+                const actualLink = match.roomLink || match.room_link;
+                if (actualLink) {
                     linkRow.style.display = 'flex';
-                    document.getElementById('details-room-link-btn').href = match.roomLink;
+                    document.getElementById('details-room-link-btn').href = actualLink;
                 } else {
                     linkRow.style.display = 'none';
                 }
