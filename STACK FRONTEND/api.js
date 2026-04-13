@@ -445,7 +445,7 @@ const api = {
     //     });
     // },
 
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null) {
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null, roomLink = "") {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -454,7 +454,7 @@ const api = {
             }
         `;
         return await graphqlRequest(query, {
-            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag }
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag, roomLink }
         });
     },
     async joinMatch(matchId) {
