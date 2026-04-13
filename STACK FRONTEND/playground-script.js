@@ -845,7 +845,6 @@ const app = {
 
                 if (match.winner && String(match.winner.id) === myUserId) {
                     this.showToast("Result Confirmed! You WON the match!", "success");
-                    setTimeout(() => app.showEngagementCard('hot_streak'), 1500);
                 } else {
                     this.showToast("Match completed. You lost.", "error");
                 }
