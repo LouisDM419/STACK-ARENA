@@ -44,17 +44,17 @@
             <header class="dashboard-header">
                 <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="header-search">
-                <i class="fas fa-search" 
-                style="color: var(--text-muted); cursor: pointer;" 
-                onclick="const val = document.getElementById('dashboard-search-input').value.trim(); if(val) { openProfile(val); document.getElementById('dashboard-search-input').value = ''; }">
-                </i>
-                
-                <input type="text" id="dashboard-search-input" placeholder="Search players..."
-                    onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
-            </div>
+                    <i class="fas fa-search" style="color: var(--text-muted); cursor: pointer;"
+                        onclick="const val = document.getElementById('dashboard-search-input').value.trim(); if(val) { openProfile(val); document.getElementById('dashboard-search-input').value = ''; }">
+                    </i>
+
+                    <input type="text" id="dashboard-search-input" placeholder="Search and challenge player..."
+                        onkeypress="if(event.key === 'Enter' && this.value.trim() !== '') { openProfile(this.value.trim()); this.value = ''; }">
+                </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span
+                            style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -368,7 +368,9 @@
 
                     const headerBalEl = document.querySelector('.wallet-bal');
                     if (headerBalEl) {
-                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc} SC`;
+                        const totalMainSc = realSc + (Number(profileData.lockedSc) || 0);
+                        const bonusScDisplay = Number(profileData.bonusSc || profileData.practiceCredits) || 0;
+                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalMainSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusScDisplay} Bonus SC)</span>`;
                     }
 
                     const statCards = document.querySelectorAll('.dash-stat-card');

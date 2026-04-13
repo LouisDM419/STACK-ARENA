@@ -46,7 +46,7 @@
                 <!-- Search removed -->
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -80,6 +80,17 @@
                 <div class="page-title mb-4">
                     <h2>Arena Leaderboard</h2>
                     <p class="text-muted">Compete, climb the ranks, and earn rewards.</p>
+                </div>
+
+                <!-- Call to action: Search and challenge -->
+                <div class="search-challenge-banner mb-4" style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 12px; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <i class="fas fa-search" style="font-size: 1.5rem; color: var(--accent-gold);"></i>
+                        <div>
+                            <h4 style="margin: 0; color: #fff;">Search & Challenge Players</h4>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Looking for a rival? Search any Player on the Dashboard to view their profile and send a challenge.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 1. TOP SECTION (USER POSITION + CONTEXT) -->
@@ -244,7 +255,7 @@
                 htmlStr += `
                     <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
                         <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
-                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${p.avatarUrl || ''}')">
+                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${p.avatarUrl || ''}', ${p.rankPoints || 0})">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <div class="avatar" style="width: 35px; height: 35px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};">
                                     ${avatarHtml}
@@ -253,7 +264,7 @@
                             </div>
                         </td>
                         <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
-                        <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} XP</td>
+                        <td class="lb-cell" style="text-align: right; color: var(--accent-gold); font-weight: bold;">${p.rankPoints} RP</td>
                         <td class="lb-cell" style="text-align: right; font-weight: bold; color: #25d366;">${totalEarned} SC</td>
                     </tr>
                 `;
@@ -269,16 +280,27 @@
         }
 
         let currentModalUser = "";
-        // AVATAR FIX: Accept avatarUrl as a parameter
-        function openProfile(username, winRate = 0, matches = 0, earnings = 0, avatarUrl = '') {
+        // AVATAR FIX: Accept avatarUrl as a parameter, and rankPoints to calculate rank
+        function openProfile(username, winRate = 0, matches = 0, earnings = 0, avatarUrl = '', rankPoints = 0) {
             currentModalUser = username;
             document.getElementById('profile-modal-name').innerText = username;
 
+            let rankTitle = 'Rookie Rank';
+            if (rankPoints > 500) rankTitle = 'Bronze Rank';
+            if (rankPoints > 1500) rankTitle = 'Silver Rank';
+            if (rankPoints > 3000) rankTitle = 'Gold Rank';
+            if (rankPoints > 5000) rankTitle = 'Platinum Rank';
+            if (rankPoints > 7500) rankTitle = 'Diamond Rank';
+            if (rankPoints > 10000) rankTitle = 'Elite Rank';
+
+            const rankDescNode = document.querySelector('#profile-modal .text-muted.mb-4');
+            if (rankDescNode) rankDescNode.innerText = rankTitle;
+
             const statBoxes = document.querySelectorAll('#profile-modal .font-bold');
             if (statBoxes.length >= 3) {
-                statBoxes[0].innerText = `${winRate}%`;
-                statBoxes[1].innerText = matches;
-                statBoxes[2].innerText = `${earnings} SC`;
+                statBoxes[0].innerText = `${winRate || 0}%`;
+                statBoxes[1].innerText = matches || 0;
+                statBoxes[2].innerText = `${earnings || 0} SC`;
             }
 
             // AVATAR FIX: Inject into the modal
@@ -311,10 +333,12 @@
                     const profile = profReq.myProfile;
                     myGamerTag = profile.gamerTag;
 
-                    const totalSc = (profile.realSc || 0) + (profile.practiceCredits || profile.bonusSc || 0);
+                    const realSc = Number(profile.realSc) || 0;
+                    const lockedSc = Number(profile.lockedSc) || 0;
+                    const bonusSc = Number(profile.bonusSc || profile.practiceCredits) || 0;
                     const walletBalNode = document.querySelector('.wallet-bal');
                     if (walletBalNode) {
-                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
+                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc + lockedSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusSc} Bonus SC)</span>`;
                     }
 
                     const curUsernameNode = document.querySelector('.cur-user-details .cur-username');
@@ -345,9 +369,10 @@
                         badgeRpNode.innerHTML = `<i class="fas fa-star text-gold"></i> ${myRankPoints} RP`;
                     }
 
-                    const lbScoreNode = document.querySelector('.lb-score');
+                    const lbScoreNode = document.querySelector('.cur-user-details .badge-rp');
                     if (lbScoreNode) {
-                        lbScoreNode.innerText = `${myRankPoints} XP`;
+                        lbScoreNode.innerText = `${myRankPoints} RP`;
+                        lbScoreNode.style.color = 'var(--accent-gold)';
                     }
                 }
 

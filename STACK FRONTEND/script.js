@@ -101,16 +101,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const statsSection = document.querySelector('.stats-strip');
-    if (statsSection && window.IntersectionObserver) {
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
+    if (statsSection) {
+        const startAnimation = () => {
+            if (window.IntersectionObserver) {
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        animateCounters();
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(statsSection);
+            } else {
                 animateCounters();
-                observer.disconnect();
             }
-        });
-        observer.observe(statsSection);
-    } else {
-        animateCounters();
+        };
+
+        if (window.api && window.api.getPlatformMetrics) {
+            window.api.getPlatformMetrics().then(res => {
+                if (res && res.platformMetrics) {
+                    const metrics = res.platformMetrics;
+                    const onlineCount = document.getElementById('stat-online');
+                    const matchesCount = document.getElementById('stat-matches');
+                    const wonCount = document.getElementById('stat-won');
+                    
+                    if (onlineCount && metrics.playersOnline) onlineCount.setAttribute('data-target', metrics.playersOnline);
+                    if (matchesCount && metrics.matchesLive) matchesCount.setAttribute('data-target', metrics.matchesLive);
+                    if (wonCount && metrics.wonToday) wonCount.setAttribute('data-target', metrics.wonToday);
+                }
+                startAnimation();
+            }).catch(err => {
+                console.error("Platform metrics fetch failed", err);
+                startAnimation();
+            });
+        } else {
+            startAnimation();
+        }
     }
 
     // 2. Navbar Background on Scroll
