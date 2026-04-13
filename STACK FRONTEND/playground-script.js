@@ -17,6 +17,9 @@ const app = {
             const res = await window.api.myProfile();
             appState.currentUser = res?.myProfile || res;
             this.updateBalances();
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
             await this.refreshMatches();
             window.api.subscribeToUserEvents((eventData) => {
                 if (eventData.type === 'match.redirect') {
@@ -79,10 +82,16 @@ const app = {
         toast.style.cssText = `background: rgba(14, 18, 26, 0.95); backdrop-filter: blur(10px); border: 1px solid ${type === 'error' ? '#ff4444' : '#00C851'}; border-radius: 8px; padding: 15px 20px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 15px; animation: slideInRight 0.3s ease;`;
         toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-times-circle text-red' : 'fa-check-circle text-green'}"></i> <span>${msg}</span>`;
         document.getElementById('toast-container').appendChild(toast);
+        if ("Notification" in window && Notification.permission === "granted") {
+            if (document.hidden) {
+                new Notification("StackArena Update", { body: msg });
+            }
+        }
         setTimeout(() => {
             toast.style.animation = 'fadeOutRight 0.3s ease';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+
     },
 
 
@@ -800,8 +809,17 @@ const app = {
         let html = `<div style="text-align: right; margin-bottom: 15px;"></div>`;
         //Remove the OR if I face problems
         if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
-            html += `<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin me-2"></i> Waiting for challenger...</p>
-                    <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>`;
+            html += `
+                <div style="padding: 30px 10px;">
+                    <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 20px;">
+                        <div style="position: absolute; width: 100%; height: 100%; border: 4px solid rgba(249, 109, 0, 0.2); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                        <i class="fas fa-satellite-dish text-orange" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem;"></i>
+                    </div>
+                    <h3 style="color: #fff; margin-bottom: 5px;">Broadcasting Match</h3>
+                    <p style="color:var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Waiting for a worthy challenger to accept...</p>
+                    <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444; padding: 10px 30px;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>
+                </div>
+            `;
         }
         else if (match.status === 'READY_CHECK') {
             const isUserReady = isHost ? match.hostReady : match.guestReady;
