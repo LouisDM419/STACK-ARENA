@@ -744,7 +744,7 @@ const app = {
 
             document.getElementById('details-room-pass').innerText = "None";
         }
-        else if (match.status === 'READY_CHECK') {
+        else if (match.status === 'READY_CHECK' || match.status === 'OPEN') {
             roomCard.style.display = 'block';
 
             const idRow = document.getElementById('details-room-id-row');
