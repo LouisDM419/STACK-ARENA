@@ -751,7 +751,7 @@ const app = {
             if (idRow) {
                 if (match.roomId) {
                     idRow.style.display = 'flex';
-                    document.getElementById('details-room-id').innerHTML = "Click I'm ready for the ID";
+                    document.getElementById('details-room-id').innerHTML = "READY UP FIRST";
                 } else {
                     idRow.style.display = 'none';
                 }
@@ -759,13 +759,7 @@ const app = {
 
             const linkRow = document.getElementById('details-room-link-row');
             if (linkRow) {
-                const actualLink = match.roomLink || match.room_link;
-                if (actualLink) {
-                    linkRow.style.display = 'flex';
-                    document.getElementById('details-room-link-btn').innerHTML = "Click I'm ready for the Link";
-                } else {
-                    linkRow.style.display = 'none';
-                }
+                linkRow.style.display = 'none';
             }
 
             document.getElementById('details-room-pass').innerText = "None";
