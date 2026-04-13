@@ -28,6 +28,9 @@ const app = {
                         this.viewMatchDetails(eventData.match_id || eventData.matchId);
                     });
                 }
+                if (eventData.type === 'share_card.trigger') {
+                    this.showEngagementCard(eventData.card_type);
+                }
             });
             this.navigate('lobby');
             const urlParams = new URLSearchParams(window.location.search);
@@ -92,6 +95,28 @@ const app = {
             setTimeout(() => toast.remove(), 300);
         }, 3000);
 
+    },
+    showEngagementCard(cardType) {
+        let title = "Milestone Unlocked!";
+        let icon = "fa-star";
+
+        if (cardType === 'first_win') { title = "First Win of the Day!"; icon = "fa-sun"; }
+        if (cardType === 'hot_streak') { title = "Hot Streak!"; icon = "fa-fire"; }
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; flex-direction:column;";
+        overlay.innerHTML = `
+            <div style="background: linear-gradient(135deg, #1a1d24, #2a2d34); border: 2px solid var(--accent-gold); padding: 40px; border-radius: 16px; text-align: center; box-shadow: 0 0 40px rgba(255,215,0,0.2); max-width: 90%;">
+                <i class="fas ${icon} text-gold" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                <h2 style="color: #fff; text-transform: uppercase; font-family: 'Black Ops One', sans-serif;">${title}</h2>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">You're dominating the Arena. Keep it up!</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-outline full-width" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+                    <button class="btn btn-primary full-width" style="background: #1DA1F2; border-color: #1DA1F2;" onclick="alert('Downloading image...')"><i class="fas fa-download"></i> Share</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
     },
 
 
@@ -693,7 +718,7 @@ const app = {
         document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
 
         const roomCard = document.getElementById('details-room-card');
-        if (['READY_CHECK', 'IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+        if (['IN_PROGRESS', 'REPORTING', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
             roomCard.style.display = 'block';
 
             const idRow = document.getElementById('details-room-id-row');
@@ -708,16 +733,34 @@ const app = {
 
             const linkRow = document.getElementById('details-room-link-row');
             if (linkRow) {
-                if (match.roomLink) {
+                const actualLink = match.roomLink || match.room_link;
+                if (actualLink) {
                     linkRow.style.display = 'flex';
-                    document.getElementById('details-room-link-btn').href = match.roomLink;
+                    document.getElementById('details-room-link-btn').href = actualLink;
                 } else {
                     linkRow.style.display = 'none';
                 }
             }
 
-            document.getElementById('details-room-pass').innerText = "Hidden";
-        } else {
+            document.getElementById('details-room-pass').innerText = match.roomPass || "None";
+        }
+        else if (match.status === 'READY_CHECK') {
+            roomCard.style.display = 'block';
+
+            const idRow = document.getElementById('details-room-id-row');
+            if (idRow) {
+                idRow.style.display = 'flex';
+                document.getElementById('details-room-id').innerHTML = "<span style='color: #ff4444;'>READY UP TO REVEAL</span>";
+            }
+
+            const linkRow = document.getElementById('details-room-link-row');
+            if (linkRow) {
+                linkRow.style.display = 'none'; // Keep link completely hidden
+            }
+
+            document.getElementById('details-room-pass').innerHTML = "<span style='color: #ff4444;'>HIDDEN</span>";
+        }
+        else {
             roomCard.style.display = 'none';
         }
 
@@ -734,22 +777,56 @@ const app = {
             document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
             document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
 
-            if (document.getElementById('details-room-card')) {
-                document.getElementById('details-room-card').style.display = 'block';
+            // if (document.getElementById('details-room-card')) {
+            //     document.getElementById('details-room-card').style.display = 'block';
 
-                const idRow = document.getElementById('details-room-id-row');
-                if (idRow) {
-                    if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
-                    else { idRow.style.display = 'none'; }
+            //     const idRow = document.getElementById('details-room-id-row');
+            //     if (idRow) {
+            //         if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
+            //         else { idRow.style.display = 'none'; }
+            //     }
+
+            //     const linkRow = document.getElementById('details-room-link-row');
+            //     if (linkRow) {
+            //         if (match.roomLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = match.roomLink; }
+            //         else { linkRow.style.display = 'none'; }
+            //     }
+            // }
+            const liveRoomCard = document.getElementById('details-room-card');
+            if (liveRoomCard) {
+                if (['IN_PROGRESS', 'REPORTING', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+                    liveRoomCard.style.display = 'block';
+
+                    const idRow = document.getElementById('details-room-id-row');
+                    if (idRow) {
+                        if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
+                        else { idRow.style.display = 'none'; }
+                    }
+
+                    const linkRow = document.getElementById('details-room-link-row');
+                    if (linkRow) {
+                        const actualLink = match.roomLink || match.room_link;
+                        if (actualLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = actualLink; }
+                        else { linkRow.style.display = 'none'; }
+                    }
+
+                    document.getElementById('details-room-pass').innerText = match.roomPass || "None";
                 }
+                else if (match.status === 'READY_CHECK') {
+                    liveRoomCard.style.display = 'block';
 
-                const linkRow = document.getElementById('details-room-link-row');
-                if (linkRow) {
-                    if (match.roomLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = match.roomLink; }
-                    else { linkRow.style.display = 'none'; }
+                    const idRow = document.getElementById('details-room-id-row');
+                    if (idRow) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerHTML = "<span style='color: #ff4444;'>READY UP TO REVEAL</span>"; }
+
+                    const linkRow = document.getElementById('details-room-link-row');
+                    if (linkRow) { linkRow.style.display = 'none'; }
+
+                    document.getElementById('details-room-pass').innerHTML = "<span style='color: #ff4444;'>HIDDEN</span>";
+                }
+                else {
+                    liveRoomCard.style.display = 'none';
                 }
             }
-
             if (match.guest) {
                 document.getElementById('p2-username').innerText = match.guest.gamerTag;
                 document.getElementById('p2-avatar-container').classList.add('ready');
@@ -826,13 +903,18 @@ const app = {
 
             if (isUserReady) {
                 html += `
-                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent...</p>
+                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent to ready up...</p>
                     <button class="btn btn-primary full-width" disabled><i class="fas fa-spinner fa-spin"></i> Waiting...</button>
                 `;
             } else {
                 html += `
-                    <p style="margin-bottom: 15px;">Both players are here. Join game and ready up.</p>
-                    <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+                    <div style="background: rgba(249, 109, 0, 0.1); border: 1px solid var(--accent-orange); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px; color: #fff; font-weight: bold;"><i class="fas fa-exclamation-circle text-orange"></i> ACTION REQUIRED</p>
+                        <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">Click the button below to confirm you are ready. <strong>Room details will be revealed once BOTH players are ready.</strong></p>
+                        <button class="btn btn-primary full-width" style="font-size: 1.1rem; padding: 15px; background: #00C851; border-color: #00C851; color: #000;" onclick="app.readyUp('${match.id}')">
+                            <i class="fas fa-check-double"></i> I'm Ready
+                        </button>
+                    </div>
                 `;
             }
         }

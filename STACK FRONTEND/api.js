@@ -303,7 +303,7 @@ const api = {
                 const query = `
                     subscription WatchMatch($matchId: ID!) {
                         watchMatch(matchId: $matchId) {
-                            id status roomId hostReady guestReady hostClaimedWin guestClaimedWin
+                            id status roomId roomLink roomPass hostReady guestReady hostClaimedWin guestClaimedWin
                             hostProofUrl guestProofUrl host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                         }
                     }
@@ -445,7 +445,7 @@ const api = {
     //     });
     // },
 
-    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null) {
+    async createMatch(gameTitle, entryFeeSc, matchType, rules = "", roomId = "", roomPass = "", isAutomatch = false, invitedGuestTag = null, roomLink = "") {
         const query = `
             mutation CreateMatch($input: CreateMatchInput!) {
                 createMatch(input: $input) {
@@ -454,7 +454,7 @@ const api = {
             }
         `;
         return await graphqlRequest(query, {
-            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag }
+            input: { gameTitle, entryFeeSc, matchType, rules, roomId, roomPass, isAutomatch, invitedGuestTag, roomLink }
         });
     },
     async joinMatch(matchId) {
@@ -551,7 +551,7 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc roomId 
+                    id status gameTitle matchType entryFeeSc roomId roomLink roomPass
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
                     hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
