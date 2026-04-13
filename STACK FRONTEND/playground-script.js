@@ -115,8 +115,8 @@ const app = {
         const lobbyBonus = document.getElementById('lobby-bonus-bal');
         if (lobbyBonus) lobbyBonus.innerText = bSc;
 
-        const topBarSc = document.getElementById('header-sc');
-        if (topBarSc) topBarSc.innerText = totalPlayable + bSc;
+        const topBarBal = document.querySelector('.wallet-bal');
+        if (topBarBal) topBarBal.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalPlayable} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bSc} Bonus SC)</span>`;
 
         if (profile.avatarUrl) {
             const rawUrl = profile.avatarUrl;

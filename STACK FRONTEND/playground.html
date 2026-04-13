@@ -46,7 +46,7 @@
                 <button class="sidebar-burger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="header-actions" style="margin-left: auto;">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> <span id="header-real-bal">0</span> SC
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -318,21 +318,42 @@
                         </div>
                     </div>
 
-                    <!-- Details Grid -->
-                    <div class="match-details-grid">
-                        <div class="details-card">
-                            <h4>Match Details</h4>
-                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                <span style="color:var(--text-muted);">Game:</span>
-                                <strong id="details-game">CODM (1v1)</strong>
+                        <!-- Details Grid -->
+                        <div class="match-details-grid">
+                            <div class="details-card">
+                                <h4>Match Details</h4>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                    <span style="color:var(--text-muted);">Game:</span>
+                                    <strong id="details-game">--</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                    <span style="color:var(--text-muted);">Stake (Each):</span>
+                                    <strong id="details-stake">-- SC</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between;">
+                                    <span style="color:var(--text-muted);">Winner Reward:</span>
+                                    <strong class="text-gold" id="details-reward">-- SC</strong>
+                                </div>
+                                <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
+                                <div style="color:var(--text-muted); font-size:0.85rem;" id="details-rules">No custom
+                                    rules
+                                    provided.</div>
                             </div>
-                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                                <span style="color:var(--text-muted);">Stake (Each):</span>
-                                <strong id="details-stake">100 SC</strong>
-                            </div>
-                            <div style="display:flex; justify-content:space-between;">
-                                <span style="color:var(--text-muted);">Winner Reward:</span>
-                                <strong class="text-gold" id="details-reward">180 SC</strong>
+
+                            <div class="details-card room-details-card" id="details-room-card" style="display:none;">
+                                <h4 style="color: var(--accent-orange);"><i class="fas fa-gamepad me-2"></i> In-Game
+                                    Room
+                                </h4>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom:15px;">Enter these
+                                    details in-game to join the lobby.</p>
+                                <div class="room-info-row">
+                                    <span>Room ID:</span>
+                                    <strong id="details-room-id">--</strong>
+                                </div>
+                                <div class="room-info-row">
+                                    <span>Password:</span>
+                                    <strong id="details-room-pass">N/A</strong>
+                                </div>
                             </div>
                             <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.1); margin: 15px 0;">
                             <div style="color:var(--text-muted); font-size:0.85rem;" id="details-rules">No custom

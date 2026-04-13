@@ -44,7 +44,7 @@
                 <!-- Search removed -->
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -412,11 +412,11 @@
                     const profileData = profile.myProfile;
 
                     const r = isNaN(profileData.realSc) || profileData.realSc === null ? 0 : profileData.realSc;
+                    const l = isNaN(profileData.lockedSc) || profileData.lockedSc === null ? 0 : profileData.lockedSc;
                     const b = isNaN(profileData.bonusSc) || profileData.bonusSc === null ? 0 : profileData.bonusSc;
-                    const totalSc = r + b;
 
                     const balEl = document.querySelector('.wallet-bal');
-                    if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${r} SC`;
+                    if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Bonus SC)</span>`;
 
                     // --- AVATAR RENDERING ---
                     if (profileData.avatarUrl) {

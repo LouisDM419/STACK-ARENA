@@ -193,7 +193,7 @@
                 </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> <span id="header-sc">0</span> SC
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -296,10 +296,11 @@
                 if (myProfReq && myProfReq.myProfile) {
                     const pData = myProfReq.myProfile;
 
-                    if (document.getElementById('header-sc')) {
+                    if (document.querySelector('.wallet-bal')) {
                         const r = isNaN(pData.realSc) || pData.realSc === null ? 0 : pData.realSc;
+                        const l = isNaN(pData.lockedSc) || pData.lockedSc === null ? 0 : pData.lockedSc;
                         const b = isNaN(pData.bonusSc) || pData.bonusSc === null ? 0 : pData.bonusSc;
-                        document.getElementById('header-sc').innerText = r;
+                        document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Bonus SC)</span>`;
                     }
 
                     if (pData.avatarUrl && document.getElementById('global-header-avatar')) {
