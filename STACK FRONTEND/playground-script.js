@@ -718,7 +718,7 @@ const app = {
         document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
 
         const roomCard = document.getElementById('details-room-card');
-        if (['IN_PROGRESS', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+        if (['IN_PROGRESS', 'REPORTING', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
             roomCard.style.display = 'block';
 
             const idRow = document.getElementById('details-room-id-row');
@@ -742,29 +742,24 @@ const app = {
                 }
             }
 
-            document.getElementById('details-room-pass').innerText = "None";
+            document.getElementById('details-room-pass').innerText = match.roomPass || "None";
         }
-        else if (match.status === 'READY_CHECK' || match.status === 'OPEN') {
+        else if (match.status === 'READY_CHECK') {
             roomCard.style.display = 'block';
 
             const idRow = document.getElementById('details-room-id-row');
             if (idRow) {
-                if (match.roomId) {
-                    idRow.style.display = 'flex';
-                    document.getElementById('details-room-id').innerHTML = "READY UP FIRST";
-                } else {
-                    idRow.style.display = 'none';
-                }
+                idRow.style.display = 'flex';
+                document.getElementById('details-room-id').innerHTML = "<span style='color: #ff4444;'>READY UP TO REVEAL</span>";
             }
 
             const linkRow = document.getElementById('details-room-link-row');
             if (linkRow) {
-                linkRow.style.display = 'none';
+                linkRow.style.display = 'none'; // Keep link completely hidden
             }
 
-            document.getElementById('details-room-pass').innerText = "None";
+            document.getElementById('details-room-pass').innerHTML = "<span style='color: #ff4444;'>HIDDEN</span>";
         }
-
         else {
             roomCard.style.display = 'none';
         }
@@ -782,22 +777,56 @@ const app = {
             document.getElementById('details-status-badge').className = "status-badge " + this.getBadgeClass(match.status);
             document.getElementById('details-status-badge').innerText = this.statusIndicator(match.status);
 
-            if (document.getElementById('details-room-card')) {
-                document.getElementById('details-room-card').style.display = 'block';
+            // if (document.getElementById('details-room-card')) {
+            //     document.getElementById('details-room-card').style.display = 'block';
 
-                const idRow = document.getElementById('details-room-id-row');
-                if (idRow) {
-                    if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
-                    else { idRow.style.display = 'none'; }
+            //     const idRow = document.getElementById('details-room-id-row');
+            //     if (idRow) {
+            //         if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
+            //         else { idRow.style.display = 'none'; }
+            //     }
+
+            //     const linkRow = document.getElementById('details-room-link-row');
+            //     if (linkRow) {
+            //         if (match.roomLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = match.roomLink; }
+            //         else { linkRow.style.display = 'none'; }
+            //     }
+            // }
+            const liveRoomCard = document.getElementById('details-room-card');
+            if (liveRoomCard) {
+                if (['IN_PROGRESS', 'REPORTING', 'COMPLETED', 'DISPUTED'].includes(match.status)) {
+                    liveRoomCard.style.display = 'block';
+
+                    const idRow = document.getElementById('details-room-id-row');
+                    if (idRow) {
+                        if (match.roomId) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerText = match.roomId; }
+                        else { idRow.style.display = 'none'; }
+                    }
+
+                    const linkRow = document.getElementById('details-room-link-row');
+                    if (linkRow) {
+                        const actualLink = match.roomLink || match.room_link;
+                        if (actualLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = actualLink; }
+                        else { linkRow.style.display = 'none'; }
+                    }
+
+                    document.getElementById('details-room-pass').innerText = match.roomPass || "None";
                 }
+                else if (match.status === 'READY_CHECK') {
+                    liveRoomCard.style.display = 'block';
 
-                const linkRow = document.getElementById('details-room-link-row');
-                if (linkRow) {
-                    if (match.roomLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = match.roomLink; }
-                    else { linkRow.style.display = 'none'; }
+                    const idRow = document.getElementById('details-room-id-row');
+                    if (idRow) { idRow.style.display = 'flex'; document.getElementById('details-room-id').innerHTML = "<span style='color: #ff4444;'>READY UP TO REVEAL</span>"; }
+
+                    const linkRow = document.getElementById('details-room-link-row');
+                    if (linkRow) { linkRow.style.display = 'none'; }
+
+                    document.getElementById('details-room-pass').innerHTML = "<span style='color: #ff4444;'>HIDDEN</span>";
+                }
+                else {
+                    liveRoomCard.style.display = 'none';
                 }
             }
-
             if (match.guest) {
                 document.getElementById('p2-username').innerText = match.guest.gamerTag;
                 document.getElementById('p2-avatar-container').classList.add('ready');
@@ -874,13 +903,18 @@ const app = {
 
             if (isUserReady) {
                 html += `
-                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent...</p>
+                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent to ready up...</p>
                     <button class="btn btn-primary full-width" disabled><i class="fas fa-spinner fa-spin"></i> Waiting...</button>
                 `;
             } else {
                 html += `
-                    <p style="margin-bottom: 15px;">Both players are here. Join game and ready up.</p>
-                    <button class="btn btn-primary full-width" onclick="app.readyUp('${match.id}')">I'm Ready</button>
+                    <div style="background: rgba(249, 109, 0, 0.1); border: 1px solid var(--accent-orange); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p style="margin-bottom: 10px; color: #fff; font-weight: bold;"><i class="fas fa-exclamation-circle text-orange"></i> ACTION REQUIRED</p>
+                        <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">Click the button below to confirm you are ready. <strong>Room details will be revealed once BOTH players are ready.</strong></p>
+                        <button class="btn btn-primary full-width" style="font-size: 1.1rem; padding: 15px; background: #00C851; border-color: #00C851; color: #000;" onclick="app.readyUp('${match.id}')">
+                            <i class="fas fa-check-double"></i> I'm Ready
+                        </button>
+                    </div>
                 `;
             }
         }
