@@ -208,7 +208,17 @@
                 if (!profile) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {
-                    document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    try {
+                        const imgRes = await fetch(profile.avatarUrl);
+                        const blob = await imgRes.blob();
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            document.getElementById('card-node').style.backgroundImage = `url('${reader.result}')`;
+                        };
+                        reader.readAsDataURL(blob);
+                    } catch(err) {
+                        document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    }
                 }
                 
                 document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';
@@ -227,7 +237,7 @@
                 if (match) {
                     const prizePoolSc = (match.entryFeeSc || 0) * 2;
                     const nairaPrize = prizePoolSc * 10;
-                    document.getElementById('card-naira-val').innerText = `&#8358;${nairaPrize.toLocaleString()}`;
+                    document.getElementById('card-naira-val').innerHTML = `&#8358;${nairaPrize.toLocaleString()}`;
                     document.getElementById('card-sc-val').innerText = `(+${prizePoolSc.toLocaleString()} SC)`;
                     document.getElementById('card-rp-val').innerHTML = `+150 RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
                     

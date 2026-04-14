@@ -208,7 +208,17 @@
                 if (!profile) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {
-                    document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    try {
+                        const imgRes = await fetch(profile.avatarUrl);
+                        const blob = await imgRes.blob();
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            document.getElementById('card-node').style.backgroundImage = `url('${reader.result}')`;
+                        };
+                        reader.readAsDataURL(blob);
+                    } catch(err) {
+                        document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    }
                 }
                 
                 document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';

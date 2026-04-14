@@ -212,7 +212,17 @@
                 if (!profile) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {
-                    document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    try {
+                        const imgRes = await fetch(profile.avatarUrl);
+                        const blob = await imgRes.blob();
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            document.getElementById('card-node').style.backgroundImage = `url('${reader.result}')`;
+                        };
+                        reader.readAsDataURL(blob);
+                    } catch(err) {
+                        document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
+                    }
                 }
                 
                 document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';
@@ -221,7 +231,7 @@
                 const lockedSc = profile.lockedWinnings || 0;
                 const nairaVal = lockedSc * 10;
                 
-                document.getElementById('card-naira-val').innerText = `&#8358;${nairaVal.toLocaleString()}`;
+                document.getElementById('card-naira-val').innerHTML = `&#8358;${nairaVal.toLocaleString()}`;
                 document.getElementById('card-sc-val').innerText = `(+${lockedSc.toLocaleString()} SC)`;
                 document.getElementById('card-rp-val').innerHTML = `+${(profile.winStreak || 0) * 15} RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
                 
