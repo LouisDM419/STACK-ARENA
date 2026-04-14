@@ -764,7 +764,8 @@ const app = {
                 const actualLink = match.roomLink || match.room_link;
                 if (actualLink) {
                     linkRow.style.display = 'flex';
-                    document.getElementById('details-room-link-btn').href = actualLink;
+                    const safeLink = actualLink.startsWith('http://') || actualLink.startsWith('https://') ? actualLink : 'https://' + actualLink;
+                    document.getElementById('details-room-link-btn').href = safeLink;
                 } else {
                     linkRow.style.display = 'none';
                 }
@@ -834,7 +835,11 @@ const app = {
                     const linkRow = document.getElementById('details-room-link-row');
                     if (linkRow) {
                         const actualLink = match.roomLink || match.room_link;
-                        if (actualLink) { linkRow.style.display = 'flex'; document.getElementById('details-room-link-btn').href = actualLink; }
+                        if (actualLink) { 
+                            linkRow.style.display = 'flex'; 
+                            const safeLink = actualLink.startsWith('http://') || actualLink.startsWith('https://') ? actualLink : 'https://' + actualLink;
+                            document.getElementById('details-room-link-btn').href = safeLink; 
+                        }
                         else { linkRow.style.display = 'none'; }
                     }
 

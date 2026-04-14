@@ -35,10 +35,13 @@ async function graphqlRequest(query, variables = {}) {
             credentials: 'include'
         });
 
+        const currentPath = window.location.pathname;
+        const isPublicPage = currentPath.endsWith('index.html') || currentPath.endsWith('register.html') || currentPath.endsWith('login.html') || currentPath === '/' || currentPath === '';
+
         if (response.status === 401 || response.status === 403) {
             console.warn("Session expired or unauthorized. Redirecting to login...");
-            window.location.href = 'login.html';
-            return;
+            if (!isPublicPage) window.location.href = 'login.html';
+            return null;
         }
 
         const json = await response.json();
@@ -47,8 +50,8 @@ async function graphqlRequest(query, variables = {}) {
             console.error("GraphQL Errors:", json.errors);
             const errMsg = json.errors[0].message.toLowerCase();
             if (errMsg.includes('not logged in') || errMsg.includes('authentication required')) {
-                window.location.href = 'login.html';
-                return;
+                if (!isPublicPage) window.location.href = 'login.html';
+                return null;
             }
             throw new Error(json.errors[0].message || "GraphQL Error");
         }
