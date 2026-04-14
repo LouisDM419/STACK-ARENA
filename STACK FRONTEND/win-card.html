@@ -230,7 +230,7 @@
                 if (match) {
                     const prizePoolSc = (match.entryFeeSc || 0) * 2;
                     const nairaPrize = prizePoolSc * 10;
-                    document.getElementById('card-naira-val').innerText = `&#8358;${nairaPrize.toLocaleString()} EARNED`;
+                    document.getElementById('card-naira-val').innerHTML = `&#8358;${nairaPrize.toLocaleString()} EARNED`;
                     document.getElementById('card-sc-val').innerText = `(+${prizePoolSc.toLocaleString()} SC)`;
                     document.getElementById('card-rp-val').innerHTML = `+25 RP <i class="fas fa-arrow-up" style="margin-left: 2px;"></i>`;
                     
