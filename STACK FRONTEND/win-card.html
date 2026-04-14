@@ -205,7 +205,8 @@
         async function initCard() {
             try {
                 if (!window.api) return;
-                const profile = await api.myProfile();
+                const _profileRes = await api.myProfile();
+                const profile = _profileRes?.myProfile || _profileRes;
                 if (!profile) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {
@@ -215,7 +216,8 @@
                 document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';
                 document.getElementById('card-streak').innerHTML = `<i class="fas fa-fire"></i> ${profile.winStreak || 0} Win Streak`;
                 
-                const matches = await api.myMatches();
+                const _matchesRes = await api.myMatches();
+                const matches = _matchesRes?.myMatches || _matchesRes;
                 let match = matches.length > 0 ? matches[0] : null;
                 const params = new URLSearchParams(window.location.search);
                 const matchId = params.get('matchId');

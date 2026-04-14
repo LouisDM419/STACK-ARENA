@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -205,7 +205,8 @@
         async function initCard() {
             try {
                 if (!window.api) return;
-                const profile = await api.myProfile();
+                const _profileRes = await api.myProfile();
+                const profile = _profileRes?.myProfile || _profileRes;
                 if (!profile) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {

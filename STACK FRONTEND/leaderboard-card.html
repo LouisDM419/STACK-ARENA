@@ -246,8 +246,10 @@
         async function initCard() {
             try {
                 if (!window.api) return;
-                const profile = await api.myProfile();
-                const stats = await api.myStats();
+                const _profileRes = await api.myProfile();
+                const profile = _profileRes?.myProfile || _profileRes;
+                const _statsRes = await api.myStats();
+                const stats = _statsRes?.myStats || _statsRes;
                 if (!profile || !stats) return window.location.href = 'login.html';
                 
                 if (profile.avatarUrl) {
@@ -266,7 +268,8 @@
                 document.getElementById('card-streak').innerText = profile.winStreak || 0;
                 document.getElementById('card-wins').innerText = stats.wins || 0;
                 
-                const lb = await api.globalLeaderboard(10);
+                const _lbRes = await api.globalLeaderboard(10);
+                const lb = _lbRes?.globalLeaderboard || _lbRes;
                 const playerRankIndex = lb.findIndex(p => p.gamerTag === profile.gamerTag);
                 const rankPos = playerRankIndex !== -1 ? playerRankIndex + 1 : '10+';
                 
