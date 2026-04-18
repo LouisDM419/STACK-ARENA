@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const onlineCount = document.getElementById('stat-online');
                     const matchesCount = document.getElementById('stat-matches');
                     const wonCount = document.getElementById('stat-won');
-                    
+
                     if (onlineCount && metrics.playersOnline) onlineCount.setAttribute('data-target', metrics.playersOnline);
                     if (matchesCount && metrics.matchesLive) matchesCount.setAttribute('data-target', metrics.matchesLive);
                     if (wonCount && metrics.wonToday) wonCount.setAttribute('data-target', metrics.wonToday);
@@ -292,6 +292,7 @@ async function fetchAndRenderNotifications() {
 
         const notifications = res.myNotifications;
         const notifBody = document.querySelector('.notif-body');
+        if (!notifBody) return;
         const bellBtn = document.getElementById('btn-notifications');
 
         if (notifications.length === 0) {
@@ -337,6 +338,7 @@ async function fetchAndRenderNotifications() {
     } catch (e) {
         console.error("Failed to fetch notifications:", e);
     }
+
 }
 
 
