@@ -835,10 +835,10 @@ const app = {
                     const linkRow = document.getElementById('details-room-link-row');
                     if (linkRow) {
                         const actualLink = match.roomLink || match.room_link;
-                        if (actualLink) { 
-                            linkRow.style.display = 'flex'; 
+                        if (actualLink) {
+                            linkRow.style.display = 'flex';
                             const safeLink = actualLink.startsWith('http://') || actualLink.startsWith('https://') ? actualLink : 'https://' + actualLink;
-                            document.getElementById('details-room-link-btn').href = safeLink; 
+                            document.getElementById('details-room-link-btn').href = safeLink;
                         }
                         else { linkRow.style.display = 'none'; }
                     }
@@ -914,10 +914,120 @@ const app = {
 
 
 
+    // renderActionArea(match, isHost) {
+    //     const area = document.getElementById('details-action-area');
+    //     let html = `<div style="text-align: right; margin-bottom: 15px;"></div>`;
+    //     //Remove the OR if I face problems
+    //     if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
+    //         html += `
+    //             <div style="padding: 30px 10px;">
+    //                 <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 20px;">
+    //                     <div style="position: absolute; width: 100%; height: 100%; border: 4px solid rgba(249, 109, 0, 0.2); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    //                     <i class="fas fa-satellite-dish text-orange" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem;"></i>
+    //                 </div>
+    //                 <h3 style="color: #fff; margin-bottom: 5px;">Broadcasting Match</h3>
+    //                 <p style="color:var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">Waiting for a worthy challenger to accept...</p>
+    //                 <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444; padding: 10px 30px;" onclick="app.cancelMatch('${match.id}')">Cancel Match</button>
+    //             </div>
+    //         `;
+    //     }
+    //     else if (match.status === 'READY_CHECK') {
+    //         const isUserReady = isHost ? match.hostReady : match.guestReady;
+
+    //         if (isUserReady) {
+    //             html += `
+    //                 <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent to ready up...</p>
+    //                 <button class="btn btn-primary full-width" disabled><i class="fas fa-spinner fa-spin"></i> Waiting...</button>
+    //             `;
+    //         } else {
+    //             html += `
+    //                 <div style="background: rgba(249, 109, 0, 0.1); border: 1px solid var(--accent-orange); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+    //                     <p style="margin-bottom: 10px; color: #fff; font-weight: bold;"><i class="fas fa-exclamation-circle text-orange"></i> ACTION REQUIRED</p>
+    //                     <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">Click the button below to confirm you are ready. <strong>Room details will be revealed once BOTH players are ready.</strong></p>
+    //                     <button class="btn btn-primary full-width" style="font-size: 1.1rem; padding: 15px; background: #00C851; border-color: #00C851; color: #000;" onclick="app.readyUp('${match.id}')">
+    //                         <i class="fas fa-check-double"></i> I'm Ready
+    //                     </button>
+    //                 </div>
+    //             `;
+    //         }
+    //     }
+    //     else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
+
+    //         let hasReported = false;
+
+    //         const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
+    //         const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
+
+    //         if (isHost && typeof hostClaimed === 'boolean') hasReported = true;
+    //         if (!isHost && typeof guestClaimed === 'boolean') hasReported = true;
+
+    //         if (hasReported) {
+    //             html += `
+    //                 <div style="padding: 10px 0;">
+    //                     <h4 style="color: var(--accent-orange); margin-bottom: 10px;">Waiting on Opponent</h4>
+    //                     <p style="color: var(--text-muted); font-size: 0.9rem;">You have submitted your result. Waiting for your opponent to confirm.</p>
+    //                     <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-orange); margin-top: 15px;"></i>
+    //                 </div>
+    //             `;
+    //         } else {
+    //             html += `
+    //                 <p style="margin-bottom: 15px; color: var(--text-muted);">Please be honest. False reports result in bans.</p>
+    //                 <div style="display:flex; gap:10px; justify-content:center;">
+    //                     <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851;" onclick="app.submitResult('${match.id}', true)">
+    //                         <i class="fas fa-trophy"></i> I Won
+    //                     </button>
+    //                     <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">
+    //                         <i class="fas fa-skull"></i> I Lost
+    //                     </button>
+    //                 </div>
+    //             `;
+    //         }
+    //     }
+    //     else if (match.status === 'COMPLETED') {
+    //         html += `
+    //             <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
+    //             <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+    //         `;
+    //     }
+    //     else if (match.status === 'DISPUTED') {
+    //         const hasProof = isHost ? match.hostProofUrl : match.guestProofUrl;
+
+    //         html += `
+    //             <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
+    //             <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+    //         `;
+
+    //         if (hasProof) {
+    //             html += `
+    //                 <p style="color:var(--text-muted); margin-bottom:20px;">Your proof has been submitted.</p>
+    //                 <div style="font-size: 1rem; color: #00C851; background: rgba(0, 200, 81, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #00C851;">
+    //                     <i class="fas fa-check-circle"></i> Proof received. Awaiting Admin resolution.
+    //                 </div>
+    //             `;
+    //         } else {
+    //             html += `
+    //                 <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
+
+    //                 <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
+    //                     <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+    //                     <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
+    //                     <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
+    //                 </div>
+    //                 <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
+    //                 <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none; margin-top: 15px;">
+    //                     <i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.
+    //                 </div>
+    //             `;
+    //         }
+    //     }
+    //     area.innerHTML = html;
+    // },
+
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');
         let html = `<div style="text-align: right; margin-bottom: 15px;"></div>`;
-        //Remove the OR if I face problems
+
         if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
             html += `
                 <div style="padding: 30px 10px;">
@@ -971,8 +1081,18 @@ const app = {
                 `;
             } else {
                 html += `
+                    <div style="background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0 0 5px 0; color: #ff4444; font-weight: bold; font-size: 1.1rem;">
+                            <i class="fas fa-camera"></i> REQUIRED: TAKE A SCREENSHOT
+                        </p>
+                        <p style="margin: 0; color: #fff; font-size: 0.85rem;">
+                            Capture your final score <strong>BEFORE</strong> you close the game! You will need this screenshot to claim your winnings if your opponent disputes the result.
+                        </p>
+                    </div>
+                    
                     <p style="margin-bottom: 15px; color: var(--text-muted);">Please be honest. False reports result in bans.</p>
-                    <div style="display:flex; gap:10px; justify-content:center;">
+                    
+                    <div id="report-buttons-container-${match.id}" style="display:flex; gap:10px; justify-content:center; opacity: 0.4; pointer-events: none; transition: opacity 0.3s ease;">
                         <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851;" onclick="app.submitResult('${match.id}', true)">
                             <i class="fas fa-trophy"></i> I Won
                         </button>
@@ -980,7 +1100,47 @@ const app = {
                             <i class="fas fa-skull"></i> I Lost
                         </button>
                     </div>
+                    
+                    <div id="report-timer-msg-${match.id}" style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 15px; font-weight: bold; text-align: center;">
+                        <i class="fas fa-clock fa-spin me-1"></i> Buttons unlock in <span id="report-countdown-${match.id}">10:00</span>
+                    </div>
                 `;
+
+                // 4. THE JAVASCRIPT COUNTDOWN LOGIC
+                setTimeout(() => {
+                    const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
+                    if (!btnContainer) return; // Failsafe if element isn't in DOM
+
+                    let timeLeft = 600; // 10 minutes
+
+                    const countdownInterval = setInterval(() => {
+                        timeLeft -= 1;
+                        const minutes = Math.floor(timeLeft / 60);
+                        const seconds = timeLeft % 60;
+                        const display = document.getElementById(`report-countdown-${match.id}`);
+
+                        if (display) {
+                            display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                        } else {
+                            // Stop checking if user navigated away
+                            clearInterval(countdownInterval);
+                        }
+
+                        if (timeLeft <= 0) {
+                            clearInterval(countdownInterval);
+                            const container = document.getElementById(`report-buttons-container-${match.id}`);
+                            const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
+
+                            if (container) {
+                                container.style.opacity = '1';
+                                container.style.pointerEvents = 'auto'; // UNLOCK BUTTONS
+                            }
+                            if (timerMsg) {
+                                timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
+                            }
+                        }
+                    }, 1000);
+                }, 100);
             }
         }
         else if (match.status === 'COMPLETED') {
