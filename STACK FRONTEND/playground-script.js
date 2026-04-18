@@ -1106,34 +1106,37 @@ const app = {
                     </div>
                 `;
 
-                // 4. THE JAVASCRIPT COUNTDOWN LOGIC
                 setTimeout(() => {
                     const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
-                    if (!btnContainer) return; // Failsafe if element isn't in DOM
+                    if (!btnContainer) return;
+                    const storageKey = `match_unlock_time_${match.id}`;
+                    let unlockTime = localStorage.getItem(storageKey);
 
-                    let timeLeft = 600; // 10 minutes
+                    if (!unlockTime) {
+                        unlockTime = Date.now() + (600 * 1000);
+                        localStorage.setItem(storageKey, unlockTime);
+                    }
 
                     const countdownInterval = setInterval(() => {
-                        timeLeft -= 1;
-                        const minutes = Math.floor(timeLeft / 60);
-                        const seconds = timeLeft % 60;
+                        const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
                         const display = document.getElementById(`report-countdown-${match.id}`);
 
-                        if (display) {
+                        if (display && timeLeft > 0) {
+                            const minutes = Math.floor(timeLeft / 60);
+                            const seconds = timeLeft % 60;
                             display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                        } else {
-                            // Stop checking if user navigated away
-                            clearInterval(countdownInterval);
                         }
 
                         if (timeLeft <= 0) {
                             clearInterval(countdownInterval);
+                            localStorage.removeItem(storageKey);
+
                             const container = document.getElementById(`report-buttons-container-${match.id}`);
                             const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
 
                             if (container) {
                                 container.style.opacity = '1';
-                                container.style.pointerEvents = 'auto'; // UNLOCK BUTTONS
+                                container.style.pointerEvents = 'auto';
                             }
                             if (timerMsg) {
                                 timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
