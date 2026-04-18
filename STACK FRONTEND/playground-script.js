@@ -1024,13 +1024,15 @@ const app = {
     //     area.innerHTML = html;
     // },
 
+
+
     renderActionArea(match, isHost) {
         const area = document.getElementById('details-action-area');
         let html = `<div style="text-align: right; margin-bottom: 15px;"></div>`;
 
         if (match.status === 'OPEN' || (!match.guest && match.status === 'READY_CHECK')) {
             html += `
-                <div style="padding: 30px 10px;">
+                <div style="padding: 30px 10px; text-align: center;">
                     <div style="position: relative; width: 80px; height: 80px; margin: 0 auto 20px;">
                         <div style="position: absolute; width: 100%; height: 100%; border: 4px solid rgba(249, 109, 0, 0.2); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite;"></div>
                         <i class="fas fa-satellite-dish text-orange" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem;"></i>
@@ -1046,7 +1048,7 @@ const app = {
 
             if (isUserReady) {
                 html += `
-                    <p style="margin-bottom: 15px; color: var(--accent-orange);">You are ready. Waiting for opponent to ready up...</p>
+                    <p style="margin-bottom: 15px; color: var(--accent-orange); text-align: center;">You are ready. Waiting for opponent to ready up...</p>
                     <button class="btn btn-primary full-width" disabled><i class="fas fa-spinner fa-spin"></i> Waiting...</button>
                 `;
             } else {
@@ -1064,7 +1066,6 @@ const app = {
         else if (match.status === 'IN_PROGRESS' || match.status === 'REPORTING') {
 
             let hasReported = false;
-
             const hostClaimed = match.hostClaimedWin ?? match.host_claimed_win;
             const guestClaimed = match.guestClaimedWin ?? match.guest_claimed_win;
 
@@ -1073,123 +1074,130 @@ const app = {
 
             if (hasReported) {
                 html += `
-                    <div style="padding: 10px 0;">
+                    <div style="padding: 10px 0; text-align: center;">
                         <h4 style="color: var(--accent-orange); margin-bottom: 10px;">Waiting on Opponent</h4>
                         <p style="color: var(--text-muted); font-size: 0.9rem;">You have submitted your result. Waiting for your opponent to confirm.</p>
                         <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-orange); margin-top: 15px;"></i>
                     </div>
                 `;
             } else {
+                const isReportingPhase = match.status === 'REPORTING';
+
                 html += `
-                    <div style="background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                        <p style="margin: 0 0 5px 0; color: #ff4444; font-weight: bold; font-size: 1.1rem;">
-                            <i class="fas fa-camera"></i> REQUIRED: TAKE A SCREENSHOT
+                    <div style="background: rgba(255, 68, 68, 0.1); border: 2px solid #ff4444; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                        <p style="margin: 0 0 8px 0; color: #ff4444; font-weight: 900; font-size: 1.2rem; text-transform: uppercase;">
+                            <i class="fas fa-camera"></i> REQUIRED: TAKE A SCREENSHOT NOW!
                         </p>
-                        <p style="margin: 0; color: #fff; font-size: 0.85rem;">
-                            Capture your final score <strong>BEFORE</strong> you close the game! You will need this screenshot to claim your winnings if your opponent disputes the result.
+                        <p style="margin: 0; color: #fff; font-size: 0.9rem;">
+                            Capture your final match score <strong>BEFORE</strong> you leave the game lobby! You will absolutely need this screenshot to claim your winnings if your opponent disputes the result.
                         </p>
                     </div>
                     
-                    <p style="margin-bottom: 15px; color: var(--text-muted);">Please be honest. False reports result in bans.</p>
+                    <p style="margin-bottom: 15px; color: var(--text-muted); text-align: center;">Please be honest. False reports result in permanent bans.</p>
                     
-                    <div id="report-buttons-container-${match.id}" style="display:flex; gap:10px; justify-content:center; opacity: 0.4; pointer-events: none; transition: opacity 0.3s ease;">
-                        <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851;" onclick="app.submitResult('${match.id}', true)">
+                    <div id="report-buttons-container-${match.id}" style="display:flex; gap:10px; justify-content:center; opacity: ${isReportingPhase ? '1' : '0.4'}; pointer-events: ${isReportingPhase ? 'auto' : 'none'}; transition: opacity 0.3s ease;">
+                        <button class="btn btn-primary full-width" style="background:#00C851; border-color:#00C851; font-weight: bold;" onclick="app.submitResult('${match.id}', true)">
                             <i class="fas fa-trophy"></i> I Won
                         </button>
-                        <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444;" onclick="app.submitResult('${match.id}', false)">
+                        <button class="btn btn-outline full-width" style="color:#ff4444; border-color:#ff4444; font-weight: bold;" onclick="app.submitResult('${match.id}', false)">
                             <i class="fas fa-skull"></i> I Lost
                         </button>
                     </div>
-                    
-                    <div id="report-timer-msg-${match.id}" style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 15px; font-weight: bold; text-align: center;">
-                        <i class="fas fa-clock fa-spin me-1"></i> Buttons unlock in <span id="report-countdown-${match.id}">10:00</span>
-                    </div>
                 `;
-            }
-            // 4. THE SERVER-SYNCED COUNTDOWN LOGIC
-            setTimeout(() => {
-                const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
-                if (!btnContainer) return; // Failsafe
 
-                let unlockTime;
-                // Check if your GraphQL query returns the server's updated_at timestamp
-                const serverTimestamp = match.updatedAt || match.updated_at;
 
-                if (serverTimestamp) {
-                    // Source of Truth: 10 minutes from when the Django model last updated
-                    unlockTime = new Date(serverTimestamp).getTime() + (600 * 1000);
+                if (isReportingPhase) {
+                    html += `
+                        <div style="color: #00C851; font-size: 0.95rem; margin-top: 15px; font-weight: bold; text-align: center;">
+                            <i class="fas fa-unlock"></i> Opponent has reported. You may now submit your result.
+                        </div>
+                    `;
                 } else {
-                    // Fallback just in case the timestamp isn't exposed yet
-                    const storageKey = `match_unlock_time_${match.id}`;
-                    unlockTime = localStorage.getItem(storageKey);
-                    if (!unlockTime) {
-                        unlockTime = Date.now() + (600 * 1000);
-                        localStorage.setItem(storageKey, unlockTime);
-                    }
+                    html += `
+                        <div id="report-timer-msg-${match.id}" style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 15px; font-weight: bold; text-align: center;">
+                            <i class="fas fa-clock fa-spin me-1"></i> Buttons unlock in <span id="report-countdown-${match.id}">10:00</span>
+                        </div>
+                    `;
+
+                    setTimeout(() => {
+                        const serverTimestamp = match.updatedAt || match.updated_at;
+
+                        if (!serverTimestamp) return;
+
+                        const unlockTime = new Date(serverTimestamp).getTime() + (600 * 1000);
+
+                        const countdownInterval = setInterval(() => {
+                            const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
+                            const display = document.getElementById(`report-countdown-${match.id}`);
+
+                            if (!btnContainer && !display) {
+                                clearInterval(countdownInterval);
+                                return;
+                            }
+
+                            const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
+
+                            if (display && timeLeft > 0) {
+                                const minutes = Math.floor(timeLeft / 60);
+                                const seconds = timeLeft % 60;
+                                display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                            }
+
+                            if (timeLeft <= 0) {
+                                clearInterval(countdownInterval);
+
+                                const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
+
+                                if (btnContainer) {
+                                    btnContainer.style.opacity = '1';
+                                    btnContainer.style.pointerEvents = 'auto';
+                                }
+                                if (timerMsg) {
+                                    timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
+                                }
+                            }
+                        }, 1000);
+                    }, 100);
                 }
-
-                const countdownInterval = setInterval(() => {
-                    const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
-                    const display = document.getElementById(`report-countdown-${match.id}`);
-
-                    if (display && timeLeft > 0) {
-                        const minutes = Math.floor(timeLeft / 60);
-                        const seconds = timeLeft % 60;
-                        display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                    }
-
-                    if (timeLeft <= 0) {
-                        clearInterval(countdownInterval);
-                        if (!serverTimestamp) localStorage.removeItem(`match_unlock_time_${match.id}`);
-
-                        const container = document.getElementById(`report-buttons-container-${match.id}`);
-                        const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
-
-                        if (container) {
-                            container.style.opacity = '1';
-                            container.style.pointerEvents = 'auto'; // UNLOCK BUTTONS
-                        }
-                        if (timerMsg) {
-                            timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
-                        }
-                    }
-                }, 1000);
-            }, 100);
+            }
         }
-
         else if (match.status === 'COMPLETED') {
             html += `
-                <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
-                <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
-                <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+                <div style="text-align: center;">
+                    <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
+                    <h3 style="margin:0 0 5px; color:#fff;">Match Completed</h3>
+                    <p style="color:var(--text-muted);">Winner: <strong class="text-gold">${match.winner ? match.winner.gamerTag : 'Unknown'}</strong></p>
+                </div>
             `;
         }
         else if (match.status === 'DISPUTED') {
             const hasProof = isHost ? match.hostProofUrl : match.guestProofUrl;
 
             html += `
-                <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
-                <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+                <div style="text-align: center;">
+                    <i class="fas fa-exclamation-triangle text-red" style="font-size: 3rem; margin-bottom:15px;"></i>
+                    <h3 style="margin:0 0 5px; color:#ff4444;">Under Dispute</h3>
+                </div>
             `;
 
             if (hasProof) {
                 html += `
-                    <p style="color:var(--text-muted); margin-bottom:20px;">Your proof has been submitted.</p>
-                    <div style="font-size: 1rem; color: #00C851; background: rgba(0, 200, 81, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #00C851;">
+                    <p style="color:var(--text-muted); margin-bottom:20px; text-align: center;">Your proof has been submitted.</p>
+                    <div style="font-size: 1rem; color: #00C851; background: rgba(0, 200, 81, 0.1); padding: 15px; border-radius: 8px; border: 1px solid #00C851; text-align: center;">
                         <i class="fas fa-check-circle"></i> Proof received. Awaiting Admin resolution.
                     </div>
                 `;
             } else {
                 html += `
-                    <p style="color:var(--text-muted); margin-bottom:20px;">Both players claimed victory. Please upload your screenshot proof.</p>
+                    <p style="color:var(--text-muted); margin-bottom:20px; text-align: center;">Both players claimed victory. Please upload your screenshot proof.</p>
                     
-                    <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()">
+                    <div class="result-upload-box" onclick="document.getElementById('proof-upload').click()" style="text-align: center; cursor: pointer; padding: 20px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px;">
                         <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
-                        <p style="margin:0; font-weight:bold;">Click to Upload Screenshot</p>
+                        <p style="margin:0; font-weight:bold; color: #fff;">Click to Upload Screenshot</p>
                         <span style="font-size:0.8rem; color:var(--text-muted);">JPG, PNG up to 2MB</span>
                     </div>
                     <input type="file" id="proof-upload" accept="image/*" style="display:none;" onchange="app.uploadProof('${match.id}', this)">
-                    <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none; margin-top: 15px;">
+                    <div id="proof-status" style="font-size: 0.9rem; color: #00C851; display:none; margin-top: 15px; text-align: center;">
                         <i class="fas fa-check-circle"></i> Proof Uploaded Successfully. Awaiting Admin.
                     </div>
                 `;
