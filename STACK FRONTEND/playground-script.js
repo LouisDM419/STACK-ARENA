@@ -1105,47 +1105,58 @@ const app = {
                         <i class="fas fa-clock fa-spin me-1"></i> Buttons unlock in <span id="report-countdown-${match.id}">10:00</span>
                     </div>
                 `;
+            }
+            // 4. THE SERVER-SYNCED COUNTDOWN LOGIC
+            setTimeout(() => {
+                const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
+                if (!btnContainer) return; // Failsafe
 
-                setTimeout(() => {
-                    const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
-                    if (!btnContainer) return;
+                let unlockTime;
+                // Check if your GraphQL query returns the server's updated_at timestamp
+                const serverTimestamp = match.updatedAt || match.updated_at;
+
+                if (serverTimestamp) {
+                    // Source of Truth: 10 minutes from when the Django model last updated
+                    unlockTime = new Date(serverTimestamp).getTime() + (600 * 1000);
+                } else {
+                    // Fallback just in case the timestamp isn't exposed yet
                     const storageKey = `match_unlock_time_${match.id}`;
-                    let unlockTime = localStorage.getItem(storageKey);
-
+                    unlockTime = localStorage.getItem(storageKey);
                     if (!unlockTime) {
                         unlockTime = Date.now() + (600 * 1000);
                         localStorage.setItem(storageKey, unlockTime);
                     }
+                }
 
-                    const countdownInterval = setInterval(() => {
-                        const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
-                        const display = document.getElementById(`report-countdown-${match.id}`);
+                const countdownInterval = setInterval(() => {
+                    const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
+                    const display = document.getElementById(`report-countdown-${match.id}`);
 
-                        if (display && timeLeft > 0) {
-                            const minutes = Math.floor(timeLeft / 60);
-                            const seconds = timeLeft % 60;
-                            display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    if (display && timeLeft > 0) {
+                        const minutes = Math.floor(timeLeft / 60);
+                        const seconds = timeLeft % 60;
+                        display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    }
+
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        if (!serverTimestamp) localStorage.removeItem(`match_unlock_time_${match.id}`);
+
+                        const container = document.getElementById(`report-buttons-container-${match.id}`);
+                        const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
+
+                        if (container) {
+                            container.style.opacity = '1';
+                            container.style.pointerEvents = 'auto'; // UNLOCK BUTTONS
                         }
-
-                        if (timeLeft <= 0) {
-                            clearInterval(countdownInterval);
-                            localStorage.removeItem(storageKey);
-
-                            const container = document.getElementById(`report-buttons-container-${match.id}`);
-                            const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
-
-                            if (container) {
-                                container.style.opacity = '1';
-                                container.style.pointerEvents = 'auto';
-                            }
-                            if (timerMsg) {
-                                timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
-                            }
+                        if (timerMsg) {
+                            timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
                         }
-                    }, 1000);
-                }, 100);
-            }
+                    }
+                }, 1000);
+            }, 100);
         }
+
         else if (match.status === 'COMPLETED') {
             html += `
                 <i class="fas fa-trophy highlight-gold" style="font-size: 3rem; margin-bottom:15px;"></i>
