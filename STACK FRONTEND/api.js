@@ -374,7 +374,7 @@ const api = {
         const query = `
             query {
                 myProfile {
-                    id gamerTag codmUid realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit avatarUrl 
+                    id gamerTag codmUid realSc practiceCredits lockedSc rankPoints lockedWinnings winStreak hasMadeFirstDeposit isFlagged avatarUrl 
                     user { id email dateJoined }
                 }
             }
@@ -543,7 +543,7 @@ const api = {
         const query = `
             query {
                 openMatches {
-                    id gameTitle entryFeeSc matchType updatedAt status host { id email gamerTag }
+                    id gameTitle entryFeeSc matchType status host { id email gamerTag }
                 }
             }
         `;
@@ -555,8 +555,7 @@ const api = {
             query {
                 myMatches {
                     id status gameTitle matchType entryFeeSc roomId roomLink roomPass
-                    hostClaimedWin guestClaimedWin updatedAt
-                    hostProofUrl guestProofUrl
+                    hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
                     hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
                 }
