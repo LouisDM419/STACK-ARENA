@@ -407,11 +407,15 @@
         async function fetchWalletData() {
             try {
                 const profileReq = await window.api.myProfile();
-                if (profile.isFlagged) {
-                    const banner = document.querySelector('.cm-info-banner');
-                    banner.style.background = 'rgba(255, 68, 68, 0.1)';
-                    banner.style.borderLeft = '4px solid #ff4444';
-                    banner.innerHTML = `
+
+                if (profileReq) {
+                    const profile = profileReq.myProfile || profileReq;
+
+                    if (profile.isFlagged) {
+                        const banner = document.querySelector('.cm-info-banner');
+                        banner.style.background = 'rgba(255, 68, 68, 0.1)';
+                        banner.style.borderLeft = '4px solid #ff4444';
+                        banner.innerHTML = `
                             <div style="display:flex; gap:15px; align-items:center;">
                                 <i class="fas fa-exclamation-triangle" style="font-size:2rem; color:#ff4444;"></i>
                                 <div>
@@ -420,15 +424,14 @@
                                 </div>
                             </div>`;
 
-                    const withdrawBtn = document.querySelector('button[onclick="openWithdrawModal()"]');
-                    if (withdrawBtn) {
-                        withdrawBtn.disabled = true;
-                        withdrawBtn.style.opacity = '0.5';
-                        withdrawBtn.style.cursor = 'not-allowed';
+                        const withdrawBtn = document.querySelector('button[onclick="openWithdrawModal()"]');
+                        if (withdrawBtn) {
+                            withdrawBtn.disabled = true;
+                            withdrawBtn.style.opacity = '0.5';
+                            withdrawBtn.style.cursor = 'not-allowed';
+                        }
                     }
-                }
-                if (profileReq) {
-                    const profile = profileReq.myProfile || profileReq;
+
                     const rSc = Number(profile.realSc || 0);
                     const bSc = Number(profile.practiceCredits || profile.bonusSc || 0);
                     const lockedSc = Number(profile.lockedWinnings || profile.lockedSc || 0);
