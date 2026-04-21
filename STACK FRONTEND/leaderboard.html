@@ -255,12 +255,12 @@
                 htmlStr += `
                     <tr style="${rowStyle} transition: background 0.3s;" onmouseover="if(!${isMe}) this.style.background='rgba(255,255,255,0.05)'" onmouseout="if(!${isMe}) this.style.background='transparent'">
                         <td class="lb-cell lb-rank-col" style="font-weight: bold; font-size: 1.1rem; text-align: center;">${rankTrophy}</td>
-                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${p.gamerTag}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${p.avatarUrl || ''}', ${p.rankPoints || 0})">
+                        <td class="lb-cell" style="cursor: pointer;" onclick="openProfile('${window.escapeHTML(p.gamerTag)}', ${p.winRate}, ${p.totalMatches}, ${totalEarned}, '${window.escapeHTML(p.avatarUrl || '')}', ${p.rankPoints || 0})">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <div class="avatar" style="width: 35px; height: 35px; overflow: hidden; display: flex; justify-content: center; align-items: center; border: ${isMe ? '2px solid var(--accent-orange)' : 'none'};">
                                     ${avatarHtml}
                                 </div>
-                                <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${p.gamerTag} ${isMe ? '(You)' : ''}</span>
+                                <span style="font-weight: bold; color: ${isMe ? 'var(--accent-orange)' : '#fff'};">${window.escapeHTML(p.gamerTag)} ${isMe ? '(You)' : ''}</span>
                             </div>
                         </td>
                         <td class="lb-cell" style="text-align: right; font-weight: bold;">${p.winRate}%</td>
