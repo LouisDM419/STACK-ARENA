@@ -249,7 +249,7 @@
                     <label>Amount (SC)</label>
                     <input type="number" id="wd-amount" class="cm-input"
                         style="width:100%; font-size:1.2rem; font-weight:bold; color:var(--accent-gold);"
-                        placeholder="Enter amount..." oninput="checkWithdrawal()" min="50">
+                        placeholder="Enter amount..." oninput="checkWithdrawal()" min="1">
                     <div style="font-size:0.85rem; color:var(--text-muted); margin-top:8px; text-align:right;">
                         Equivalent: <span id="wd-conversion" style="color:#fff; font-weight:bold;">0 &#8358;</span>
                     </div>
@@ -260,15 +260,18 @@
 
                 <div class="cm-group mb-3 mt-3">
                     <label>Bank Code</label>
-                    <input type="text" id="wd-bank-code" class="cm-input" style="width:100%;" placeholder="e.g. 044 (Access Bank)">
+                    <input type="text" id="wd-bank-code" class="cm-input" style="width:100%;"
+                        placeholder="e.g. 044 (Access Bank)">
                 </div>
                 <div class="cm-group mb-3">
                     <label>Account Number</label>
-                    <input type="text" id="wd-account-number" class="cm-input" style="width:100%;" placeholder="10-digit Account Number">
+                    <input type="text" id="wd-account-number" class="cm-input" style="width:100%;"
+                        placeholder="10-digit Account Number">
                 </div>
                 <div class="cm-group mb-3">
                     <label>Account Name</label>
-                    <input type="text" id="wd-account-name" class="cm-input" style="width:100%;" placeholder="Registered Account Name">
+                    <input type="text" id="wd-account-name" class="cm-input" style="width:100%;"
+                        placeholder="Registered Account Name">
                 </div>
             </div>
             <div class="cm-footer">
@@ -315,17 +318,20 @@
             const err = document.getElementById('wd-error');
             const btn = document.getElementById('btn-confirm-wd');
 
+            const availableText = document.querySelector('.cm-balance-info .text-gold').innerText;
+            const maxVal = parseInt(availableText) || 0;
+
             // Withdrawal 1 SC = 10 NGN
             const ngnEquiv = val * 10;
             const convEl = document.getElementById('wd-conversion');
-            if (convEl) convEl.innerText = ngnEquiv.toLocaleString() + ' &#8358;';
+            if (convEl) convEl.innerHTML = ngnEquiv.toLocaleString() + ' &#8358;';
 
-            if (val > 0) {
+            if (val > maxVal) {
                 err.style.display = 'block';
-                err.innerText = "These funds are currently locked or unavailable.";
+                err.innerText = "Amount exceeds withdrawable balance!";
                 btn.disabled = true;
                 btn.classList.add('btn-disabled');
-            } else if (val <= 0) {
+            } else if (val <= 0 || isNaN(val)) {
                 err.style.display = 'none';
                 btn.disabled = true;
                 btn.classList.add('btn-disabled');
@@ -449,7 +455,7 @@
                     document.querySelectorAll('.dash-stat-card')[0].querySelector('.stat-value').innerText = `${rSc} SC`; // Available
                     document.querySelectorAll('.dash-stat-card')[1].querySelector('.stat-value').innerText = `${bSc} SC`; // Bonus
                     document.querySelectorAll('.dash-stat-card')[2].querySelector('.stat-value').innerText = `${lockedSc} SC`; // Locked
-                    
+
                     const unlockBanner = document.querySelector('.cm-info-banner');
                     if (unlockBanner) {
                         if (lockedSc > 0) {
