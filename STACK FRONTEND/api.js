@@ -543,7 +543,7 @@ const api = {
         const query = `
             query {
                 openMatches {
-                    id gameTitle entryFeeSc matchType status host { id email gamerTag }
+                    id gameTitle entryFeeSc updatedAt matchType status host { id email gamerTag }
                 }
             }
         `;
@@ -554,7 +554,7 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc roomId roomLink roomPass
+                    id status gameTitle matchType entryFeeSc updatedAt roomId  roomLink roomPass
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
                     hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
