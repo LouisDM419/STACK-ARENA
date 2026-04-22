@@ -1112,6 +1112,54 @@ const app = {
                             <i class="fas fa-unlock"></i> Opponent has reported. You may now submit your result.
                         </div>
                     `;
+                    // } else {
+                    //     html += `
+                    //         <div id="report-timer-msg-${match.id}" style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 15px; font-weight: bold; text-align: center;">
+                    //             <i class="fas fa-clock fa-spin me-1"></i> Buttons unlock in <span id="report-countdown-${match.id}">10:00</span>
+                    //         </div>
+                    //     `;
+
+                    //     setTimeout(() => {
+                    //         const serverTimestamp = match.updatedAt || match.updated_at;
+
+                    //         if (!serverTimestamp) return;
+
+                    //         const unlockTime = new Date(serverTimestamp).getTime() + (600 * 1000);
+
+                    //         const countdownInterval = setInterval(() => {
+                    //             const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
+                    //             const display = document.getElementById(`report-countdown-${match.id}`);
+
+                    //             if (!btnContainer && !display) {
+                    //                 clearInterval(countdownInterval);
+                    //                 return;
+                    //             }
+
+                    //             const timeLeft = Math.floor((unlockTime - Date.now()) / 1000);
+
+                    //             if (display && timeLeft > 0) {
+                    //                 const minutes = Math.floor(timeLeft / 60);
+                    //                 const seconds = timeLeft % 60;
+                    //                 display.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    //             }
+
+                    //             if (timeLeft <= 0) {
+                    //                 clearInterval(countdownInterval);
+
+                    //                 const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
+
+                    //                 if (btnContainer) {
+                    //                     btnContainer.style.opacity = '1';
+                    //                     btnContainer.style.pointerEvents = 'auto';
+                    //                 }
+                    //                 if (timerMsg) {
+                    //                     timerMsg.innerHTML = '<span style="color:#00C851;"><i class="fas fa-unlock"></i> You may now report your result.</span>';
+                    //                 }
+                    //             }
+                    //         }, 1000);
+                    //     }, 100);
+                    // }
+
                 } else {
                     html += `
                         <div id="report-timer-msg-${match.id}" style="color: var(--accent-orange); font-size: 0.9rem; margin-top: 15px; font-weight: bold; text-align: center;">
@@ -1119,19 +1167,27 @@ const app = {
                         </div>
                     `;
 
+
                     setTimeout(() => {
                         const serverTimestamp = match.updatedAt || match.updated_at;
 
-                        if (!serverTimestamp) return;
+                        if (!serverTimestamp) {
+                            console.error("Missing timestamp! The timer cannot start.");
+                            return;
+                        }
 
                         const unlockTime = new Date(serverTimestamp).getTime() + (600 * 1000);
 
-                        const countdownInterval = setInterval(() => {
+                        if (window[`matchTimer_${match.id}`]) {
+                            clearInterval(window[`matchTimer_${match.id}`]);
+                        }
+
+                        window[`matchTimer_${match.id}`] = setInterval(() => {
                             const btnContainer = document.getElementById(`report-buttons-container-${match.id}`);
                             const display = document.getElementById(`report-countdown-${match.id}`);
 
                             if (!btnContainer && !display) {
-                                clearInterval(countdownInterval);
+                                clearInterval(window[`matchTimer_${match.id}`]);
                                 return;
                             }
 
@@ -1144,10 +1200,9 @@ const app = {
                             }
 
                             if (timeLeft <= 0) {
-                                clearInterval(countdownInterval);
+                                clearInterval(window[`matchTimer_${match.id}`]);
 
                                 const timerMsg = document.getElementById(`report-timer-msg-${match.id}`);
-
                                 if (btnContainer) {
                                     btnContainer.style.opacity = '1';
                                     btnContainer.style.pointerEvents = 'auto';
@@ -1159,6 +1214,8 @@ const app = {
                         }, 1000);
                     }, 100);
                 }
+
+
             }
         }
         else if (match.status === 'COMPLETED') {
