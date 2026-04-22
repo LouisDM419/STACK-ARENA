@@ -362,7 +362,7 @@
 
                     const zeroBalAlert = document.getElementById('zero-balance-alert');
                     if (zeroBalAlert) {
-                        if (realSc > 0) zeroBalAlert.style.display = 'none';
+                        if (profileData.hasMadeFirstDeposit || realSc > 0) zeroBalAlert.style.display = 'none';
                         else zeroBalAlert.style.display = 'flex';
                     }
 
@@ -533,7 +533,7 @@
                                 const iconStr = isPositive ? '<i class="fas fa-arrow-down text-green"></i>' : '<i class="fas fa-arrow-up" style="color:#ff4444;"></i>';
                                 const amtColor = isPositive ? 'text-green' : 'text-red';
                                 const amtSign = isPositive ? '+' : '-';
-                                const dateStr = item.createdAt ? new Date(parseInt(item.createdAt)).toLocaleDateString() : 'Today';
+                                const dateStr = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Today';
 
                                 return `
                                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
