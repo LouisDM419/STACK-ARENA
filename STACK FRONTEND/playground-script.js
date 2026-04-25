@@ -17,6 +17,34 @@ const app = {
             const res = await window.api.myProfile();
             appState.currentUser = res?.myProfile || res;
             this.updateBalances();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const flwStatus = urlParams.get('status');
+
+            if (flwStatus) {
+                // Instantly wipe the URL parameters so they disappear from the browser address bar.
+                // This prevents the user from refreshing the page and triggering this logic twice.
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                if (flwStatus === 'successful' || flwStatus === 'completed') {
+                    // The webhook handled the math. We just handle the UX.
+                    this.showToast("Deposit Successful! Validating funds...", "success");
+
+                    // Wait 2 seconds for the Flutterwave backend webhook to hit your Django server, 
+                    // then aggressively refresh the profile to pull the new real_sc balance.
+                    setTimeout(async () => {
+                        const freshRes = await window.api.myProfile();
+                        appState.currentUser = freshRes?.myProfile || freshRes;
+                        this.updateBalances();
+                    }, 2000);
+                } else {
+                    this.showToast("Deposit was cancelled or failed.", "error");
+                }
+            }
+
+
+
+
             if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
                 Notification.requestPermission();
             }
@@ -33,7 +61,9 @@ const app = {
                 }
             });
             this.navigate('lobby');
-            const urlParams = new URLSearchParams(window.location.search);
+
+            // const urlParams = new URLSearchParams(window.location.search);
+
             const challengeTarget = urlParams.get('challenge');
 
             // if (challengeTarget) {
@@ -745,7 +775,7 @@ const app = {
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
         document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Practice SC');
-        
+
         const detailsRulesEl = document.getElementById('details-rules');
         if (detailsRulesEl) {
             detailsRulesEl.innerText = match.rules || "No custom rules provided.";
