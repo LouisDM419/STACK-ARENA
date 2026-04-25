@@ -98,6 +98,7 @@
 <body>
     <div class="card-wrapper">
     <div class="social-card" id="card-node">
+        <img id="card-bg-img" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; display: none;" crossorigin="anonymous">
         <div class="glass-overlay">
             <div class="card-header">
                 <img src="assets/star-logo.svg" alt="STAR">
@@ -116,7 +117,8 @@
             
             <div class="footer-content">
                 <div class="match-outcome-footer">Promotion Secured</div>
-                <div class="card-quote" id="random-quote">"Levels to this game."</div>
+                <div class="card-quote" id="random-quote">"New heights reached."</div>
+                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 15px; font-weight: 600; letter-spacing: 1px;">PLAYSTACKARENA.COM</div>
             </div>
         </div>
     </div>
@@ -153,7 +155,7 @@
             document.getElementById('preview-container').innerHTML = '<p style="color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Generating...</p>';
             
             setTimeout(() => {
-                html2canvas(card, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
+                html2canvas(card, { backgroundColor: null, scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
                     const imgUrl = canvas.toDataURL("image/png");
                     document.getElementById('preview-container').innerHTML = `<img src="${imgUrl}" alt="Card Preview" style="width: 100%; max-width: 200px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">`;
                     window.cardImageURL = imgUrl; 
@@ -185,12 +187,12 @@
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({ 
                         title: 'Stack Arena Result', 
-                        text: 'Look at my latest Stack Arena match! ðŸ”¥', 
+                        text: 'Look at my latest Stack Arena match! 🔥', 
                         files: [file] 
                     }).catch(e => console.log('Share canceled:', e));
                 } else {
                     if (platform === 'whatsapp') { 
-                        window.open(`https://api.whatsapp.com/send?text=Look at this match! ðŸ”¥ ` + window.location.href); 
+                        window.open(`https://api.whatsapp.com/send?text=Check out my rank! 🔥 ` + 'https://playstackarena.com'); 
                     } else { 
                         alert(`Direct posting to ${platform} usually requires the mobile app's native integration. Please click 'Download', then upload the image to your ${platform} story!`); 
                     }
@@ -209,10 +211,19 @@
                 const profile = _profileRes?.myProfile || _profileRes;
                 if (!profile) return window.location.href = 'login.html';
                 
-                if (profile.avatarUrl) {
-                    document.getElementById('card-node').style.backgroundImage = `url('${profile.avatarUrl}')`;
-                }
-                
+                try {
+                    const response = await fetch(profile.avatarUrl);
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        document.getElementById('card-bg-img').src = reader.result;
+                        document.getElementById('card-bg-img').style.display = 'block';
+                    };
+                    reader.readAsDataURL(blob);
+                } catch(err) {
+                    document.getElementById('card-bg-img').src = profile.avatarUrl;
+                    document.getElementById('card-bg-img').style.display = 'block';
+                }              
                 document.getElementById('card-player-name').innerText = profile.gamerTag || 'UNKNOWN';
                 
                 const rp = profile.rankPoints || 0;

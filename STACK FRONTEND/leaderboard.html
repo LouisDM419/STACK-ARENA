@@ -46,7 +46,7 @@
                 <!-- Search removed -->
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Practice SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -338,7 +338,7 @@
                     const bonusSc = Number(profile.bonusSc || profile.practiceCredits) || 0;
                     const walletBalNode = document.querySelector('.wallet-bal');
                     if (walletBalNode) {
-                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc + lockedSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusSc} Bonus SC)</span>`;
+                        walletBalNode.innerHTML = `<i class="fas fa-coins text-gold"></i> ${realSc + lockedSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusSc} Practice SC)</span>`;
                     }
 
                     const curUsernameNode = document.querySelector('.cur-user-details .cur-username');

@@ -44,7 +44,7 @@
                 <!-- Search removed -->
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Practice SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -250,7 +250,7 @@
                                     <div class="setting-row flex-between mb-3 border-bottom pb-3">
                                         <div>
                                             <h4 style="margin-bottom: 5px;">Promotions & Rewards</h4>
-                                            <div class="text-muted" style="font-size: 0.85rem;">Bonus SC, leaderboards,
+                                            <div class="text-muted" style="font-size: 0.85rem;">Practice SC, leaderboards,
                                                 and seasonal rewards.</div>
                                         </div>
                                         <label class="switch"><input type="checkbox" checked
@@ -371,39 +371,6 @@
     <script src="script.js"></script>
     <script>
         // Settings Data Loading
-        // async function loadSettingsData() {
-        //     try {
-        //         const profile = await window.api.myProfile();
-        //         if (profile) {
-        //             const totalSc = profile.realSc + profile.bonusSc;
-        //             const balEl = document.querySelector('.wallet-bal');
-        //             if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalSc} SC`;
-
-        //             if (profile.gamerTag) document.getElementById('username-input').value = profile.gamerTag;
-        //             if (profile.bankName) {
-        //                 const bni = document.getElementById('bank-name-input');
-        //                 if (bni) bni.value = profile.bankName;
-        //             }
-        //             if (profileData.avatarUrl) {
-        //                 const imgTag = `<img src="${profileData.avatarUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-        //                 document.getElementById('profile-avatar-preview').innerHTML = imgTag;
-
-        //                 const headerAvatar = document.getElementById('global-header-avatar');
-        //                 if (headerAvatar) headerAvatar.innerHTML = imgTag;
-        //             }
-        //             if (profile.accountNumber) {
-        //                 const ani = document.getElementById('account-number-input');
-        //                 if (ani) ani.value = profile.accountNumber;
-        //             }
-        //             if (profile.accountName) {
-        //                 const accni = document.getElementById('account-name-input');
-        //                 if (accni) accni.value = profile.accountName;
-        //             }
-        //         }
-        //     } catch (e) { console.error("Settings load error", e); }
-        // }
-
-        // Settings Data Loading
         async function loadSettingsData() {
             try {
                 const profile = await window.api.myProfile();
@@ -416,7 +383,7 @@
                     const b = isNaN(profileData.bonusSc) || profileData.bonusSc === null ? 0 : profileData.bonusSc;
 
                     const balEl = document.querySelector('.wallet-bal');
-                    if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Bonus SC)</span>`;
+                    if (balEl) balEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Practice SC)</span>`;
 
                     // --- AVATAR RENDERING ---
                     if (profileData.avatarUrl) {

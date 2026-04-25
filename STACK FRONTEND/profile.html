@@ -193,7 +193,7 @@
                 </div>
                 <div class="header-actions">
                     <div class="wallet-bal">
-                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
+                        <i class="fas fa-coins text-gold"></i> 0 SC <span style="font-size: 0.85em; color: var(--text-muted);">(0 Practice SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -300,7 +300,7 @@
                         const r = isNaN(pData.realSc) || pData.realSc === null ? 0 : pData.realSc;
                         const l = isNaN(pData.lockedSc) || pData.lockedSc === null ? 0 : pData.lockedSc;
                         const b = isNaN(pData.bonusSc) || pData.bonusSc === null ? 0 : pData.bonusSc;
-                        document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Bonus SC)</span>`;
+                        document.querySelector('.wallet-bal').innerHTML = `<i class="fas fa-coins text-gold"></i> ${r + l} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${b} Practice SC)</span>`;
                     }
 
                     if (pData.avatarUrl && document.getElementById('global-header-avatar')) {
@@ -386,7 +386,7 @@
 
                                     const resultText = m.status === 'DISPUTED' ? 'DISPUTED' : (isWin ? 'VICTORY' : 'DEFEAT');
                                     const resultColor = m.status === 'DISPUTED' ? '#ff9800' : (isWin ? '#00C851' : '#ff4444');
-                                    const currency = m.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+                                    const currency = m.matchType === 'RANKED' ? 'SC' : 'Practice SC';
                                     const pot = m.entryFeeSc * 2;
 
                                     historyHtml += `

@@ -569,7 +569,7 @@ function calculateSummary() {
 
     if (currentMatchType === 'practice') {
         activeBal = playerState.bonusBalance;
-        if (availBalEl) availBalEl.innerHTML = `<i class="fas fa-gift text-blue"></i> ${activeBal} Bonus SC`;
+        if (availBalEl) availBalEl.innerHTML = `<i class="fas fa-gift text-blue"></i> ${activeBal} Practice SC`;
         if (riskBadge) {
             riskBadge.className = 'risk-indicator risk-low';
             riskBadge.innerText = 'Low Risk';

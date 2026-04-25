@@ -54,7 +54,7 @@
                 <div class="header-actions">
                     <div class="wallet-bal">
                         <i class="fas fa-coins text-gold"></i> 0 SC <span
-                            style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
+                            style="font-size: 0.85em; color: var(--text-muted);">(0 Practice SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -370,7 +370,7 @@
                     if (headerBalEl) {
                         const totalMainSc = realSc + (Number(profileData.lockedSc) || 0);
                         const bonusScDisplay = Number(profileData.bonusSc || profileData.practiceCredits) || 0;
-                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalMainSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusScDisplay} Bonus SC)</span>`;
+                        headerBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalMainSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bonusScDisplay} Practice SC)</span>`;
                     }
 
                     const statCards = document.querySelectorAll('.dash-stat-card');

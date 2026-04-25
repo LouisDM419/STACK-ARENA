@@ -169,7 +169,7 @@ const app = {
         if (lobbyBonus) lobbyBonus.innerText = bSc;
 
         const topBarBal = document.querySelector('.wallet-bal');
-        if (topBarBal) topBarBal.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalPlayable} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bSc} Bonus SC)</span>`;
+        if (topBarBal) topBarBal.innerHTML = `<i class="fas fa-coins text-gold"></i> ${totalPlayable} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bSc} Practice SC)</span>`;
 
         if (profile.avatarUrl) {
             const rawUrl = profile.avatarUrl;
@@ -339,7 +339,7 @@ const app = {
         const badgeCls = isPendingChallenge ? 'badge-disputed' : this.getBadgeClass(match.status);
         const statusText = isPendingChallenge ? 'CHALLENGED YOU' : this.statusIndicator(match.status);
 
-        const currency = match.matchType === 'RANKED' ? 'SC' : 'Bonus SC';
+        const currency = match.matchType === 'RANKED' ? 'SC' : 'Practice SC';
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
 
@@ -740,10 +740,15 @@ const app = {
         }
 
         document.getElementById('details-game').innerText = match.gameTitle;
-        document.getElementById('details-stake').innerText = match.entryFeeSc + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+        document.getElementById('details-stake').innerText = match.entryFeeSc + (match.matchType === 'RANKED' ? ' SC' : ' Practice SC');
         const pot = match.entryFeeSc * 2;
         const reward = match.matchType === 'RANKED' ? (pot - Math.floor(pot * 0.1)) : pot;
-        document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Bonus SC');
+        document.getElementById('details-reward').innerText = reward + (match.matchType === 'RANKED' ? ' SC' : ' Practice SC');
+        
+        const detailsRulesEl = document.getElementById('details-rules');
+        if (detailsRulesEl) {
+            detailsRulesEl.innerText = match.rules || "No custom rules provided.";
+        }
 
         const roomCard = document.getElementById('details-room-card');
         if (['IN_PROGRESS', 'REPORTING', 'COMPLETED', 'DISPUTED'].includes(match.status)) {

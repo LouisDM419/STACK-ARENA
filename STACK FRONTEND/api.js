@@ -543,7 +543,7 @@ const api = {
         const query = `
             query {
                 openMatches {
-                    id gameTitle entryFeeSc updatedAt matchType status host { id email gamerTag }
+                    id gameTitle entryFeeSc updatedAt matchType status rules host { id email gamerTag }
                 }
             }
         `;
@@ -554,7 +554,7 @@ const api = {
         const query = `
             query {
                 myMatches {
-                    id status gameTitle matchType entryFeeSc updatedAt roomId  roomLink roomPass
+                    id status gameTitle matchType entryFeeSc updatedAt rules roomId  roomLink roomPass
                     hostClaimedWin guestClaimedWin hostProofUrl guestProofUrl
                     hostReady guestReady
                     host { id gamerTag } guest { id gamerTag } winner { id gamerTag }
@@ -580,7 +580,7 @@ const api = {
         const query = `
             query GlobalLeaderboard($limit: Int) {
                 globalLeaderboard(limit: $limit) {
-                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc
+                    gamerTag totalMatches wins winRate rankPoints realSc lockedSc avatarUrl
                 }
             }
         `;

@@ -46,7 +46,7 @@
                 <div class="header-actions">
                     <div class="wallet-bal">
                         <i class="fas fa-coins text-gold"></i> 0 SC <span
-                            style="font-size: 0.85em; color: var(--text-muted);">(0 Bonus SC)</span>
+                            style="font-size: 0.85em; color: var(--text-muted);">(0 Practice SC)</span>
                     </div>
                     <div class="notification-wrapper" style="position: relative;">
                         <button class="icon-btn notification-btn" id="btn-notifications"
@@ -467,7 +467,7 @@
                     }
 
                     const walletBalEl = document.querySelector('.wallet-bal');
-                    if (walletBalEl) walletBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${rSc + lockedSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bSc} Bonus SC)</span>`;
+                    if (walletBalEl) walletBalEl.innerHTML = `<i class="fas fa-coins text-gold"></i> ${rSc + lockedSc} SC <span style="font-size: 0.85em; color: var(--text-muted);">(${bSc} Practice SC)</span>`;
                     const cmBalInfoEl = document.querySelector('.cm-balance-info .text-gold');
                     if (cmBalInfoEl) cmBalInfoEl.innerText = `${rSc} SC`; // Withdraw modal
 
