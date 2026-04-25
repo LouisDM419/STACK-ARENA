@@ -376,6 +376,7 @@ const app = {
                     <strong style="color: var(--accent-gold); font-size: 1.1rem;">${window.escapeHTML(String(reward))} ${window.escapeHTML(currency)}</strong>
                 </div>
             </div>
+            ${match.rules ? `<div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; border-left: 2px solid var(--accent-blue);"><strong style="color:#fff;">Rules:</strong> ${window.escapeHTML(match.rules)}</div>` : ''}
             ${btnHtml}
         </div>`;
     },
