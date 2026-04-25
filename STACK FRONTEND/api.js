@@ -1,5 +1,10 @@
 const IS_PRODUCTION = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
+
+if (IS_PRODUCTION && window.location.protocol === 'http:') {
+    window.location.href = window.location.href.replace('http:', 'https:');
+}
+
 const BASE_URL = IS_PRODUCTION
     ? 'https://playstackarena.com'
     : 'http://localhost:8000';
