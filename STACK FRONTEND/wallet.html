@@ -359,6 +359,7 @@
             try {
                 const res = await window.api.initializeDeposit(amt);
                 if (res && res.initializeDeposit && res.initializeDeposit.authorizationUrl) {
+                    sessionStorage.setItem('fw_redirect', 'true');
                     window.location.href = res.initializeDeposit.authorizationUrl;
                 } else {
                     throw new Error("Invalid checkout response from server.");
