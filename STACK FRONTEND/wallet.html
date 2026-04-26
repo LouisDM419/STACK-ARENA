@@ -377,14 +377,14 @@
             const btn = document.getElementById('btn-confirm-wd');
             const amt = parseInt(document.getElementById('wd-amount').value);
 
-            const bankCode = document.getElementById('wd-bank-code').value;
-            const accountNumber = document.getElementById('wd-account-number').value;
-            const accountName = document.getElementById('wd-account-name').value;
+            // const bankCode = document.getElementById('wd-bank-code').value;
+            // const accountNumber = document.getElementById('wd-account-number').value;
+            // const accountName = document.getElementById('wd-account-name').value;
 
-            if (!bankCode || !accountNumber || !accountName) {
-                alert("Please provide your bank code, account number, and account name.");
-                return;
-            }
+            // if (!bankCode || !accountNumber || !accountName) {
+            //     alert("Please provide your bank code, account number, and account name.");
+            //     return;
+            // }
 
             btn.classList.add('btn-loading');
             btn.innerHTML = 'Requesting... <i class="fas fa-spinner fa-spin ms-2"></i>';
