@@ -399,12 +399,13 @@
             const btn = document.getElementById('btn-confirm-wd');
             const amt = parseInt(document.getElementById('wd-amount').value);
 
+            // UNCOMMENTED AND ACTIVE
             const bankCode = document.getElementById('wd-bank-code').value;
             const accountNumber = document.getElementById('wd-account-number').value;
             const accountName = document.getElementById('wd-account-name').value;
 
             if (!bankCode || !accountNumber || !accountName) {
-                alert("Please provide your bank, account number, and account name.");
+                alert("Please select a bank, and provide your account number and account name.");
                 return;
             }
 
@@ -413,7 +414,6 @@
             btn.disabled = true;
 
             try {
-                // Call actual withdrawal logic
                 await window.api.requestWithdrawal(amt, bankCode, accountNumber, accountName);
 
                 closeWalletModal('withdraw-modal');
@@ -440,6 +440,52 @@
                 btn.classList.remove('btn-loading');
             }
         }
+
+        // async function processWithdraw() {
+        //     const btn = document.getElementById('btn-confirm-wd');
+        //     const amt = parseInt(document.getElementById('wd-amount').value);
+
+        //     const bankCode = document.getElementById('wd-bank-code').value;
+        //     const accountNumber = document.getElementById('wd-account-number').value;
+        //     const accountName = document.getElementById('wd-account-name').value;
+
+        //     if (!bankCode || !accountNumber || !accountName) {
+        //         alert("Please provide your bank, account number, and account name.");
+        //         return;
+        //     }
+
+        //     btn.classList.add('btn-loading');
+        //     btn.innerHTML = 'Requesting... <i class="fas fa-spinner fa-spin ms-2"></i>';
+        //     btn.disabled = true;
+
+        //     try {
+        //         // Call actual withdrawal logic
+        //         await window.api.requestWithdrawal(amt, bankCode, accountNumber, accountName);
+
+        //         closeWalletModal('withdraw-modal');
+
+        //         const toast = document.createElement('div');
+        //         toast.className = 'toast show';
+        //         toast.style.background = '#25D366';
+        //         toast.style.position = 'fixed';
+        //         toast.style.bottom = '20px';
+        //         toast.style.right = '20px';
+        //         toast.style.padding = '15px 25px';
+        //         toast.style.borderRadius = '8px';
+        //         toast.style.color = '#fff';
+        //         toast.style.zIndex = '9999';
+        //         toast.innerHTML = '<i class="fas fa-check-circle me-2"></i> Withdrawal request submitted!';
+        //         document.body.appendChild(toast);
+        //         setTimeout(() => toast.remove(), 3000);
+        //     } catch (err) {
+        //         console.error(err);
+        //         alert("Withdrawal failed: " + err.message);
+        //     } finally {
+        //         btn.innerHTML = 'Request Withdrawal';
+        //         btn.disabled = false;
+        //         btn.classList.remove('btn-loading');
+        //     }
+        // }
 
         // Automated data loading
         async function fetchWalletData() {
@@ -577,6 +623,7 @@
 
             // Fetch live API data on load
             fetchWalletData();
+            loadBanks();
         });
     </script>
 
