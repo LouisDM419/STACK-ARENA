@@ -258,10 +258,12 @@
                     style="display:none; color: #ff4444; font-size: 0.85rem; margin-bottom: 15px;">Amount exceeds
                     withdrawable balance!</div>
 
-                <!-- <div class="cm-group mb-3 mt-3">
-                    <label>Bank Code</label>
-                    <input type="text" id="wd-bank-code" class="cm-input" style="width:100%;"
-                        placeholder="e.g. 044 (Access Bank)">
+                <div class="cm-group mb-3 mt-3">
+                    <label>Select Bank</label>
+                    <select id="wd-bank-code" class="cm-input"
+                        style="width:100%; background: var(--bg-darker); color: #fff;">
+                        <option value="">Loading banks...</option>
+                    </select>
                 </div>
                 <div class="cm-group mb-3">
                     <label>Account Number</label>
@@ -272,7 +274,7 @@
                     <label>Account Name</label>
                     <input type="text" id="wd-account-name" class="cm-input" style="width:100%;"
                         placeholder="Registered Account Name">
-                </div> -->
+                </div>
             </div>
             <div class="cm-footer">
                 <button class="btn btn-primary full-width btn-disabled" id="btn-confirm-wd" disabled
@@ -373,18 +375,38 @@
             }
         }
 
+        async function loadBanks() {
+            try {
+                const res = await window.api.getSupportedBanks();
+                const bankSelect = document.getElementById('wd-bank-code');
+
+                if (res && res.getSupportedBanks && res.getSupportedBanks.length > 0) {
+                    // Sort banks alphabetically for better UX
+                    const sortedBanks = res.getSupportedBanks.sort((a, b) => a.name.localeCompare(b.name));
+
+                    bankSelect.innerHTML = '<option value="">Select your bank...</option>' +
+                        sortedBanks.map(b => `<option value="${b.code}">${b.name}</option>`).join('');
+                } else {
+                    bankSelect.innerHTML = '<option value="">Failed to load banks</option>';
+                }
+            } catch (err) {
+                console.error("Error loading banks:", err);
+                document.getElementById('wd-bank-code').innerHTML = '<option value="">Error loading banks</option>';
+            }
+        }
+
         async function processWithdraw() {
             const btn = document.getElementById('btn-confirm-wd');
             const amt = parseInt(document.getElementById('wd-amount').value);
 
-            // const bankCode = document.getElementById('wd-bank-code').value;
-            // const accountNumber = document.getElementById('wd-account-number').value;
-            // const accountName = document.getElementById('wd-account-name').value;
+            const bankCode = document.getElementById('wd-bank-code').value;
+            const accountNumber = document.getElementById('wd-account-number').value;
+            const accountName = document.getElementById('wd-account-name').value;
 
-            // if (!bankCode || !accountNumber || !accountName) {
-            //     alert("Please provide your bank code, account number, and account name.");
-            //     return;
-            // }
+            if (!bankCode || !accountNumber || !accountName) {
+                alert("Please provide your bank, account number, and account name.");
+                return;
+            }
 
             btn.classList.add('btn-loading');
             btn.innerHTML = 'Requesting... <i class="fas fa-spinner fa-spin ms-2"></i>';

@@ -637,6 +637,16 @@ const api = {
         `;
         return await graphqlRequest(query, { amountNgn });
     },
+    async getSupportedBanks() {
+        const query = `
+            query {
+                getSupportedBanks {
+                    id code name
+                }
+            }
+        `;
+        return await graphqlRequest(query);
+    },
 
     async requestWithdrawal(amountSc, bankCode, accountNumber, accountName) {
         const query = `
