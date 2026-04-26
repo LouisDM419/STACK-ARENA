@@ -648,6 +648,15 @@ const api = {
         return await graphqlRequest(query);
     },
 
+    async cancelPendingDeposit(reference) {
+        const query = `
+            mutation CancelPendingDeposit($reference: String!) {
+                cancelPendingDeposit(reference: $reference)
+            }
+        `;
+        return await graphqlRequest(query, { reference });
+    },
+
     async requestWithdrawal(amountSc, bankCode, accountNumber, accountName) {
         const query = `
             mutation RequestWithdrawal($input: RequestWithdrawalInput!) {

@@ -260,27 +260,36 @@
 
                 <div class="cm-group mb-3 mt-3">
                     <label>Select Bank</label>
-                    <select id="wd-bank-code" class="cm-input"
-                        style="width:100%; background: var(--bg-darker); color: #fff;">
-                        <option value="">Loading banks...</option>
-                    </select>
-                </div>
-                <div class="cm-group mb-3">
-                    <label>Account Number</label>
-                    <input type="text" id="wd-account-number" class="cm-input" style="width:100%;"
-                        placeholder="10-digit Account Number">
-                </div>
-                <div class="cm-group mb-3">
-                    <label>Account Name</label>
-                    <input type="text" id="wd-account-name" class="cm-input" style="width:100%;"
-                        placeholder="Registered Account Name">
+                    <div class="searchable-dropdown" style="position: relative;">
+                        <input type="hidden" id="wd-bank-code" value="">
+
+                        <input type="text" id="wd-bank-search" class="cm-input" style="width:100%; cursor: text;"
+                            placeholder="Search for your bank..." autocomplete="off">
+
+                        <div id="wd-bank-list"
+                            style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1a1a24; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 1000; margin-top: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+                            <div style="padding: 15px; color: var(--text-muted); text-align: center;"><i
+                                    class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="cm-footer">
-                <button class="btn btn-primary full-width btn-disabled" id="btn-confirm-wd" disabled
-                    onclick="processWithdraw()" style="padding:15px; font-size:1.1rem;">Request Withdrawal</button>
+            <div class="cm-group mb-3">
+                <label>Account Number</label>
+                <input type="text" id="wd-account-number" class="cm-input" style="width:100%;"
+                    placeholder="10-digit Account Number">
+            </div>
+            <div class="cm-group mb-3">
+                <label>Account Name</label>
+                <input type="text" id="wd-account-name" class="cm-input" style="width:100%;"
+                    placeholder="Registered Account Name">
             </div>
         </div>
+        <div class="cm-footer">
+            <button class="btn btn-primary full-width btn-disabled" id="btn-confirm-wd" disabled
+                onclick="processWithdraw()" style="padding:15px; font-size:1.1rem;">Request Withdrawal</button>
+        </div>
+    </div>
     </div>
 
     <!-- Scripts -->
@@ -375,26 +384,51 @@
             }
         }
 
+        let allBanks = []; // Global store for the filter engine
+
         async function loadBanks() {
             try {
                 const res = await window.api.getSupportedBanks();
-                const bankSelect = document.getElementById('wd-bank-code');
+                const bankListEl = document.getElementById('wd-bank-list');
 
                 if (res && res.getSupportedBanks && res.getSupportedBanks.length > 0) {
-                    // Sort banks alphabetically for better UX
-                    const sortedBanks = res.getSupportedBanks.sort((a, b) => a.name.localeCompare(b.name));
-
-                    bankSelect.innerHTML = '<option value="">Select your bank...</option>' +
-                        sortedBanks.map(b => `<option value="${b.code}">${b.name}</option>`).join('');
+                    allBanks = res.getSupportedBanks.sort((a, b) => a.name.localeCompare(b.name));
+                    renderBankList(allBanks);
                 } else {
-                    bankSelect.innerHTML = '<option value="">Failed to load banks</option>';
+                    bankListEl.innerHTML = '<div style="padding: 15px; color: #ff4444; text-align: center;">Failed to load banks</div>';
                 }
             } catch (err) {
                 console.error("Error loading banks:", err);
-                document.getElementById('wd-bank-code').innerHTML = '<option value="">Error loading banks</option>';
+                document.getElementById('wd-bank-list').innerHTML = '<div style="padding: 15px; color: #ff4444; text-align: center;">Error connecting to gateway</div>';
             }
         }
 
+        function renderBankList(banks) {
+            const bankListEl = document.getElementById('wd-bank-list');
+
+            if (banks.length === 0) {
+                bankListEl.innerHTML = '<div style="padding: 15px; color: var(--text-muted); text-align: center;">No banks found.</div>';
+                return;
+            }
+
+            bankListEl.innerHTML = banks.map(b => `
+                <div class="bank-option" data-code="${b.code}" data-name="${b.name}" style="padding: 12px 15px; cursor: pointer; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;">
+                    ${b.name}
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.bank-option').forEach(opt => {
+                opt.addEventListener('click', function () {
+                    document.getElementById('wd-bank-code').value = this.dataset.code;
+                    document.getElementById('wd-bank-search').value = this.dataset.name;
+
+                    bankListEl.style.display = 'none';
+                });
+
+                opt.addEventListener('mouseover', function () { this.style.background = 'rgba(255,255,255,0.1)'; });
+                opt.addEventListener('mouseout', function () { this.style.background = 'transparent'; });
+            });
+        }
         async function processWithdraw() {
             const btn = document.getElementById('btn-confirm-wd');
             const amt = parseInt(document.getElementById('wd-amount').value);
@@ -552,12 +586,14 @@
                     }
                 }
 
-                // Fetch history
-                const history = await window.api.myWalletHistory();
+
+                const historyData = await window.api.myWalletHistory();
+                const history = historyData?.myWalletHistory || [];
+
                 const txList = document.getElementById('tx-list');
                 const emptyState = document.getElementById('tx-empty');
 
-                if (history && history.length > 0) {
+                if (history.length > 0) {
                     emptyState.style.display = 'none';
                     txList.innerHTML = history.map(tx => {
                         let icon = 'fa-exchange-alt';
@@ -621,7 +657,31 @@
                 });
             }
 
-            // Fetch live API data on load
+            const searchInput = document.getElementById('wd-bank-search');
+            const bankListEl = document.getElementById('wd-bank-list');
+
+            if (searchInput) {
+                searchInput.addEventListener('focus', () => {
+                    bankListEl.style.display = 'block';
+                    renderBankList(allBanks);
+                });
+
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const filtered = allBanks.filter(b => b.name.toLowerCase().includes(term));
+                    renderBankList(filtered);
+                    bankListEl.style.display = 'block';
+
+                    document.getElementById('wd-bank-code').value = '';
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.searchable-dropdown')) {
+                        bankListEl.style.display = 'none';
+                    }
+                });
+            }
+
             fetchWalletData();
             loadBanks();
         });
